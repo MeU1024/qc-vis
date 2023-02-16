@@ -5,6 +5,7 @@ import DetailPanel from "./containers/DetailPanel";
 import DataFlowPanel from "./containers/DataFlowPanel";
 import ParamPanel from "./containers/ParamPanel";
 import "./App.scss";
+import { useEffect } from "react";
 
 function App() {
   function handleHowdyClick() {

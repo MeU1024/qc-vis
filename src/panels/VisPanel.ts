@@ -53,7 +53,7 @@ export class VisPanel {
         // Panel view type
         "showHelloWorld",
         // Panel title
-        "Hello World",
+        "QcVis",
         // The editor column the panel should be displayed in
         ViewColumn.One,
         // Extra panel configurations
@@ -72,6 +72,16 @@ export class VisPanel {
     }
   }
 
+  public static getCurrentPanel() {
+    return VisPanel.currentPanel?._panel;
+  }
+
+  public static updateHighlight(id: string) {
+    VisPanel.currentPanel?._panel.webview.postMessage({
+      command: "update",
+      text: id,
+    });
+  }
   /**
    * Cleans up and disposes of webview resources when the webview panel is closed.
    */
@@ -136,7 +146,9 @@ export class VisPanel {
           <body>
             <noscript>You need to enable JavaScript to run this app.</noscript>
             <div id="root"></div>
-            <script nonce="${nonce}" src="${scriptUri}"></script>
+            <script nonce="${nonce}" src="${scriptUri}">
+           
+          </script>
           </body>
         </html>
       `;
@@ -154,7 +166,7 @@ export class VisPanel {
       (message: any) => {
         const command = message.command;
         const text = message.text;
-
+        //window.showInformationMessage(message);
         switch (command) {
           case "hello":
             // Code that should run in response to the hello message command

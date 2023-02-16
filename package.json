@@ -17,34 +17,51 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "circuit-explorer",
-          "title": "Circuit Explorer",
+          "id": "package-explorer",
+          "title": "Package Explorer",
           "icon": "media/dep.svg"
         }
       ]
     },
     "views": {
-      "circuit-explorer": [
+      "package-explorer": [
         {
           "id": "nodeDependencies",
-          "name": "Circuit Hierarchy",
+          "name": "Node Dependencies",
           "icon": "media/dep.svg",
-          "contextualTitle": "Circuit Explorer"
+          "contextualTitle": "Package Explorer"
+        }
+      ],
+      "explorer": [
+        {
+          "id": "testView",
+          "name": "Test View"
         }
       ]
     },
-    "viewsWelcome": [
-      {
-        "view": "nodeDependencies",
-        "contents": "No node dependencies found [learn more](https://www.npmjs.com/).\n[Add Dependency](command:nodeDependencies.addEntry)"
-      }
-    ],
     "commands": [
       {
         "command": "qc-vis.helloWorld",
         "title": "Hello World"
+      },
+      {
+        "command": "testView.editEntry",
+        "title": "Edit",
+        "icon": {
+          "light": "resources/light/edit.svg",
+          "dark": "resources/dark/edit.svg"
+        }
       }
-    ]
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "testView.editEntry",
+          "when": "view == testView ",
+          "group": "inline"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
@@ -71,6 +88,7 @@
   },
   "dependencies": {
     "@vscode/webview-ui-toolkit": "^1.2.1",
+    "react-vsc-treeview": "^0.2.3",
     "sass": "^1.58.0"
   }
 }
