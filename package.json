@@ -65,6 +65,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
+    "install:all": "npm install && cd webview-ui && npm install",
     "start:webview": "cd webview-ui && npm run start",
     "build:webview": "cd webview-ui && npm run build",
     "compile": "tsc -p ./",
