@@ -1,6 +1,11 @@
 import { vscode } from "./utilities/vscode";
 import { VSCodeButton } from "@vscode/webview-ui-toolkit/react";
-import "./App.css";
+import OverviewPanel from "./containers/OverviewPanel";
+import DetailPanel from "./containers/DetailPanel";
+import DataFlowPanel from "./containers/DataFlowPanel";
+import ParamPanel from "./containers/ParamPanel";
+import "./App.scss";
+import { useEffect } from "react";
 
 function App() {
   function handleHowdyClick() {
@@ -12,8 +17,15 @@ function App() {
 
   return (
     <main>
-      <h1>Hello World!</h1>
-      <VSCodeButton onClick={handleHowdyClick}>Howdy!</VSCodeButton>
+      {/* <h1>Hello World!</h1>
+      <VSCodeButton onClick={handleHowdyClick}>Howdy!</VSCodeButton> */}
+
+      <div className="MainContent">
+        <OverviewPanel />
+        <DetailPanel />
+        <DataFlowPanel />
+      </div>
+      <ParamPanel />
     </main>
   );
 }

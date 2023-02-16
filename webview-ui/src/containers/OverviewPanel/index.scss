@@ -1,0 +1,14 @@
+.overviewPanel {
+  display: grid;
+  grid-template-rows: 15px auto;
+  padding: 10px;
+  margin: 10px;
+  .overviewCircuit {
+    border: solid;
+    border-width: 0.5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 5px;
+    height: 95%;
+  }
+}

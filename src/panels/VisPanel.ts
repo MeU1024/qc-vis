@@ -1,4 +1,11 @@
-import { Disposable, Webview, WebviewPanel, window, Uri, ViewColumn } from "vscode";
+import {
+  Disposable,
+  Webview,
+  WebviewPanel,
+  window,
+  Uri,
+  ViewColumn,
+} from "vscode";
 import { getUri } from "../utilities/getUri";
 import { getNonce } from "../utilities/getNonce";
 
@@ -12,13 +19,13 @@ import { getNonce } from "../utilities/getNonce";
  * - Setting the HTML (and by proxy CSS/JavaScript) content of the webview panel
  * - Setting message listeners so data can be passed between the webview and extension
  */
-export class HelloWorldPanel {
-  public static currentPanel: HelloWorldPanel | undefined;
+export class VisPanel {
+  public static currentPanel: VisPanel | undefined;
   private readonly _panel: WebviewPanel;
   private _disposables: Disposable[] = [];
 
   /**
-   * The HelloWorldPanel class private constructor (called only from the render method).
+   * The VisPanel class private constructor (called only from the render method).
    *
    * @param panel A reference to the webview panel
    * @param extensionUri The URI of the directory containing the extension
@@ -31,7 +38,10 @@ export class HelloWorldPanel {
     this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
 
     // Set the HTML content for the webview panel
-    this._panel.webview.html = this._getWebviewContent(this._panel.webview, extensionUri);
+    this._panel.webview.html = this._getWebviewContent(
+      this._panel.webview,
+      extensionUri
+    );
 
     // Set an event listener to listen for messages passed from the webview context
     this._setWebviewMessageListener(this._panel.webview);
@@ -44,16 +54,16 @@ export class HelloWorldPanel {
    * @param extensionUri The URI of the directory containing the extension.
    */
   public static render(extensionUri: Uri) {
-    if (HelloWorldPanel.currentPanel) {
+    if (VisPanel.currentPanel) {
       // If the webview panel already exists reveal it
-      HelloWorldPanel.currentPanel._panel.reveal(ViewColumn.One);
+      VisPanel.currentPanel._panel.reveal(ViewColumn.One);
     } else {
       // If a webview panel does not already exist create and show a new one
       const panel = window.createWebviewPanel(
         // Panel view type
         "showHelloWorld",
         // Panel title
-        "Hello World",
+        "Quantivine",
         // The editor column the panel should be displayed in
         ViewColumn.One,
         // Extra panel configurations
@@ -61,11 +71,14 @@ export class HelloWorldPanel {
           // Enable JavaScript in the webview
           enableScripts: true,
           // Restrict the webview to only load resources from the `out` and `webview-ui/build` directories
-          localResourceRoots: [Uri.joinPath(extensionUri, "out"), Uri.joinPath(extensionUri, "webview-ui/build")],
+          localResourceRoots: [
+            Uri.joinPath(extensionUri, "out"),
+            Uri.joinPath(extensionUri, "webview-ui/build"),
+          ],
         }
       );
 
-      HelloWorldPanel.currentPanel = new HelloWorldPanel(panel, extensionUri);
+      VisPanel.currentPanel = new VisPanel(panel, extensionUri);
     }
   }
 
@@ -73,7 +86,7 @@ export class HelloWorldPanel {
    * Cleans up and disposes of webview resources when the webview panel is closed.
    */
   public dispose() {
-    HelloWorldPanel.currentPanel = undefined;
+    VisPanel.currentPanel = undefined;
 
     // Dispose of the current webview panel
     this._panel.dispose();
@@ -85,6 +98,12 @@ export class HelloWorldPanel {
         disposable.dispose();
       }
     }
+  }
+  public static updateHighlight(id: string) {
+    VisPanel.currentPanel?._panel.webview.postMessage({
+      command: "update",
+      text: id,
+    });
   }
 
   /**
@@ -100,9 +119,19 @@ export class HelloWorldPanel {
    */
   private _getWebviewContent(webview: Webview, extensionUri: Uri) {
     // The CSS file from the React build output
-    const stylesUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.css"]);
+    const stylesUri = getUri(webview, extensionUri, [
+      "webview-ui",
+      "build",
+      "assets",
+      "index.css",
+    ]);
     // The JS file from the React build output
-    const scriptUri = getUri(webview, extensionUri, ["webview-ui", "build", "assets", "index.js"]);
+    const scriptUri = getUri(webview, extensionUri, [
+      "webview-ui",
+      "build",
+      "assets",
+      "index.js",
+    ]);
 
     const nonce = getNonce();
 
