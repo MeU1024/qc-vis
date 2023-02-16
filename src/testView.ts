@@ -31,22 +31,9 @@ export class TestView {
 }
 
 const tree: any = {
-  a: {
-    aa: {
-      aaa: {
-        aaaa: {
-          aaaaa: {
-            aaaaaa: {},
-          },
-        },
-      },
-    },
-    ab: {},
-  },
-  b: {
-    ba: {},
-    bb: {},
-  },
+  root: ["QuantumCircuit1"],
+  QuantumCircuit1: ["H-Gate", "G1", "G2", "G3", "G4", "G5"],
+  G4: ["G41", "G42"],
 };
 const nodes: any = {};
 
@@ -73,11 +60,11 @@ function aNodeWithIdTreeDataProvider(): vscode.TreeDataProvider<{
 
 function getChildren(key: string | undefined): string[] {
   if (!key) {
-    return Object.keys(tree);
+    return tree["root"];
   }
   const treeElement = getTreeElement(key);
   if (treeElement) {
-    return Object.keys(treeElement);
+    return treeElement;
   }
   return [];
 }
@@ -91,6 +78,7 @@ function getTreeItem(key: string): vscode.TreeItem {
       label: key,
       //highlights: key.length > 1 ? [[key.length - 2, key.length - 1]] : void 0,
     },
+    //id:"",
     tooltip,
     collapsibleState:
       treeElement && Object.keys(treeElement).length
@@ -100,24 +88,37 @@ function getTreeItem(key: string): vscode.TreeItem {
 }
 
 function getTreeElement(element: string): any {
-  let parent = tree;
-  for (let i = 0; i < element.length; i++) {
-    parent = parent[element.substring(0, i + 1)];
-    if (!parent) {
-      return null;
-    }
-  }
-  return parent;
+  return tree[element];
 }
 
 function getNode(key: string): { key: string } {
   if (!nodes[key]) {
     nodes[key] = new Key(key);
-    console.log(nodes[key]);
   }
   return nodes[key];
 }
 
 class Key {
   constructor(readonly key: string) {}
+}
+
+export class Gate extends vscode.TreeItem {
+  constructor(
+    public readonly label: string,
+    private readonly number: Number,
+    public readonly collapsibleState: vscode.TreeItemCollapsibleState,
+    public readonly command?: vscode.Command
+  ) {
+    super(label, collapsibleState);
+
+    //this.tooltip = `${this.label}-${this.version}`;
+    //this.description = this.version;
+  }
+
+  // iconPath = {
+  // 	light: path.join(__filename, '..', '..', 'resources', 'light', 'dependency.svg'),
+  // 	dark: path.join(__filename, '..', '..', 'resources', 'dark', 'dependency.svg')
+  // };
+
+  contextValue = "dependency";
 }
