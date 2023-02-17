@@ -1,15 +1,18 @@
 .bitsName {
-  width: 25px;
+  width: 30px;
   .qbitTitle {
     height: 50px;
-    line-height: 50px;
+    // line-height: 50px;
 
     .title-q {
       font-size: 20px;
+      height: 50px;
+      display: inline-block;
+      line-height: 50px;
     }
     .title-num {
       font-size: 10px;
-      vertical-align: top;
+      //vertical-align: top;
     }
   }
 }

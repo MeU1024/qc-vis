@@ -1,73 +1,76 @@
 import { useEffect, useState } from "react";
 import BitsName from "../../components/BitsName";
+import { CircuitAnnotator } from "../../components/CircuitAnnotator";
+import { CircuitRender } from "../../components/CircuitRender";
 import GridDrawing from "../../components/GridDrawing";
 import GridText from "../../components/GridText";
 import "./index.scss";
 
 const OverviewPanel = () => {
-  const [highlightGate, setHighlightGate] = useState("");
-  //const gridData = [{x:0,y:0,op:"line"}]
-  useEffect(() => {
-    overviewCircuitRender();
-  }, []);
+  const [highlightGate, setHighlightGate] = useState<string | null>(null);
+  const gridWidth = 50;
+  const gridHeight = 50;
+
+  const handleMessage = (event: MessageEvent<any>) => {
+    const message = event.data; // The JSON data our extension sent
+
+    switch (message.command) {
+      case "update":
+        setHighlightGate(message.text);
+        break;
+    }
+  };
 
   useEffect(() => {
-    window.addEventListener("message", (event) => {
-      const message = event.data; // The JSON data our extension sent
-      console.log("myMessage", message);
-      switch (message.command) {
-        case "update":
-          setHighlightGate(message.text);
-          break;
-        case "test":
-          //setHighlightGate(message.text);
-          console.log(message.text);
-          break;
-      }
-    });
-  }, []);
-
-  const overviewCircuitRender = () => {
-    //fetch graph
-    const graph = generateData({ row: 5, col: 11 });
-
-    for (let col = 0; col < 11; col++) {
-      for (let row = 0; row < 5; row++) {
-        GridDrawing({
-          x: col * 50,
-          y: row * 50,
-          width: 50,
-          height: 50,
-          op: graph[col][row],
-        });
+    //fetch data
+    const graph = generateGraphData({ row: 5, col: 11 });
+    const graphText = [
+      { x: [0], y: [0], content: "H" },
+      { x: [1], y: [0, 1, 2], content: "G1" },
+      { x: [2], y: [1, 2, 3], content: "G2" },
+      { x: [3], y: [0, 1], content: "G3" },
+      { x: [8], y: [0, 1, 2], content: "G5" },
+    ];
+    const canvas = document.getElementById("overviewCanvas");
+    if (canvas) {
+      const ctx = (canvas as HTMLCanvasElement).getContext("2d");
+      if (ctx) {
+        CircuitRender({ graph, ctx, gridWidth, gridHeight });
+        CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
       }
     }
+  }, [highlightGate]);
 
-    //annotator
-    GridText({
-      x: 25,
-      y: 25,
-      content: "H",
-    });
-  };
+  useEffect(() => {
+    window.addEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
+
+  //
+
   return (
     <div className="panel">
       <div className="panelHeader"> Overview {highlightGate}</div>
-      {/* <canvas id="overviewCanvas"></canvas> */}
+
       <div className="circuit">
-        <BitsName qbitLengths={[1, 5, 10, 5, 1]} />
+        <BitsName
+          qbitLengths={["1", "5", "10", "5", "1"]}
+          alignment={"super"}
+        />
         <canvas id="overviewCanvas" width="550" height="250"></canvas>
       </div>
     </div>
   );
 };
 
-export interface generateDataProp {
+export interface generateGraphDataProp {
   row: Number;
   col: Number;
 }
 
-const generateData = (props: generateDataProp) => {
+const generateGraphData = (props: generateGraphDataProp) => {
   var graph = [];
   for (let col = 0; col < props.col; col++) {
     var layer = [];
