@@ -1,6 +1,6 @@
 {
-  "name": "qc-vis",
-  "displayName": "qc-vis",
+  "name": "quantivine",
+  "displayName": "Quantivine",
   "description": "",
   "version": "0.0.1",
   "engines": {
@@ -10,54 +10,174 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:qc-vis.helloWorld"
+    "onCommand:quantivine.activate",
+    "onWebviewPanel:quantivine-visualizations"
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "python",
+        "extensions": [
+          ".py"
+        ],
+        "aliases": [
+          "Python",
+          "py"
+        ],
+        "filenames": [],
+        "firstLine": "^#!/.*\\bpython[0-9.-]*\\b",
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/python-light.png",
+          "dark": "./icons/python-dark.png"
+        }
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "package-explorer",
-          "title": "Package Explorer",
+          "id": "quantivine-activitybar",
+          "title": "Quantivine",
           "icon": "media/dep.svg"
         }
       ]
     },
     "views": {
-      "package-explorer": [
+      "quantivine-activitybar": [
         {
-          "id": "nodeDependencies",
-          "name": "Node Dependencies",
+          "id": "quantivine-treeview",
+          "name": "TV",
           "icon": "media/dep.svg",
-          "contextualTitle": "Package Explorer"
-        }
-      ],
-      "explorer": [
+          "contextualTitle": "Quantivine Tree View"
+        },
         {
-          "id": "testView",
-          "name": "Test View"
+          "id": "quantivine-tv2",
+          "name": "TV2",
+          "icon": "media/dep.svg",
+          "contextualTitle": "Quantivine Tree View 2"
         }
       ]
     },
     "commands": [
       {
-        "command": "qc-vis.helloWorld",
-        "title": "Hello World"
+        "command": "quantivine.helloWorld",
+        "title": "Hello World",
+        "category": "Quantivine"
       },
       {
-        "command": "testView.editEntry",
+        "command": "quantivine.build",
+        "title": "Build QC",
+        "category": "Quantivine"
+      },
+      {
+        "command": "quantivine.view",
+        "title": "View QC",
+        "category": "Quantivine"
+      },
+      {
+        "command": "quantivine.editEntry",
         "title": "Edit",
         "icon": {
           "light": "resources/light/edit.svg",
           "dark": "resources/dark/edit.svg"
-        }
+        },
+        "category": "Quantivine"
       }
     ],
+    "configuration": {
+      "type": "object",
+      "title": "Quantum Circiut Visualization",
+      "properties": {
+        "quantivine.python.outDir": {
+          "scope": "resource",
+          "type": "string",
+          "default": "%DIR%",
+          "markdownDescription": "The directory where the extension tries to find output files are located."
+        },
+        "quantivine.view.qcv.viewer": {
+          "scope": "window",
+          "type": "string",
+          "default": "tab",
+          "enum": [
+            "tab",
+            "external"
+          ],
+          "markdownDescription": "The default viewer.",
+          "enumDescriptions": [
+            "Open Quantum Circiut Visualization with the built-in tab viewer.",
+            "[Experimental] Open visualizations with the external viewer set in \"View > Outputs > External: command\"."
+          ]
+        },
+        "quantivine.view.qcv.tab.editorGroup": {
+          "scope": "window",
+          "type": "string",
+          "default": "right",
+          "enum": [
+            "current",
+            "left",
+            "right",
+            "above",
+            "below"
+          ],
+          "markdownDescription": "The editor group in which to open the tab viewer.",
+          "enumDescriptions": [
+            "Use the current editor group",
+            "Put the viewer tab in a new group on the left of the current one",
+            "Put the viewer tab in a new group on the right of the current one",
+            "Put the viewer tab in a new group above the current one",
+            "Put the viewer tab in a new group below the current one"
+          ]
+        },
+        "quantivine.message.log.show": {
+          "scope": "window",
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Display Quantivine debug log in output panel. This property defines whether Quantivine will output its debug log to the log panel."
+        },
+        "quantivine.view.outline.components.identifiers": {
+          "scope": "window",
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "L1",
+            "L21|L22"
+          ],
+          "markdownDescription": "The component names of Quantum Circuit outline hierarchy. It is also used by the folding mechanism. This property is an array of case-sensitive strings in the order of QC structure hierarchy. For multiple tags in the same level, separate the tags with `|` as delimiters, e.g., `L1|alternative`."
+        },
+        "quantivine.docker.enabled": {
+          "scope": "window",
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "Enable docker-based Python distribution support. Do not set this item to `true` unless you are aware of what it means. This extension will use the images defined in `#quantivine.docker.image.python#` to execute `python`."
+        },
+        "quantivine.docker.image.python": {
+          "scope": "window",
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Define the image for `python`."
+        }
+      }
+    },
     "menus": {
+      "editor/title": [
+        {
+          "when": "editorLangId =~ /^python$/ && !virtualWorkspace",
+          "command": "quantivine.view",
+          "group": "navigation@2"
+        },
+        {
+          "when": "editorLangId =~ /^python$/ && !virtualWorkspace",
+          "command": "quantivine.build",
+          "group": "navigation@1"
+        }
+      ],
       "view/item/context": [
         {
-          "command": "testView.editEntry",
-          "when": "view == testView ",
+          "command": "quantivine.editEntry",
+          "when": "view == quantivine-treeview",
           "group": "inline"
         }
       ]
@@ -78,6 +198,7 @@
     "@types/glob": "^8.0.1",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
+    "@types/tmp": "^0.2.3",
     "@types/vscode": "^1.75.0",
     "@typescript-eslint/eslint-plugin": "^5.49.0",
     "@typescript-eslint/parser": "^5.49.0",
@@ -90,6 +211,7 @@
   "dependencies": {
     "@vscode/webview-ui-toolkit": "^1.2.1",
     "react-vsc-treeview": "^0.2.3",
-    "sass": "^1.58.0"
+    "sass": "^1.58.0",
+    "tmp": "^0.2.1"
   }
 }

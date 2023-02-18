@@ -1,20 +1,40 @@
-import { commands, ExtensionContext } from "vscode";
-import { VisPanel } from "./panels/VisPanel";
-import { TestView } from "./testView";
+import * as vscode from 'vscode';
+import {getLogger} from './components/logger';
+import {QuantumGate} from './providers/structurelib/quantumgate';
+import * as qv from './quantivine';
 
-export function activate(context: ExtensionContext) {
-  // Create the show hello world command
-  const showVisCommand = commands.registerCommand("qc-vis.helloWorld", () => {
-    VisPanel.render(context.extensionUri);
-  });
+const logger = getLogger('Extension');
 
-  new TestView(context);
-  commands.registerCommand("testView.editEntry", (node: any) => {
-    // Send a message to webview.
-    // You can send any JSON serializable data.
-    VisPanel.updateHighlight(node.key);
-  });
+export function activate(context: vscode.ExtensionContext) {
+  void vscode.commands.executeCommand('setContext', 'quantivine:enabled', true);
 
-  // Add command to the extension context
-  context.subscriptions.push(showVisCommand);
+  qv.init(context);
+
+  qv.manager.updateSource();
+
+  registerQuantivineCommands();
+
+  registerProviders();
+}
+
+function registerQuantivineCommands() {
+  qv.registerDisposable(
+    vscode.commands.registerCommand('quantivine.build', () =>
+      qv.commander.build()
+    ),
+    vscode.commands.registerCommand(
+      'quantivine.view',
+      (mode: 'tab' | vscode.Uri | undefined) => qv.commander.view(mode)
+    )
+  );
+  qv.registerDisposable(
+    vscode.commands.registerCommand(
+      'quantivine.editEntry',
+      (node: QuantumGate) => qv.commander.edit(node)
+    )
+  );
+}
+
+function registerProviders() {
+  const configuration = vscode.workspace.getConfiguration('quantivine');
 }

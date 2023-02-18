@@ -1,13 +1,13 @@
 import * as vscode from "vscode";
 
-export class TestView {
+export class TreeView {
   constructor(context: vscode.ExtensionContext) {
-    const view = vscode.window.createTreeView("testView", {
+    const view = vscode.window.createTreeView("quantivine-treeview", {
       treeDataProvider: aNodeWithIdTreeDataProvider(),
       showCollapseAll: true,
     });
     context.subscriptions.push(view);
-    vscode.commands.registerCommand("testView.reveal", async () => {
+    vscode.commands.registerCommand("quantivine-treeview.reveal", async () => {
       const key = await vscode.window.showInputBox({
         placeHolder: "Type the label of the item to reveal",
       });
@@ -18,7 +18,7 @@ export class TestView {
         );
       }
     });
-    vscode.commands.registerCommand("testView.changeTitle", async () => {
+    vscode.commands.registerCommand("quantivine-treeview.changeTitle", async () => {
       const title = await vscode.window.showInputBox({
         prompt: "Type the new title for the Test View",
         placeHolder: view.title,
