@@ -8,6 +8,8 @@ export interface CircuitAnnotatorProp {
 
 export const CircuitAnnotator = (props: CircuitAnnotatorProp) => {
   const { graphText, ctx, gridWidth, gridHeight } = props;
+  var style = getComputedStyle(document.getElementsByClassName("panel")[0]);
+  const color = style.getPropertyValue("--stroke-style");
   graphText.forEach((item) => {
     GridText({
       x: item.x,
@@ -16,6 +18,7 @@ export const CircuitAnnotator = (props: CircuitAnnotatorProp) => {
       height: gridHeight,
       ctx: ctx,
       content: item.content,
+      fillStyle: color,
     });
   });
 };

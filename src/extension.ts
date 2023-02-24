@@ -1,12 +1,12 @@
-import * as vscode from 'vscode';
-import {getLogger} from './components/logger';
-import {QuantumGate} from './providers/structurelib/quantumgate';
-import * as qv from './quantivine';
+import * as vscode from "vscode";
+import { getLogger } from "./components/logger";
+import { QuantumGate } from "./providers/structurelib/quantumgate";
+import * as qv from "./quantivine";
 
-const logger = getLogger('Extension');
+const logger = getLogger("Extension");
 
 export function activate(context: vscode.ExtensionContext) {
-  void vscode.commands.executeCommand('setContext', 'quantivine:enabled', true);
+  void vscode.commands.executeCommand("setContext", "quantivine:enabled", true);
 
   qv.init(context);
 
@@ -19,22 +19,27 @@ export function activate(context: vscode.ExtensionContext) {
 
 function registerQuantivineCommands() {
   qv.registerDisposable(
-    vscode.commands.registerCommand('quantivine.build', () =>
+    vscode.commands.registerCommand("quantivine.build", () =>
       qv.commander.build()
     ),
     vscode.commands.registerCommand(
-      'quantivine.view',
-      (mode: 'tab' | vscode.Uri | undefined) => qv.commander.view(mode)
+      "quantivine.view",
+      (mode: "tab" | vscode.Uri | undefined) => qv.commander.view(mode)
     )
   );
   qv.registerDisposable(
     vscode.commands.registerCommand(
-      'quantivine.editEntry',
+      "quantivine.editEntry",
       (node: QuantumGate) => qv.commander.edit(node)
     )
+  );
+  qv.registerDisposable(
+    vscode.window.onDidChangeActiveColorTheme(async (event) => {
+      qv.commander.themeChange(event);
+    })
   );
 }
 
 function registerProviders() {
-  const configuration = vscode.workspace.getConfiguration('quantivine');
+  const configuration = vscode.workspace.getConfiguration("quantivine");
 }

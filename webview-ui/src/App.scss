@@ -38,6 +38,10 @@ main {
     }
   }
 }
+.panel {
+  //: var(--vscode-foreground);
+  --stroke-style: var(--vscode-editor-foreground);
+}
 
 // main > * {
 //   margin: 1rem 0;

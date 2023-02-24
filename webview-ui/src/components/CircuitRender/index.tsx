@@ -1,7 +1,7 @@
 import GridDrawing from "../GridDrawing";
 
 export interface CircuitRenderProp {
-  graph: string[][];
+  graph: number[][];
   gridWidth: number;
   gridHeight: number;
   ctx: CanvasRenderingContext2D;
@@ -9,8 +9,13 @@ export interface CircuitRenderProp {
 
 export const CircuitRender = (props: CircuitRenderProp) => {
   const { graph, gridWidth, gridHeight, ctx } = props;
-  for (let col = 0; col < 11; col++) {
-    for (let row = 0; row < 5; row++) {
+  const cols = graph.length;
+  const rows = graph[0].length;
+  var style = getComputedStyle(document.getElementsByClassName("panel")[0]);
+  const color = style.getPropertyValue("--stroke-style");
+  //console.log(color);
+  for (let col = 0; col < cols; col++) {
+    for (let row = 0; row < rows; row++) {
       GridDrawing({
         x: col,
         y: row,
@@ -18,6 +23,8 @@ export const CircuitRender = (props: CircuitRenderProp) => {
         height: gridHeight,
         ctx: ctx,
         op: graph[col][row],
+        strokeStyle: color,
+        fillStyle: color,
       });
     }
   }

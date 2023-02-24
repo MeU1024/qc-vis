@@ -5,7 +5,7 @@ import DetailPanel from "./containers/DetailPanel";
 import DataFlowPanel from "./containers/DataFlowPanel";
 import ParamPanel from "./containers/ParamPanel";
 import "./App.scss";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
   function handleHowdyClick() {
@@ -14,16 +14,32 @@ function App() {
       text: "Hey there partner! 🤠",
     });
   }
+  const [highlightGate, setHighlightGate] = useState<string | null>(null);
+  const [theme, setTheme] = useState<number | null>(null);
+  const handleMessage = (event: MessageEvent<any>) => {
+    const message = event.data; // The JSON data our extension sent
+    switch (message.command) {
+      case "update":
+        setHighlightGate(message.text);
+        break;
+      case "themeChange":
+        setTheme(message.theme);
+        break;
+    }
+  };
 
+  useEffect(() => {
+    window.addEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, []);
   return (
     <main>
-      {/* <h1>Hello World!</h1>
-      <VSCodeButton onClick={handleHowdyClick}>Howdy!</VSCodeButton> */}
-
       <div className="MainContent">
-        <OverviewPanel />
-        <DetailPanel />
-        <DataFlowPanel />
+        <OverviewPanel highlightGate={highlightGate} theme={theme} />
+        <DetailPanel highlightGate={highlightGate} theme={theme} />
+        <DataFlowPanel highlightGate={highlightGate} theme={theme} />
       </div>
       <ParamPanel />
     </main>

@@ -1,11 +1,11 @@
-import * as vscode from 'vscode';
-import * as qv from '../quantivine';
-import {moveActiveEditor} from '../utilities/webview';
-import {getLogger} from './logger';
-import {QCViewerManagerService} from './viewerlib/qcviewermanager';
-import {QCViewerPanelService} from './viewerlib/qcviewerpanel';
+import * as vscode from "vscode";
+import * as qv from "../quantivine";
+import { moveActiveEditor } from "../utilities/webview";
+import { getLogger } from "./logger";
+import { QCViewerManagerService } from "./viewerlib/qcviewermanager";
+import { QCViewerPanelService } from "./viewerlib/qcviewerpanel";
 
-const logger = getLogger('Viewer');
+const logger = getLogger("Viewer");
 
 export class Viewer {
   async openTab(
@@ -18,7 +18,7 @@ export class Viewer {
     //   return;
     // }
     // const dataUri = this.code2data(sourceFile);
-    const dataUri = vscode.Uri.file('');
+    const dataUri = vscode.Uri.file("");
     return this.visualizeQCircuitInTab(dataUri, tabEditorGroup, preserveFocus);
   }
 
@@ -30,13 +30,13 @@ export class Viewer {
     const activeDocument = vscode.window.activeTextEditor?.document;
     const panel = await QCViewerPanelService.createQCircuitViewerPanel(
       dataUri,
-      tabEditorGroup === 'current'
+      tabEditorGroup === "current"
     );
     QCViewerManagerService.initiateQCViewerPanel(panel);
     if (!panel) {
       return;
     }
-    if (tabEditorGroup !== 'current' && activeDocument) {
+    if (tabEditorGroup !== "current" && activeDocument) {
       await moveActiveEditor(tabEditorGroup, preserveFocus);
     }
     logger.log(`Open visualization tab for ${dataUri.toString(true)}`);
@@ -47,10 +47,10 @@ export class Viewer {
     if (!(await qv.qvfs.exists(dataUri))) {
       logger.log(`Cannot find data file ${dataUri}`);
       logger.refreshStatus(
-        'check',
-        'statusBar.foreground',
+        "check",
+        "statusBar.foreground",
         `Cannot view file data file. File not found: ${dataUri}`,
-        'warning'
+        "warning"
       );
       return false;
     }
@@ -60,12 +60,23 @@ export class Viewer {
   openExternal(): void {}
 
   updateHighlight(id: string) {
-    const dataUri = vscode.Uri.file('');
+    const dataUri = vscode.Uri.file("");
     const panelSet = QCViewerManagerService.getPanelSet(dataUri);
     panelSet?.forEach((panel) => {
       panel.webviewPanel.webview.postMessage({
-        command: 'update',
+        command: "update",
         text: id,
+      });
+    });
+  }
+
+  updateTheme(theme: vscode.ColorTheme) {
+    const dataUri = vscode.Uri.file("");
+    const panelSet = QCViewerManagerService.getPanelSet(dataUri);
+    panelSet?.forEach((panel) => {
+      panel.webviewPanel.webview.postMessage({
+        command: "themeChange",
+        theme: theme,
       });
     });
   }

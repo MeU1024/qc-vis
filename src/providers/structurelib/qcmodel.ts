@@ -1,16 +1,16 @@
-import * as vscode from 'vscode';
-import {getLogger} from '../../components/logger';
-import * as qv from '../../quantivine';
-import {QuantumGate, GateType} from './quantumgate';
+import * as vscode from "vscode";
+import { getLogger } from "../../components/logger";
+import * as qv from "../../quantivine";
+import { QuantumGate, GateType } from "./quantumgate";
 
-const logger = getLogger('Structure', 'Circuit');
+const logger = getLogger("Structure", "Circuit");
 
 export class QcStructure {
   private static qcComponentIdentifiers: {
     comps: string[];
-  } = {comps: []};
+  } = { comps: [] };
 
-  private static readonly qcGateDepths: {[id: string]: number} = {};
+  private static readonly qcGateDepths: { [id: string]: number } = {};
 
   /**
    * This function parses the AST tree of a quantum circuit code to build its
@@ -73,18 +73,18 @@ export class QcStructure {
   }
 
   protected static refreshQcModelConfig() {
-    const configuration = vscode.workspace.getConfiguration('quantivine');
+    const configuration = vscode.workspace.getConfiguration("quantivine");
     const hierarchy = configuration.get(
-      'view.outline.components.identifiers'
+      "view.outline.components.identifiers"
     ) as string[];
     hierarchy.forEach((ids, index) => {
-      ids.split('|').forEach((id) => {
+      ids.split("|").forEach((id) => {
         QcStructure.qcGateDepths[id] = index;
       });
     });
 
     QcStructure.qcComponentIdentifiers = {
-      comps: hierarchy.map((ids) => ids.split('|')).flat(),
+      comps: hierarchy.map((ids) => ids.split("|")).flat(),
     };
   }
 }
@@ -95,7 +95,7 @@ function testTree() {
   gates.push(
     new QuantumGate(
       GateType.superGate,
-      'QuantumCircuit01',
+      "QuantumCircuit01",
       vscode.TreeItemCollapsibleState.Expanded,
       0,
       1,
@@ -103,10 +103,10 @@ function testTree() {
     )
   );
 
-  const firstLevelGates = ['H-Gate', 'G1', 'G2', 'G3', 'G4', 'G5'];
+  const firstLevelGates = ["h", "PA", "Ent"];
 
   firstLevelGates.forEach((label) => {
-    const gateType = label.endsWith('Gate')
+    const gateType = label.endsWith("Gate")
       ? GateType.basicGate
       : GateType.superGate;
     let newGate = new QuantumGate(
@@ -121,11 +121,11 @@ function testTree() {
     gates[0].children.push(newGate);
   });
 
-  const secondLevelGates = ['H-Gate', 'G41', 'G42'];
+  const secondLevelGates = ["H-Gate", "G41", "G42"];
 
   secondLevelGates.forEach((label) => {
-    const parentGate = gates[0].children[4];
-    const gateType = label.endsWith('Gate')
+    const parentGate = gates[0].children[1];
+    const gateType = label.endsWith("Gate")
       ? GateType.basicGate
       : GateType.superGate;
     let newGate = new QuantumGate(

@@ -2,63 +2,80 @@ import { useEffect, useState } from "react";
 import BitsName from "../../components/BitsName";
 import { CircuitAnnotator } from "../../components/CircuitAnnotator";
 import { CircuitRender } from "../../components/CircuitRender";
+import Circuit2GridData from "../../utilities/Circuit2GridData";
 
-const DetailPanel = () => {
-  const [highlightGate, setHighlightGate] = useState<string | null>(null);
-  const gridWidth = 50;
-  const gridHeight = 50;
+import data from "../../../data/vqc-10-detail-abstract.json";
+export interface DetailPanelProps {
+  theme: any;
+  highlightGate: string | null;
+}
 
-  const handleMessage = (event: MessageEvent<any>) => {
-    const message = event.data; // The JSON data our extension sent
-    switch (message.command) {
-      case "update":
-        setHighlightGate(message.text);
-        break;
-    }
-  };
+const DetailPanel = (props: DetailPanelProps) => {
+  const [qbitLengths, setQbitLength] = useState<string[]>([]);
+  const [gridWidth, setGridWidth] = useState<number>(25);
+  const [gridHeight, setGridHeight] = useState<number>(25);
+  const [canvasWidth, setCanvasWidth] = useState(550);
+  const [canvasHeight, setCanvasHeight] = useState(250);
+  const [circuit, setCircuit] = useState<{
+    output_size: number[];
+    op_map: {};
+    qubits: string[];
+    gate_format: string;
+    all_gates: (number | number[])[][];
+  }>(data);
+
+  const { theme, highlightGate } = props;
+
+  //fetch data and modify canvas size
+  useEffect(() => {
+    var gridSize =
+      canvasWidth / circuit.output_size[1] <
+      canvasHeight / circuit.output_size[0]
+        ? canvasWidth / circuit.output_size[1]
+        : canvasHeight / circuit.output_size[0];
+
+    gridSize = gridSize < 25 ? 25 : gridSize;
+
+    setGridWidth(gridSize);
+    setGridHeight(gridSize);
+    setQbitLength(circuit.qubits);
+  }, [circuit]);
 
   useEffect(() => {
-    //fetch data
-    var graph = [];
-    for (let col = 0; col < 11; col++) {
-      var layer = [];
-      for (let row = 0; row < 5; row++) {
-        layer.push("line");
-      }
-      graph.push(layer);
-    }
+    if (gridHeight !== null && gridWidth !== null) {
+      const { graph, graphText } = Circuit2GridData(circuit);
 
-    const graphText = [
-      { x: [0], y: [0], content: "H" },
-      { x: [1], y: [0, 1, 2], content: "G1" },
-      { x: [2], y: [1, 2, 3], content: "G2" },
-      { x: [3], y: [0, 1], content: "G3" },
-      { x: [8], y: [0, 1, 2], content: "G5" },
-    ];
-    const canvas = document.getElementById("detailCanvas");
-    if (canvas) {
-      const ctx = (canvas as HTMLCanvasElement).getContext("2d");
-      if (ctx) {
-        CircuitRender({ graph, ctx, gridWidth, gridHeight });
-        //CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
+      const canvas = document.getElementById("detailCanvas");
+      if (canvas) {
+        const ctx = (canvas as HTMLCanvasElement).getContext("2d");
+        if (ctx) {
+          ctx.fillStyle = "#ffffff";
+          ctx.clearRect(
+            0,
+            0,
+            (canvas as HTMLCanvasElement).width,
+            (canvas as HTMLCanvasElement).height
+          );
+          CircuitRender({ graph, ctx, gridWidth, gridHeight });
+          CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
+        }
       }
     }
-  }, [highlightGate]);
-
-  useEffect(() => {
-    window.addEventListener("message", handleMessage);
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, []);
+  }, [gridWidth, theme, circuit]);
 
   return (
     <div className="panel">
       <div className="panelHeader"> Detail</div>
-      <div className="circuit">
+      <div
+        className="circuit"
+        style={{
+          gridTemplateColumns: (gridHeight * 0.6).toString() + "px auto",
+        }}
+      >
         <BitsName
-          qbitLengths={["1", "2", "···", "n-1", "n"]}
+          qbitLengths={qbitLengths}
           alignment={"sub"}
+          gridHeight={gridHeight}
         />
         <canvas id="detailCanvas" width="550" height="250"></canvas>
       </div>
