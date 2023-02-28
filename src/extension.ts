@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { getLogger } from "./components/logger";
-import { QuantumGate } from "./providers/structurelib/quantumgate";
+import { AbstractionDataProvider } from "./providers/abstraction";
+import { QuantumTreeNode } from "./providers/structurelib/quantumgate";
 import * as qv from "./quantivine";
 
 const logger = getLogger("Extension");
@@ -30,7 +31,7 @@ function registerQuantivineCommands() {
   qv.registerDisposable(
     vscode.commands.registerCommand(
       "quantivine.editEntry",
-      (node: QuantumGate) => qv.commander.edit(node)
+      (node: QuantumTreeNode) => qv.commander.edit(node)
     )
   );
   qv.registerDisposable(
@@ -42,4 +43,6 @@ function registerQuantivineCommands() {
 
 function registerProviders() {
   const configuration = vscode.workspace.getConfiguration("quantivine");
+  let absDataProvider = new AbstractionDataProvider();
+  absDataProvider.updateData();
 }

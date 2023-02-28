@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import {QuantumGate} from './structurelib/quantumgate';
+import {NodeType, QuantumTreeNode} from './structurelib/quantumgate';
 import * as qv from '../quantivine';
 
 import {getLogger} from '../components/logger';
@@ -9,16 +9,16 @@ import {
 } from '../components/eventBus';
 import {QcStructure} from './structurelib/qcmodel';
 
-const logger = getLogger('Structure');
+const logger = getLogger('DataProvider', 'Structure');
 
-export class GateNodeProvider implements vscode.TreeDataProvider<QuantumGate> {
+export class GateNodeProvider implements vscode.TreeDataProvider<QuantumTreeNode> {
   private readonly _onDidChangeTreeData: vscode.EventEmitter<
-    QuantumGate | undefined
-  > = new vscode.EventEmitter<QuantumGate | undefined>();
-  readonly onDidChangeTreeData: vscode.Event<QuantumGate | undefined>;
+    QuantumTreeNode | undefined
+  > = new vscode.EventEmitter<QuantumTreeNode | undefined>();
+  readonly onDidChangeTreeData: vscode.Event<QuantumTreeNode | undefined>;
 
-  public ds: QuantumGate[] = [];
-  private cachedGates: QuantumGate[] | undefined = undefined;
+  public ds: QuantumTreeNode[] = [];
+  private cachedGates: QuantumTreeNode[] | undefined = undefined;
 
   constructor() {
     this.onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -29,7 +29,7 @@ export class GateNodeProvider implements vscode.TreeDataProvider<QuantumGate> {
    *
    * @param force If `false` and some cached data exists for the corresponding file, use it. If `true`, always recompute the structure from disk
    */
-  async build(force: boolean): Promise<QuantumGate[]> {
+  async build(force: boolean): Promise<QuantumTreeNode[]> {
     if (qv.manager.sourceFile) {
       if (force || !this.cachedGates) {
         this.cachedGates = await QcStructure.buildQcModel();
@@ -53,7 +53,7 @@ export class GateNodeProvider implements vscode.TreeDataProvider<QuantumGate> {
     qv.eventBus.fire(StructureUpdated);
   }
 
-  getTreeItem(element: QuantumGate): vscode.TreeItem {
+  getTreeItem(element: QuantumTreeNode): vscode.TreeItem {
     const hasChildren = element.children.length > 0;
     const treeItem: vscode.TreeItem = new vscode.TreeItem(
       element.label,
@@ -69,11 +69,14 @@ export class GateNodeProvider implements vscode.TreeDataProvider<QuantumGate> {
     // };
 
     treeItem.tooltip = `GateType: ${element.type}`;
+    if (element.type === NodeType.repetition) {
+      treeItem.description = element.description;
+    }
 
     return treeItem;
   }
 
-  getChildren(element?: QuantumGate): vscode.ProviderResult<QuantumGate[]> {
+  getChildren(element?: QuantumTreeNode): vscode.ProviderResult<QuantumTreeNode[]> {
     if (qv.manager.sourceFile === undefined) {
       return [];
     }
@@ -85,16 +88,26 @@ export class GateNodeProvider implements vscode.TreeDataProvider<QuantumGate> {
     return element.children;
   }
 
-  getParent(element?: QuantumGate): QuantumGate | undefined {
+  getParent(element?: QuantumTreeNode): QuantumTreeNode | undefined {
     if (qv.manager.sourceFile === undefined || !element) {
       return;
     }
     return element.parent;
   }
+
+  isExpanded(treeIndex: number): boolean {
+    this.ds.forEach((gate) => {
+      if (gate.treeIndex === treeIndex) {
+        return gate.collapsibleState === vscode.TreeItemCollapsibleState.Expanded;
+      }
+    });
+
+    throw new Error('Gate not found');
+  }
 }
 
 export class SemanticTreeViewer {
-  private readonly _viewer: vscode.TreeView<QuantumGate | undefined>;
+  private readonly _viewer: vscode.TreeView<QuantumTreeNode | undefined>;
   private readonly _treeDataProvider: GateNodeProvider;
   private _followCursor: boolean = true;
 
@@ -130,5 +143,11 @@ export class SemanticTreeViewer {
    */
   async refreshView() {
     await this._treeDataProvider.update(false);
+  }
+
+  isVisible(treeIndex: number): boolean {
+    // TODO: check node visibility
+    
+    return true;
   }
 }

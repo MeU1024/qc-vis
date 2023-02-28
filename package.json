@@ -50,12 +50,6 @@
           "name": "TV",
           "icon": "media/dep.svg",
           "contextualTitle": "Quantivine Tree View"
-        },
-        {
-          "id": "quantivine-tv2",
-          "name": "TV2",
-          "icon": "media/dep.svg",
-          "contextualTitle": "Quantivine Tree View 2"
         }
       ]
     },

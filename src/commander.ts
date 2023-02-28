@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as qv from "./quantivine";
 import { getLogger } from "./components/logger";
-import { QuantumGate } from "./providers/structurelib/quantumgate";
+import { QuantumTreeNode } from "./providers/structurelib/quantumgate";
 
 const logger = getLogger("Commander");
 
@@ -43,7 +43,7 @@ export async function view(mode?: "tab" | vscode.Uri) {
   return;
 }
 
-export async function edit(gate: QuantumGate) {
+export async function edit(gate: QuantumTreeNode) {
   logger.log(`Edit: ${gate.label}`);
   qv.viewer.updateHighlight(gate.label);
 }
