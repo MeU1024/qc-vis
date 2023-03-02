@@ -40,6 +40,9 @@ const OverviewPanel = (props: OverviewPanelProps) => {
 
     setGridWidth(gridSize);
     setGridHeight(gridSize);
+    if (gridSize * circuit.output_size[0] < canvasWidth) {
+      setGridHeight(canvasHeight / circuit.output_size[0]);
+    }
     setQbitLength(circuit.qubits);
   }, [circuit]);
 

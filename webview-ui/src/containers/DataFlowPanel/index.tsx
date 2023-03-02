@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import BitsName from "../../components/BitsName";
 import { CircuitAnnotator } from "../../components/CircuitAnnotator";
 import { CircuitRender } from "../../components/CircuitRender";
-import overviewData from "../../../data/vqc-10-overview.json";
+import flowData from "../../../data/vqc-context_test.json";
 import Circuit2GridData from "../../utilities/Circuit2GridData";
 export interface DataFlowPanelProps {
   theme: any;
@@ -22,7 +22,7 @@ const DataFlowPanel = (props: DataFlowPanelProps) => {
     qubits: string[];
     gate_format: string;
     all_gates: (number | number[])[][];
-  }>(overviewData);
+  }>(flowData);
 
   useEffect(() => {
     var gridSize =
@@ -34,6 +34,9 @@ const DataFlowPanel = (props: DataFlowPanelProps) => {
 
     setGridWidth(gridSize);
     setGridHeight(gridSize);
+    if (gridSize * circuit.output_size[0] < canvasWidth) {
+      setGridHeight(canvasHeight / circuit.output_size[0]);
+    }
     setQbitLength(circuit.qubits);
   }, [circuit]);
 
