@@ -91,7 +91,10 @@ export class QcStructure {
 
 function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
   if (!file) {
-    let path = vscode.Uri.joinPath(qv.getExtensionUri(), '/resources/data/vqc-structure.json').fsPath;
+    let path = vscode.Uri.joinPath(
+      qv.getExtensionUri(),
+      '/resources/data/vqc-structure.json'
+    ).fsPath;
     file = vscode.Uri.file(path);
   }
   logger.log('Loading tree from file: ' + file.fsPath + '...');
@@ -103,18 +106,25 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
 
   data.forEach((node: any) => {
     if (node.index === 0) {
-      gates.push(new QuantumTreeNode(
-        NodeType.superGate,
-        node.name,
-        vscode.TreeItemCollapsibleState.Expanded,
-        0,
-        0,
-      ));
+      gates.push(
+        new QuantumTreeNode(
+          NodeType.superGate,
+          node.name,
+          vscode.TreeItemCollapsibleState.Expanded,
+          0,
+          0
+        )
+      );
       gateList.push(gates[0]);
     } else {
       let parent = gateList[node.parentIndex];
       let nodeName = node.name;
-      let nodeType = node.type === "fun" ? NodeType.superGate : node.type === "rep" ? NodeType.repetition : NodeType.basicGate;
+      let nodeType =
+        node.type === 'fun'
+          ? NodeType.superGate
+          : node.type === 'rep'
+          ? NodeType.repetition
+          : NodeType.basicGate;
       let description = undefined;
 
       if (nodeType === NodeType.superGate) {
@@ -122,7 +132,7 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
       }
 
       if (nodeType === NodeType.repetition) {
-        description = "×" + " ? times";
+        description = '×' + ' ? times';
       }
 
       let newGate = new QuantumTreeNode(
@@ -195,7 +205,6 @@ function testTree() {
   return gates;
 }
 
-
 export class Layer {
   private _gates: ComponentGate[];
 
@@ -234,6 +243,9 @@ export class Qubit {
 }
 
 export class ComponentCircuit {
+  getGateLayer(gate: ComponentGate): number {
+    throw new Error('Method not implemented.');
+  }
   private _qubits: Qubit[];
   private _gates: ComponentGate[];
   private _layers: Layer[];
@@ -277,11 +289,70 @@ export class ComponentCircuit {
     return ret;
   }
 
+  get qubits() {
+    return this._qubits;
+  }
+
   get layers() {
     return this._layers;
   }
 
   get gates() {
     return this._gates;
+  }
+
+  get width() {
+    return this._layers.length;
+  }
+
+  get height() {
+    return this._qubits.length;
+  }
+}
+
+export class DrawableCircuit {
+  private _width: number;
+  private _height: number;
+  private _opMap: Map<ComponentGate, number>;
+  private _qubits: Qubit[];
+  private _layers: Layer[];
+
+  constructor() {
+    this._width = 0;
+    this._height = 0;
+    this._opMap = new Map<ComponentGate, number>();
+    this._qubits = [];
+    this._layers = [];
+  }
+
+  loadFromLayers(
+    layers: Layer[],
+    qubits: Qubit[],
+    qubitMap: Map<Qubit, number>
+  ) {}
+
+  exportJson(): any {
+    return {
+      size: this.size,
+      opMap: this.opMap,
+      qubits: this.qubitNames,
+      allGates: this.layerInfo,
+    };
+  }
+
+  get size() {
+    return [this._width, this._height];
+  }
+
+  get opMap() {
+    return {};
+  }
+
+  get qubitNames() {
+    return [];
+  }
+
+  get layerInfo() {
+    return [];
   }
 }

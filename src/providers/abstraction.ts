@@ -9,6 +9,7 @@ import {
 import {
   ComponentCircuit,
   ComponentGate,
+  DrawableCircuit,
   Layer,
   Qubit,
 } from './structurelib/qcmodel';
@@ -58,10 +59,10 @@ export class AbstractionDataProvider {
     //   command: 'setAbstractedCircuit',
     //   data: this._data.exportJson(),
     // };
-    
+
     let message = {
-      command: "setTitle",
-      data: {"title": "Abstraction View"},
+      command: 'setTitle',
+      data: {title: 'Abstraction View'},
     };
 
     let panelSet = QCViewerManagerService.getPanelSet(this._dataFile);
@@ -77,29 +78,34 @@ class AbstractedCircuit {
   private _componentCircuit: ComponentCircuit;
   private _semanticsList: Semantics[];
 
-  private _qubits: Set<Qubit>;
-  private _qubitLineno: Map<Qubit, number>; // Map qubit to line number
+  private _qubits: Qubit[];
+  private _isIdleQubit: boolean[];
+  // private _qubitLineno: Map<Qubit, number>; // Map qubit to line number
   private _gates: ComponentGate[];
+  // private _gateLayerMap: Map<ComponentGate, number>; // Map gate to layer
   private _layers: Layer[];
+  private _isIdleLayer: boolean[];
   private _abstractions: Abstraction[];
-  private _cachedGates: Set<ComponentGate>; // Set of treeIndex of cached gates
+  private _cachedGates: Map<ComponentGate, number>; // Map gate to layer
   private _cached: boolean;
+  private _drawableCircuit: DrawableCircuit;
+  // private _visibilityMatrix: boolean[][]; // Matrix of gate visibility
 
   constructor(dataFile: vscode.Uri) {
     this._componentCircuit = this._importCircuitFromFile(dataFile);
     this._semanticsList = this._importSemanticsFromFile(dataFile);
 
-    this._qubits = new Set<Qubit>();
-    this._qubitLineno = new Map<Qubit, number>();
+    this._qubits = [];
+    this._isIdleQubit = [];
     this._gates = [];
     this._layers = [];
+    this._isIdleLayer = [];
     this._abstractions = [];
-    this._cachedGates = new Set<ComponentGate>();
+    this._cachedGates = new Map<ComponentGate, number>();
     this._cached = false;
+    this._drawableCircuit = new DrawableCircuit();
 
     this._build();
-
-    this.justify();
   }
 
   private _importCircuitFromFile(dataFile: vscode.Uri): ComponentCircuit {
@@ -121,6 +127,15 @@ class AbstractedCircuit {
   }
 
   private _build() {
+    let width = this._componentCircuit.width;
+    let height = this._componentCircuit.height;
+
+    this._qubits = this._componentCircuit.qubits;
+    this._isIdleQubit = new Array(this._qubits.length).fill(true);
+    this._layers = new Array(width);
+    this._abstractions = [];
+    this._cachedGates.clear();
+
     // Build abstracted circuit with semantics
     this._componentCircuit.gates.forEach((gate: ComponentGate) => {
       if (this._cachedGates.has(gate)) {
@@ -129,81 +144,115 @@ class AbstractedCircuit {
 
       let ret = this._writtenInSemantics(gate);
       if (ret) {
-        ret.start.forEach((g) => this._addGate(g));
-        ret.end.forEach((g) => this._addGate(g));
+        ret.start.forEach((g) => this._visGate(g));
+        ret.end.forEach((g) => this._visGate(g));
         this._abstractions.push(ret);
-
         // Cache gates in abstraction
-        ret.gates.forEach((gate: ComponentGate) => {
-          this._cachedGates.add(gate);
-        });
+        this._cacheGates(ret.gates);
       } else {
-        this._addGate(gate);
-        this._cachedGates.add(gate);
+        this._visGate(gate);
+        this._cacheGates([gate]);
       }
     });
 
     // Generate Layout
-    this._updateLayout();
+    this._generateLayout();
   }
 
-  private _addGate(gate: ComponentGate, layerIndex?: number) {
-    gate.qubits.forEach((qubit: Qubit) => {
-      this._qubits.add(qubit);
-    });
-    this._gates.push(gate);
-    if (layerIndex === undefined) {
-      layerIndex = this._layers.length;
-      this._layers.push(new Layer());
-    }
-    this._layers[layerIndex].gates.push(gate);
+  private _visGate(gate: ComponentGate) {
+    let layerIndex = this._componentCircuit.getGateLayer(gate);
+    this._isIdleLayer[layerIndex] = false;
 
+    let firstQubitIndex = this._qubits.indexOf(gate.qubits[0]);
+    this._isIdleQubit[firstQubitIndex] = false;
+    let lastQubitIndex = this._qubits.indexOf(
+      gate.qubits[gate.qubits.length - 1]
+    );
+    this._isIdleQubit[lastQubitIndex] = false;
+
+    // TODO: Implement for multi-qubit gates
+  }
+
+  private _cacheGates(gates: ComponentGate[]) {
+    gates.forEach((gate: ComponentGate) => {
+      let layerIndex = this._componentCircuit.getGateLayer(gate);
+      this._cachedGates.set(gate, layerIndex);
+    });
     this._cached = true;
   }
 
-  private _removeIdle() {
-    // Remove layers with no gates
-    let newLayers: Layer[] = [];
-
-    this._layers.forEach((layer: Layer) => {
-      if (layer.gates.length > 0) {
-        newLayers.push(layer);
-      }
-    });
-
-    this._layers = newLayers;
-  }
-
-  justify() {
-    logger.log('Not implemented justify() yet');
-  }
-
-  private _updateLayout() {
+  private _generateLayout() {
     if (!this._cached) {
       return;
     }
 
-    // Remove idle layers
-    this._removeIdle();
+    let newQubits: Qubit[] = [];
+    let qubitMap = new Map<Qubit, number>();
+    let newLayers: Layer[] = [];
+    let layerMap = new Map<Layer, number>();
 
-    // Update line number of qubits sorted by qubit index
-    let qubits: Qubit[] = [];
-    this._qubits.forEach((qubit: Qubit) => {
-      qubits.push(qubit);
+    // Generate new qubits
+    this._qubits.forEach((qubit: Qubit, index: number) => {
+      if (!this._isIdleQubit[index]) {
+        newQubits.push(qubit);
+      } else {
+        if (
+          index === 0 ||
+          index === this._qubits.length - 1 ||
+          !this._isIdleQubit[index - 1]
+        ) {
+          newQubits.push(qubit);
+        }
+      }
+      qubitMap.set(qubit, newQubits.length - 1);
     });
 
-    qubits.sort((a: Qubit, b: Qubit) => {
-      return a.qubitIndex - b.qubitIndex;
+    // Generate new layers
+    this._layers.forEach((layer: Layer, index: number) => {
+      if (!this._isIdleLayer[index]) {
+        let newLayer = new Layer();
+        newLayer.gates = layer.gates.filter((gate) =>
+          this._isVisibleGate(gate)
+        );
+        newLayers.push(newLayer);
+      } else {
+        if (
+          index === 0 ||
+          index === this._layers.length - 1 ||
+          !this._isIdleLayer[index - 1]
+        ) {
+          let newLayer = new Layer();
+          newLayers.push(newLayer);
+        }
+      }
+      layerMap.set(layer, newLayers.length - 1);
     });
 
-    this._qubitLineno.clear();
-    let index = 0;
-    qubits.forEach((qubit: Qubit) => {
-      this._qubitLineno.set(qubit, index);
-      index++;
-    });
+    this._drawableCircuit.loadFromLayers(newLayers, newQubits, qubitMap);
 
     this._cached = false;
+  }
+
+  private _isVisibleGate(gate: ComponentGate): boolean {
+    let layerIndex = this._componentCircuit.getGateLayer(gate);
+    if (this._isIdleLayer[layerIndex]) {
+      return false;
+    }
+
+    let firstQubitIndex = this._qubits.indexOf(gate.qubits[0]);
+    if (this._isIdleQubit[firstQubitIndex]) {
+      return false;
+    }
+    let lastQubitIndex = this._qubits.indexOf(
+      gate.qubits[gate.qubits.length - 1]
+    );
+    if (this._isIdleQubit[lastQubitIndex]) {
+      return false;
+    }
+
+    // TODO: Implement for multi-qubit gates
+
+    return true;
   }
 
   private _writtenInSemantics(cGate: ComponentGate): Abstraction | undefined {
@@ -226,6 +275,14 @@ class AbstractedCircuit {
   }
 
   exportJson(): any {
-    return {"msg": "Hello!"};
+    return {msg: 'Hello!'};
+  }
+
+  get width(): number {
+    return this._layers.length;
+  }
+
+  get height(): number {
+    return this._qubits.length;
   }
 }
