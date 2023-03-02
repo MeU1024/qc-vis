@@ -43,6 +43,4 @@ function registerQuantivineCommands() {
 
 function registerProviders() {
   const configuration = vscode.workspace.getConfiguration("quantivine");
-  let absDataProvider = new AbstractionDataProvider();
-  absDataProvider.updateData();
 }

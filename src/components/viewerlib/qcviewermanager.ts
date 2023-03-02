@@ -35,6 +35,7 @@ export class QCViewerManagerService {
       return;
     }
     panelSet.add(qcvPanel);
+    qcvPanel.updateData();
     qcvPanel.webviewPanel.onDidDispose(() => {
       panelSet.delete(qcvPanel);
     });

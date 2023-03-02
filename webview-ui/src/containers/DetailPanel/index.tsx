@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import BitsName from "../../components/BitsName";
-import { CircuitAnnotator } from "../../components/CircuitAnnotator";
-import { CircuitRender } from "../../components/CircuitRender";
-import Circuit2GridData from "../../utilities/Circuit2GridData";
+import {useEffect, useState} from 'react';
+import BitsName from '../../components/BitsName';
+import {CircuitAnnotator} from '../../components/CircuitAnnotator';
+import {CircuitRender} from '../../components/CircuitRender';
+import Circuit2GridData from '../../utilities/Circuit2GridData';
 
-import data from "../../../data/vqc-10-detail-abstract.json";
+import data from '../../../data/vqc-10-detail-abstract.json';
 export interface DetailPanelProps {
   theme: any;
   highlightGate: string | null;
@@ -24,7 +24,9 @@ const DetailPanel = (props: DetailPanelProps) => {
     all_gates: (number | number[])[][];
   }>(data);
 
-  const { theme, highlightGate } = props;
+  const [panelTitle, setPanelTitle] = useState("Abstraction");
+
+  const {theme, highlightGate} = props;
 
   //fetch data and modify canvas size
   useEffect(() => {
@@ -43,41 +45,64 @@ const DetailPanel = (props: DetailPanelProps) => {
 
   useEffect(() => {
     if (gridHeight !== null && gridWidth !== null) {
-      const { graph, graphText } = Circuit2GridData(circuit);
+      const {graph, graphText} = Circuit2GridData(circuit);
 
-      const canvas = document.getElementById("detailCanvas");
+      const canvas = document.getElementById('detailCanvas');
       if (canvas) {
-        const ctx = (canvas as HTMLCanvasElement).getContext("2d");
+        const ctx = (canvas as HTMLCanvasElement).getContext('2d');
         if (ctx) {
-          ctx.fillStyle = "#ffffff";
+          ctx.fillStyle = '#ffffff';
           ctx.clearRect(
             0,
             0,
             (canvas as HTMLCanvasElement).width,
             (canvas as HTMLCanvasElement).height
           );
-          CircuitRender({ graph, ctx, gridWidth, gridHeight });
-          CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
+          CircuitRender({graph, ctx, gridWidth, gridHeight});
+          CircuitAnnotator({graphText, ctx, gridWidth, gridHeight});
         }
       }
     }
   }, [gridWidth, theme, circuit]);
 
+  useEffect(() => {
+    const handleMessageEvent = (event: any) => {
+      const message = event.data;
+      console.log(message);
+      switch (message.command) {
+        case 'setCircuit':
+          setCircuit(message.data);
+          break;
+        case 'setCanvasSize':
+          setCanvasWidth(message.data.width);
+          setCanvasHeight(message.data.height);
+          break;
+        case 'setTitle':
+          setPanelTitle(message.data.title);
+          break;
+      }
+    };
+    window.addEventListener('message', handleMessageEvent);
+    return () => {
+      window.removeEventListener('message', handleMessageEvent);
+    };
+  }, []);
+
   return (
-    <div className="panel">
-      <div className="panelHeader"> Detail</div>
+    <div className='panel'>
+      <div className='panelHeader'>{panelTitle}</div>
       <div
-        className="circuit"
+        className='circuit'
         style={{
-          gridTemplateColumns: (gridHeight * 0.6).toString() + "px auto",
+          gridTemplateColumns: (gridHeight * 0.6).toString() + 'px auto',
         }}
       >
         <BitsName
           qbitLengths={qbitLengths}
-          alignment={"sub"}
+          alignment={'sub'}
           gridHeight={gridHeight}
         />
-        <canvas id="detailCanvas" width="550" height="250"></canvas>
+        <canvas id='detailCanvas' width='550' height='250'></canvas>
       </div>
     </div>
   );

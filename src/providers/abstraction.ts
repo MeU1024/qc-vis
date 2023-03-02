@@ -14,15 +14,20 @@ import {
 } from './structurelib/qcmodel';
 
 import * as qv from '../quantivine';
+import {QCViewerManagerService} from '../components/viewerlib/qcviewermanager';
 
 const logger = getLogger('DataProvider', 'Abstraction');
 
 export class AbstractionDataProvider {
-  private _data: any;
-  private _abstractData: any;
+  private _data: AbstractedCircuit | undefined;
+  private _dataFile: vscode.Uri;
 
-  constructor(data?: any) {
-    this._data = data;
+  constructor(_dataFile?: vscode.Uri) {
+    if (_dataFile) {
+      this._dataFile = _dataFile;
+    } else {
+      this._dataFile = qv.getDefaultDataFile();
+    }
   }
 
   get data() {
@@ -35,14 +40,36 @@ export class AbstractionDataProvider {
 
   async updateData() {
     this._data = await this.abstractQcData();
+    this._postData();
   }
 
   async abstractQcData() {
-    let dataSource = vscode.Uri.file('./temp/abstraction-test.json');
-
-    let abstractCircuit = new AbstractedCircuit();
+    let abstractCircuit = new AbstractedCircuit(this._dataFile);
 
     return abstractCircuit;
+  }
+
+  private async _postData() {
+    if (!this._data) {
+      return;
+    }
+
+    // let message = {
+    //   command: 'setAbstractedCircuit',
+    //   data: this._data.exportJson(),
+    // };
+    
+    let message = {
+      command: "setTitle",
+      data: {"title": "Abstraction View"},
+    };
+
+    let panelSet = QCViewerManagerService.getPanelSet(this._dataFile);
+
+    panelSet?.forEach((panel) => {
+      panel.postMessage(message);
+      logger.log(`Sent Message: ${panel.dataFileUri}`);
+    });
   }
 }
 
@@ -58,9 +85,9 @@ class AbstractedCircuit {
   private _cachedGates: Set<ComponentGate>; // Set of treeIndex of cached gates
   private _cached: boolean;
 
-  constructor(dataSource?: vscode.Uri) {
-    this._componentCircuit = this._importCircuitFromFile(dataSource);
-    this._semanticsList = this._importSemanticsFromFile(dataSource);
+  constructor(dataFile: vscode.Uri) {
+    this._componentCircuit = this._importCircuitFromFile(dataFile);
+    this._semanticsList = this._importSemanticsFromFile(dataFile);
 
     this._qubits = new Set<Qubit>();
     this._qubitLineno = new Map<Qubit, number>();
@@ -75,21 +102,13 @@ class AbstractedCircuit {
     this.justify();
   }
 
-  private _importCircuitFromFile(dataFile?: vscode.Uri): ComponentCircuit {
-    if (!dataFile) {
-      let path = vscode.Uri.joinPath(qv.getExtensionUri(), '/resources/data/abstraction-test.json').fsPath;
-      dataFile = vscode.Uri.file(path);
-    }
+  private _importCircuitFromFile(dataFile: vscode.Uri): ComponentCircuit {
     logger.log('Load component data from: ' + dataFile.fsPath);
     let data = require(dataFile.fsPath);
     return new ComponentCircuit(data.circuit);
   }
 
-  private _importSemanticsFromFile(dataFile?: vscode.Uri): Semantics[] {
-    if (!dataFile) {
-      let path = vscode.Uri.joinPath(qv.getExtensionUri(), '/resources/data/abstraction-test.json').fsPath;
-      dataFile = vscode.Uri.file(path);
-    }
+  private _importSemanticsFromFile(dataFile: vscode.Uri): Semantics[] {
     logger.log('Load semantics data from: ' + dataFile.fsPath);
     let data = require(dataFile.fsPath);
     let semantics = data.semantics.map((sem: any) => {
@@ -204,5 +223,9 @@ class AbstractedCircuit {
     });
 
     return ret;
+  }
+
+  exportJson(): any {
+    return {"msg": "Hello!"};
   }
 }

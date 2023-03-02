@@ -13,12 +13,8 @@ export class Viewer {
     tabEditorGroup: string,
     preserveFocus: boolean
   ): Promise<void> {
-    // const codeExisit = await this.checkViewer(sourceFile);
-    // if (!codeExisit) {
-    //   return;
-    // }
-    // const dataUri = this.code2data(sourceFile);
-    const dataUri = vscode.Uri.file("");
+    // TODO: Get data file from source file
+    const dataUri = qv.getDefaultDataFile();
     return this.visualizeQCircuitInTab(dataUri, tabEditorGroup, preserveFocus);
   }
 

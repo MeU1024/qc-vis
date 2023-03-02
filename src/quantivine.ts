@@ -4,8 +4,8 @@ import {EventBus} from './components/eventBus';
 import {getLogger} from './components/logger';
 import {Manager} from './components/manager';
 import {Viewer} from './components/viewer';
-import { QuantivineFileSystem } from './components/qvfs';
-import { SemanticTreeViewer } from './providers/structure';
+import {QuantivineFileSystem} from './components/qvfs';
+import {SemanticTreeViewer} from './providers/structure';
 
 let disposables: {dispose(): any}[] = [];
 let context: vscode.ExtensionContext;
@@ -37,7 +37,7 @@ export function init(extensionContext: vscode.ExtensionContext) {
   logger.initializeStatusBarItem();
   logger.log('Quantivine initialized.');
 
-  const qvDisposable =  {
+  const qvDisposable = {
     dispose: () => {
       //   cacher.reset();
       //   server.dispose();
@@ -67,4 +67,13 @@ export function getExtensionUri() {
     return context.extensionUri;
   }
   return vscode.Uri.file(extensionRoot);
+}
+
+export function getDefaultDataFile() {
+  return vscode.Uri.file(
+    vscode.Uri.joinPath(
+      getExtensionUri(),
+      '/resources/data/default-data-source.json'
+    ).fsPath
+  );
 }

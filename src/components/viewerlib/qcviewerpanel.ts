@@ -10,6 +10,7 @@ import {
 } from '../../../types/quantivine-protocol-type';
 import {getUri} from '../../utilities/getUri';
 import {getNonce} from '../../utilities/getNonce';
+import { AbstractionDataProvider } from '../../providers/abstraction';
 
 const logger = getLogger('Viewer', 'Panel');
 
@@ -17,6 +18,7 @@ export class QCViewerPanel {
   readonly webviewPanel: vscode.WebviewPanel;
   readonly dataFileUri: vscode.Uri;
   private viewerState: QCViewerState | undefined;
+  private _abstractionData: AbstractionDataProvider | undefined;
 
   constructor(dataFileUri: vscode.Uri, panel: vscode.WebviewPanel) {
     this.dataFileUri = dataFileUri;
@@ -37,6 +39,17 @@ export class QCViewerPanel {
 
   get state() {
     return this.viewerState;
+  }
+
+  postMessage(message: any) {
+    this.webviewPanel.webview.postMessage(message);
+  }
+
+  updateData() {
+    if (!this._abstractionData) {
+      this._abstractionData = new AbstractionDataProvider(this.dataFileUri);
+    }
+    this._abstractionData.updateData();
   }
 }
 
