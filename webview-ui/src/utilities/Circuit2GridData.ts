@@ -14,13 +14,16 @@ const Circuit2GridData = (circuitData: {
 
   const graph: number[][] = [];
   const graphText: { x: number[]; y: number[]; content: string }[] = [];
-
+  const lastCtrl: number[] = [];
   for (let col = 0; col < cols; col++) {
     var layer: number[] = [];
     for (let row = 0; row < rows; row++) {
       layer.push(0);
     }
     graph.push(layer);
+  }
+  for (let row = 0; row < rows; row++) {
+    lastCtrl.push(0);
   }
   qubits.forEach((item, index) => {
     if (item == "···" || item == "...") {
@@ -36,11 +39,14 @@ const Circuit2GridData = (circuitData: {
     const yRange: number[] = item[2];
     var start = yRange[0];
     var end = yRange[yRange.length - 1];
+    var gateRole = 0;
     if (end < start) {
       start = yRange[1];
       end = yRange[0];
     }
-
+    if (item.length == 4) {
+      gateRole = item[3];
+    }
     switch (op) {
       case "h":
       case "ry":
@@ -55,6 +61,7 @@ const Circuit2GridData = (circuitData: {
         }
         graph[xRange[0]][yRange[0]] = opDict["ctrl_up"];
         graph[xRange[0]][yRange[yRange.length - 1]] = opDict["ctrl_down"];
+
         break;
       case "cx":
         for (let index = start; index < end; index++) {
@@ -103,8 +110,28 @@ const Circuit2GridData = (circuitData: {
         }
         break;
     }
+    if (gateRole == 1) {
+      for (let row = start; row < end; row++) {
+        for (let col = xRange[xRange.length - 1] + 1; col < cols; col++) {
+          graph[col][row] = opDict["empty"];
+        }
+      }
+      if (op == "cx" || op == "cy" || op == "cz") {
+        if (xRange[xRange.length - 1] > lastCtrl[yRange[0]]) {
+          lastCtrl[yRange[0]] = xRange[xRange.length - 1];
+        }
+      }
+    }
   });
-
+  for (let row = 0; row < rows; row++) {
+    if (lastCtrl[row] !== 0) {
+      for (let col = 0; col < lastCtrl[row] + 1; col++) {
+        if (graph[col][row] == opDict["empty"]) {
+          graph[col][row] = opDict["horizon_line"];
+        }
+      }
+    }
+  }
   return { graph, graphText };
 };
 
