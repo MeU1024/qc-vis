@@ -239,16 +239,20 @@ export class ComponentGate {
 }
 
 export class Qubit {
-  constructor(readonly qubitName: string, readonly qubitIndex: number) {}
+  constructor(readonly qubitName: string, readonly qubitIndex?: number) {}
+}
+
+export class SuperQubit extends Qubit {
+  constructor(qubitName: string, readonly qubits: Qubit[]) {
+    super(qubitName);
+  }
 }
 
 export class ComponentCircuit {
-  getGateLayer(gate: ComponentGate): number {
-    throw new Error('Method not implemented.');
-  }
   private _qubits: Qubit[];
   private _gates: ComponentGate[];
   private _layers: Layer[];
+  private _gateLayerMap: Map<ComponentGate, number>;
 
   constructor(jsonData: any) {
     this._qubits = [];
@@ -275,6 +279,8 @@ export class ComponentCircuit {
         this._layers[this._layers.length - 1].gates.push(gate);
       });
     });
+
+    this._gateLayerMap = this._mapGateToLayer();
   }
 
   slice(range: number[]): ComponentGate[] {
@@ -287,6 +293,20 @@ export class ComponentCircuit {
     });
 
     return ret;
+  }
+
+  private _mapGateToLayer(): Map<ComponentGate, number> {
+    let gateLayerMap = new Map<ComponentGate, number>();
+    this._layers.forEach((layer, layerIndex) => {
+      layer.gates.forEach((gate) => {
+        gateLayerMap.set(gate, layerIndex);
+      });
+    });
+    return gateLayerMap;
+  }
+
+  getGateLayer(gate: ComponentGate): number | undefined {
+    return this._gateLayerMap.get(gate);
   }
 
   get qubits() {
@@ -313,23 +333,43 @@ export class ComponentCircuit {
 export class DrawableCircuit {
   private _width: number;
   private _height: number;
-  private _opMap: Map<ComponentGate, number>;
+  private _opMap: Map<string, number>;
   private _qubits: Qubit[];
   private _layers: Layer[];
+  private _qubitMap: Map<Qubit, number>;
 
   constructor() {
     this._width = 0;
     this._height = 0;
-    this._opMap = new Map<ComponentGate, number>();
+    this._opMap = new Map<string, number>();
     this._qubits = [];
     this._layers = [];
+    this._qubitMap = new Map<Qubit, number>();
   }
 
   loadFromLayers(
     layers: Layer[],
     qubits: Qubit[],
     qubitMap: Map<Qubit, number>
-  ) {}
+  ) {
+    this._layers = layers;
+    this._qubits = qubits;
+    this._width = layers.length;
+    this._height = qubits.length;
+    this._qubitMap = qubitMap;
+
+    // build opMap
+    this._opMap.set('...', 0);
+    let opCount = 1;
+    layers.forEach((layer) => {
+      layer.gates.forEach((gate) => {
+        let opName = gate.gateName;
+        if (!this._opMap.has(opName)) {
+          this._opMap.set(opName, opCount++);
+        }
+      });
+    });
+  }
 
   exportJson(): any {
     return {
@@ -341,18 +381,40 @@ export class DrawableCircuit {
   }
 
   get size() {
-    return [this._width, this._height];
+    return [this._height, this._width];
   }
 
   get opMap() {
-    return {};
+    let ret: any = {};
+    this._opMap.forEach((value, key) => {
+      ret[key] = value;
+    });
+    return ret;
   }
 
   get qubitNames() {
-    return [];
+    return this._qubits.map((qubit) => {
+      return qubit.qubitName;
+    });
   }
 
   get layerInfo() {
-    return [];
+    let ret: any[] = [];
+    this._layers.forEach((layer, layerIndex) => {
+      let layerInfo: any[] = [];
+      layer.gates.forEach((gate) => {
+        let gateInfo: any[] = [];
+        const opNameIndex = this._opMap.get(gate.gateName);
+        const qubitsIndex = gate.qubits.map((qubit) =>
+          this._qubitMap.get(qubit)
+        );
+        gateInfo.push(opNameIndex);
+        gateInfo.push([layerIndex]);
+        gateInfo.push(qubitsIndex);
+        layerInfo.push(gateInfo);
+      });
+      ret.push(layerInfo);
+    });
+    return ret;
   }
 }

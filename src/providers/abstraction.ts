@@ -12,6 +12,7 @@ import {
   DrawableCircuit,
   Layer,
   Qubit,
+  SuperQubit,
 } from './structurelib/qcmodel';
 
 import * as qv from '../quantivine';
@@ -55,20 +56,21 @@ export class AbstractionDataProvider {
       return;
     }
 
-    // let message = {
-    //   command: 'setAbstractedCircuit',
-    //   data: this._data.exportJson(),
-    // };
-
-    let message = {
+    let message1 = {
       command: 'setTitle',
       data: {title: 'Abstraction View'},
+    };
+
+    let message2 = {
+      command: 'setAbstractedCircuit',
+      data: this._data.exportJson(),
     };
 
     let panelSet = QCViewerManagerService.getPanelSet(this._dataFile);
 
     panelSet?.forEach((panel) => {
-      panel.postMessage(message);
+      panel.postMessage(message1);
+      panel.postMessage(message2);
       logger.log(`Sent Message: ${panel.dataFileUri}`);
     });
   }
@@ -133,6 +135,7 @@ class AbstractedCircuit {
     this._qubits = this._componentCircuit.qubits;
     this._isIdleQubit = new Array(this._qubits.length).fill(true);
     this._layers = new Array(width);
+    this._isIdleLayer = new Array(width).fill(true);
     this._abstractions = [];
     this._cachedGates.clear();
 
@@ -161,7 +164,7 @@ class AbstractedCircuit {
 
   private _visGate(gate: ComponentGate) {
     let layerIndex = this._componentCircuit.getGateLayer(gate);
-    this._isIdleLayer[layerIndex] = false;
+    this._isIdleLayer[layerIndex!] = false;
 
     let firstQubitIndex = this._qubits.indexOf(gate.qubits[0]);
     this._isIdleQubit[firstQubitIndex] = false;
@@ -176,7 +179,7 @@ class AbstractedCircuit {
   private _cacheGates(gates: ComponentGate[]) {
     gates.forEach((gate: ComponentGate) => {
       let layerIndex = this._componentCircuit.getGateLayer(gate);
-      this._cachedGates.set(gate, layerIndex);
+      this._cachedGates.set(gate, layerIndex!);
     });
     this._cached = true;
   }
@@ -201,14 +204,18 @@ class AbstractedCircuit {
           index === this._qubits.length - 1 ||
           !this._isIdleQubit[index - 1]
         ) {
-          newQubits.push(qubit);
+          newQubits.push(new SuperQubit("...", [qubit]));
+        }
+        else {
+          let superQubit = newQubits[newQubits.length - 1] as SuperQubit;
+          superQubit.qubits.push(qubit);
         }
       }
       qubitMap.set(qubit, newQubits.length - 1);
     });
 
     // Generate new layers
-    this._layers.forEach((layer: Layer, index: number) => {
+    this._componentCircuit.layers.forEach((layer: Layer, index: number) => {
       if (!this._isIdleLayer[index]) {
         let newLayer = new Layer();
         newLayer.gates = layer.gates.filter((gate) =>
@@ -235,7 +242,7 @@ class AbstractedCircuit {
 
   private _isVisibleGate(gate: ComponentGate): boolean {
     let layerIndex = this._componentCircuit.getGateLayer(gate);
-    if (this._isIdleLayer[layerIndex]) {
+    if (this._isIdleLayer[layerIndex!]) {
       return false;
     }
 
@@ -275,7 +282,7 @@ class AbstractedCircuit {
   }
 
   exportJson(): any {
-    return {msg: 'Hello!'};
+    return this._drawableCircuit.exportJson();
   }
 
   get width(): number {
