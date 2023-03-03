@@ -57,12 +57,12 @@ export class AbstractionDataProvider {
     }
 
     let message1 = {
-      command: 'setTitle',
+      command: 'abstraction.setTitle',
       data: {title: 'Abstraction View'},
     };
 
     let message2 = {
-      command: 'setAbstractedCircuit',
+      command: 'abstraction.setCircuit',
       data: this._data.exportJson(),
     };
 

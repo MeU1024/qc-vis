@@ -372,11 +372,13 @@ export class DrawableCircuit {
   }
 
   exportJson(): any {
+    // TODO: rename
     return {
-      size: this.size,
-      opMap: this.opMap,
+      output_size: this.size,
+      op_map: this.opMap,
       qubits: this.qubitNames,
-      allGates: this.layerInfo,
+      all_gates: this.layerInfo,
+      gate_format: "",
     };
   }
 
@@ -413,7 +415,7 @@ export class DrawableCircuit {
         gateInfo.push(qubitsIndex);
         layerInfo.push(gateInfo);
       });
-      ret.push(layerInfo);
+      ret.push(...layerInfo);
     });
     return ret;
   }

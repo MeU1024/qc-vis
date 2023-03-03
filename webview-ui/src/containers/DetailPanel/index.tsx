@@ -70,14 +70,14 @@ const DetailPanel = (props: DetailPanelProps) => {
       const message = event.data;
       console.log(message);
       switch (message.command) {
-        case 'setCircuit':
+        case 'abstraction.setCircuit':
           setCircuit(message.data);
           break;
-        case 'setCanvasSize':
+        case 'abstraction.setCanvasSize':
           setCanvasWidth(message.data.width);
           setCanvasHeight(message.data.height);
           break;
-        case 'setTitle':
+        case 'abstraction.setTitle':
           setPanelTitle(message.data.title);
           break;
       }
