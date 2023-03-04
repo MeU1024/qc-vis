@@ -1,24 +1,24 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import {getLogger} from '../components/logger';
+import { getLogger } from "../components/logger";
 import {
   Abstraction,
   AbstractionRule,
   Semantics,
-} from './abstractionlib/abstractionrule';
+} from "./abstractionlib/abstractionrule";
 import {
-  ComponentCircuit,
   ComponentGate,
   DrawableCircuit,
   Layer,
   Qubit,
   SuperQubit,
-} from './structurelib/qcmodel';
+} from "./structurelib/qcmodel";
 
-import * as qv from '../quantivine';
-import {QCViewerManagerService} from '../components/viewerlib/qcviewermanager';
+import * as qv from "../quantivine";
+import { QCViewerManagerService } from "../components/viewerlib/qcviewermanager";
+import { ComponentCircuit } from "./component";
 
-const logger = getLogger('DataProvider', 'Abstraction');
+const logger = getLogger("DataProvider", "Abstraction");
 
 export class AbstractionDataProvider {
   private _data: AbstractedCircuit | undefined;
@@ -57,12 +57,12 @@ export class AbstractionDataProvider {
     }
 
     let message1 = {
-      command: 'abstraction.setTitle',
-      data: {title: 'Abstraction View'},
+      command: "abstraction.setTitle",
+      data: { title: "Abstraction View" },
     };
 
     let message2 = {
-      command: 'abstraction.setCircuit',
+      command: "abstraction.setCircuit",
       data: this._data.exportJson(),
     };
 
@@ -111,13 +111,13 @@ class AbstractedCircuit {
   }
 
   private _importCircuitFromFile(dataFile: vscode.Uri): ComponentCircuit {
-    logger.log('Load component data from: ' + dataFile.fsPath);
+    logger.log("Load component data from: " + dataFile.fsPath);
     let data = require(dataFile.fsPath);
     return new ComponentCircuit(data.circuit);
   }
 
   private _importSemanticsFromFile(dataFile: vscode.Uri): Semantics[] {
-    logger.log('Load semantics data from: ' + dataFile.fsPath);
+    logger.log("Load semantics data from: " + dataFile.fsPath);
     let data = require(dataFile.fsPath);
     let semantics = data.semantics.map((sem: any) => {
       let semType = sem.type;
@@ -205,8 +205,7 @@ class AbstractedCircuit {
           !this._isIdleQubit[index - 1]
         ) {
           newQubits.push(new SuperQubit("...", [qubit]));
-        }
-        else {
+        } else {
           let superQubit = newQubits[newQubits.length - 1] as SuperQubit;
           superQubit.qubits.push(qubit);
         }

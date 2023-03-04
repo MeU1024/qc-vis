@@ -1,16 +1,16 @@
-import * as vscode from 'vscode';
-import {getLogger} from '../../components/logger';
-import * as qv from '../../quantivine';
-import {QuantumTreeNode, NodeType} from './quantumgate';
+import * as vscode from "vscode";
+import { getLogger } from "../../components/logger";
+import * as qv from "../../quantivine";
+import { QuantumTreeNode, NodeType } from "./quantumgate";
 
-const logger = getLogger('DataProvider', 'QC Model');
+const logger = getLogger("DataProvider", "QC Model");
 
 export class QcStructure {
   private static qcComponentIdentifiers: {
     comps: string[];
-  } = {comps: []};
+  } = { comps: [] };
 
-  private static readonly qcGateDepths: {[id: string]: number} = {};
+  private static readonly qcGateDepths: { [id: string]: number } = {};
 
   /**
    * This function parses the AST tree of a quantum circuit code to build its
@@ -73,18 +73,18 @@ export class QcStructure {
   }
 
   protected static refreshQcModelConfig() {
-    const configuration = vscode.workspace.getConfiguration('quantivine');
+    const configuration = vscode.workspace.getConfiguration("quantivine");
     const hierarchy = configuration.get(
-      'view.outline.components.identifiers'
+      "view.outline.components.identifiers"
     ) as string[];
     hierarchy.forEach((ids, index) => {
-      ids.split('|').forEach((id) => {
+      ids.split("|").forEach((id) => {
         QcStructure.qcGateDepths[id] = index;
       });
     });
 
     QcStructure.qcComponentIdentifiers = {
-      comps: hierarchy.map((ids) => ids.split('|')).flat(),
+      comps: hierarchy.map((ids) => ids.split("|")).flat(),
     };
   }
 }
@@ -93,11 +93,11 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
   if (!file) {
     let path = vscode.Uri.joinPath(
       qv.getExtensionUri(),
-      '/resources/data/vqc-structure.json'
+      "/resources/data/vqc-structure.json"
     ).fsPath;
     file = vscode.Uri.file(path);
   }
-  logger.log('Loading tree from file: ' + file.fsPath + '...');
+  logger.log("Loading tree from file: " + file.fsPath + "...");
 
   let data = require(file.fsPath);
 
@@ -120,9 +120,9 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
       let parent = gateList[node.parentIndex];
       let nodeName = node.name;
       let nodeType =
-        node.type === 'fun'
+        node.type === "fun"
           ? NodeType.superGate
-          : node.type === 'rep'
+          : node.type === "rep"
           ? NodeType.repetition
           : NodeType.basicGate;
       let description = undefined;
@@ -132,7 +132,7 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
       }
 
       if (nodeType === NodeType.repetition) {
-        description = '×' + ' ? times';
+        description = "×" + " ? times";
       }
 
       let newGate = new QuantumTreeNode(
@@ -160,17 +160,17 @@ function testTree() {
   gates.push(
     new QuantumTreeNode(
       NodeType.superGate,
-      'QuantumCircuit01',
+      "QuantumCircuit01",
       vscode.TreeItemCollapsibleState.Expanded,
       0,
       index++
     )
   );
 
-  const firstLevelGates = ['h', 'PA', 'Ent'];
+  const firstLevelGates = ["h", "PA", "Ent"];
 
   firstLevelGates.forEach((label) => {
-    const gateType = label.endsWith('Gate')
+    const gateType = label.endsWith("Gate")
       ? NodeType.basicGate
       : NodeType.superGate;
     let newGate = new QuantumTreeNode(
@@ -184,11 +184,11 @@ function testTree() {
     gates[0].children.push(newGate);
   });
 
-  const secondLevelGates = ['H-Gate', 'G41', 'G42'];
+  const secondLevelGates = ["H-Gate", "G41", "G42"];
 
   secondLevelGates.forEach((label) => {
     const parentGate = gates[0].children[1];
-    const gateType = label.endsWith('Gate')
+    const gateType = label.endsWith("Gate")
       ? NodeType.basicGate
       : NodeType.superGate;
     let newGate = new QuantumTreeNode(
@@ -205,6 +205,9 @@ function testTree() {
   return gates;
 }
 
+// export class TaggedLayer {
+//   constructor(readonly gates: ComponentGate[]) {}
+// }
 export class Layer {
   private _gates: ComponentGate[];
 
@@ -248,87 +251,87 @@ export class SuperQubit extends Qubit {
   }
 }
 
-export class ComponentCircuit {
-  private _qubits: Qubit[];
-  private _gates: ComponentGate[];
-  private _layers: Layer[];
-  private _gateLayerMap: Map<ComponentGate, number>;
+// export class ComponentCircuit {
+//   private _qubits: Qubit[];
+//   private _gates: ComponentGate[];
+//   private _layers: Layer[];
+//   private _gateLayerMap: Map<ComponentGate, number>;
 
-  constructor(jsonData: any) {
-    this._qubits = [];
-    jsonData.qubits.forEach((qubitName: string) => {
-      this._qubits.push(new Qubit(qubitName, this._qubits.length));
-    });
+//   constructor(jsonData: any) {
+//     this._qubits = [];
+//     jsonData.qubits.forEach((qubitName: string) => {
+//       this._qubits.push(new Qubit(qubitName, this._qubits.length));
+//     });
 
-    this._gates = [];
-    this._layers = [];
+//     this._gates = [];
+//     this._layers = [];
 
-    jsonData.layers.forEach((layer: any) => {
-      this._layers.push(new Layer([]));
-      layer.forEach((gateInfo: any) => {
-        let gateName = gateInfo[0];
-        let qubits: Qubit[] = [];
-        gateInfo[1].forEach((qubitIndex: number) => {
-          qubits.push(this._qubits[qubitIndex]);
-        });
-        let range = gateInfo[2];
-        let treeIndex = gateInfo[3];
+//     jsonData.layers.forEach((layer: any) => {
+//       this._layers.push(new Layer([]));
+//       layer.forEach((gateInfo: any) => {
+//         let gateName = gateInfo[0];
+//         let qubits: Qubit[] = [];
+//         gateInfo[1].forEach((qubitIndex: number) => {
+//           qubits.push(this._qubits[qubitIndex]);
+//         });
+//         let range = gateInfo[2];
+//         let treeIndex = gateInfo[3];
 
-        let gate = new ComponentGate(gateName, qubits, range, treeIndex);
-        this._gates.push(gate);
-        this._layers[this._layers.length - 1].gates.push(gate);
-      });
-    });
+//         let gate = new ComponentGate(gateName, qubits, range, treeIndex);
+//         this._gates.push(gate);
+//         this._layers[this._layers.length - 1].gates.push(gate);
+//       });
+//     });
 
-    this._gateLayerMap = this._mapGateToLayer();
-  }
+//     this._gateLayerMap = this._mapGateToLayer();
+//   }
 
-  slice(range: number[]): ComponentGate[] {
-    let ret: ComponentGate[] = [];
+//   slice(range: number[]): ComponentGate[] {
+//     let ret: ComponentGate[] = [];
 
-    this._gates.forEach((gate) => {
-      if (gate.range[0] >= range[0] && gate.range[1] <= range[1]) {
-        ret.push(gate);
-      }
-    });
+//     this._gates.forEach((gate) => {
+//       if (gate.range[0] >= range[0] && gate.range[1] <= range[1]) {
+//         ret.push(gate);
+//       }
+//     });
 
-    return ret;
-  }
+//     return ret;
+//   }
 
-  private _mapGateToLayer(): Map<ComponentGate, number> {
-    let gateLayerMap = new Map<ComponentGate, number>();
-    this._layers.forEach((layer, layerIndex) => {
-      layer.gates.forEach((gate) => {
-        gateLayerMap.set(gate, layerIndex);
-      });
-    });
-    return gateLayerMap;
-  }
+//   private _mapGateToLayer(): Map<ComponentGate, number> {
+//     let gateLayerMap = new Map<ComponentGate, number>();
+//     this._layers.forEach((layer, layerIndex) => {
+//       layer.gates.forEach((gate) => {
+//         gateLayerMap.set(gate, layerIndex);
+//       });
+//     });
+//     return gateLayerMap;
+//   }
 
-  getGateLayer(gate: ComponentGate): number | undefined {
-    return this._gateLayerMap.get(gate);
-  }
+//   getGateLayer(gate: ComponentGate): number | undefined {
+//     return this._gateLayerMap.get(gate);
+//   }
 
-  get qubits() {
-    return this._qubits;
-  }
+//   get qubits() {
+//     return this._qubits;
+//   }
 
-  get layers() {
-    return this._layers;
-  }
+//   get layers() {
+//     return this._layers;
+//   }
 
-  get gates() {
-    return this._gates;
-  }
+//   get gates() {
+//     return this._gates;
+//   }
 
-  get width() {
-    return this._layers.length;
-  }
+//   get width() {
+//     return this._layers.length;
+//   }
 
-  get height() {
-    return this._qubits.length;
-  }
-}
+//   get height() {
+//     return this._qubits.length;
+//   }
+// }
 
 export class DrawableCircuit {
   private _width: number;
@@ -359,7 +362,7 @@ export class DrawableCircuit {
     this._qubitMap = qubitMap;
 
     // build opMap
-    this._opMap.set('...', 0);
+    this._opMap.set("...", 0);
     let opCount = 1;
     layers.forEach((layer) => {
       layer.gates.forEach((gate) => {
