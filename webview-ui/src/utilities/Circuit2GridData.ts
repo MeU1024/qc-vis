@@ -41,7 +41,7 @@ const Circuit2GridData = (circuitData: {
     var end = yRange[yRange.length - 1];
     var gateRole = 0;
     if (end < start) {
-      start = yRange[1];
+      start = yRange[yRange.length - 1];
       end = yRange[0];
     }
     if (item.length == 4) {
@@ -92,14 +92,16 @@ const Circuit2GridData = (circuitData: {
               break;
             case 1:
               graph[xRange[0]][yRange[0]] = opDict["single_gate_up"];
-              graph[xRange[0]][yRange[1]] = opDict["single_gate_bottom"];
+              graph[xRange[0]][yRange[yRange.length - 1]] =
+                opDict["single_gate_bottom"];
               break;
             default:
               for (let index = start; index < end; index++) {
                 graph[xRange[0]][index] = opDict["single_gate_middle"];
               }
               graph[xRange[0]][start] = opDict["single_gate_up"];
-              graph[xRange[0]][yRange[1]] = opDict["single_gate_bottom"];
+              graph[xRange[0]][yRange[yRange.length - 1]] =
+                opDict["single_gate_bottom"];
               break;
           }
           graphText.push({

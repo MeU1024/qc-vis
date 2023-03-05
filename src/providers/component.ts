@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 import { getLogger } from "../components/logger";
+import { QCViewerManagerService } from "../components/viewerlib/qcviewermanager";
 
 import * as qv from "../quantivine";
 import { getExtensionUri } from "../quantivine";
@@ -9,6 +10,7 @@ import {
   ComponentGate,
   Layer,
   SuperQubit,
+  DrawableCircuit,
 } from "./structurelib/qcmodel";
 
 const logger = getLogger("DataProvider", "Component");
@@ -40,6 +42,7 @@ export class ComponentDataProvider {
 
   async componentQcData() {
     let dataSource = vscode.Uri.file("./temp/abstraction-test.json");
+    // let circuit =
 
     let componentCircuit = new ComponentCircuit(this._dataFile);
 
@@ -47,22 +50,26 @@ export class ComponentDataProvider {
   }
 
   private async _postData() {
-    // if (!this._data) {
-    //   return;
-    // }
-    // // let message = {
-    // //   command: 'setAbstractedCircuit',
-    // //   data: this._data.exportJson(),
-    // // };
-    // let message = {
-    //   command: "setTitle",
-    //   data: {"title": "Abstraction View"},
-    // };
-    // let panelSet = QCViewerManagerService.getPanelSet(this._dataFile);
-    // panelSet?.forEach((panel) => {
-    //   panel.postMessage(message);
-    //   logger.log(`Sent Message: ${panel.dataFileUri}`);
-    // });
+    if (!this._data) {
+      return;
+    }
+    let message1 = {
+      command: "component.setTitle",
+      data: { title: "Abstraction View" },
+    };
+
+    let message2 = {
+      command: "component.setCircuit",
+      data: this._data.exportJson(),
+    };
+
+    let panelSet = QCViewerManagerService.getPanelSet(this._dataFile);
+
+    panelSet?.forEach((panel) => {
+      panel.postMessage(message1);
+      panel.postMessage(message2);
+      logger.log(`Sent Message: ${panel.dataFileUri}`);
+    });
   }
 }
 
@@ -73,6 +80,10 @@ export class ComponentCircuit {
   private _gateLayerMap: Map<ComponentGate, number>;
   private _originalGates: ComponentGate[];
   private _taggedLayers: Layer[];
+  private _superQubits: Qubit[];
+  private _superQubitMap: Map<Qubit, number>;
+  private _newQubitMap: Map<Qubit, number>;
+  private _drawableCircuit: DrawableCircuit;
   private _treeStructure: {
     name: string;
     parentIndex: number;
@@ -81,35 +92,45 @@ export class ComponentCircuit {
   }[];
   constructor(jsonData: any) {
     this._qubits = [];
-    jsonData.qubits.forEach((qubitName: string) => {
-      this._qubits.push(new Qubit(qubitName, this._qubits.length));
-    });
+
+    if (jsonData === undefined) {
+      jsonData.qubits.forEach((qubitName: string) => {
+        this._qubits.push(new Qubit(qubitName, this._qubits.length));
+      });
+    }
 
     this._gates = [];
     this._layers = [];
     this._originalGates = [];
+    this._superQubits = [];
+    this._drawableCircuit = new DrawableCircuit();
+    this._superQubitMap = new Map<Qubit, number>();
+    this._newQubitMap = new Map<Qubit, number>();
     const file = vscode.Uri.file(
       vscode.Uri.joinPath(
         getExtensionUri(),
         "/resources/data/default-data-source.json"
       ).fsPath
     );
-    jsonData.layers.forEach((layer: any) => {
-      this._layers.push(new Layer([]));
-      layer.forEach((gateInfo: any) => {
-        let gateName = gateInfo[0];
-        let qubits: Qubit[] = [];
-        gateInfo[1].forEach((qubitIndex: number) => {
-          qubits.push(this._qubits[qubitIndex]);
-        });
-        let range = gateInfo[2];
-        let treeIndex = gateInfo[3];
+    if (jsonData === undefined) {
+      jsonData.layers.forEach((layer: any) => {
+        this._layers.push(new Layer([]));
+        layer.forEach((gateInfo: any) => {
+          let gateName = gateInfo[0];
+          let qubits: Qubit[] = [];
+          gateInfo[1].forEach((qubitIndex: number) => {
+            qubits.push(this._qubits[qubitIndex]);
+          });
+          let range = gateInfo[2];
+          let treeIndex = gateInfo[3];
 
-        let gate = new ComponentGate(gateName, qubits, range, treeIndex);
-        this._gates.push(gate);
-        this._layers[this._layers.length - 1].gates.push(gate);
+          let gate = new ComponentGate(gateName, qubits, range, treeIndex);
+          this._gates.push(gate);
+          this._layers[this._layers.length - 1].gates.push(gate);
+        });
       });
-    });
+    }
+
     this._gateLayerMap = this._mapGateToLayer();
     this._taggedLayers = this._importLayersFromFile(file);
     this._treeStructure = this._importStructureFromFile();
@@ -133,8 +154,11 @@ export class ComponentCircuit {
     logger.log("Load layer data from: " + dataFile.fsPath);
     let data = require(dataFile.fsPath);
     let layers: Layer[] = [];
+    this._qubits = [];
+    data.qubits.forEach((qubitName: string) => {
+      this._qubits.push(new Qubit(qubitName, this._qubits.length));
+    });
 
-    logger.log("Load layer data : " + data);
     data.layers.forEach((layer: any) => {
       const gates = layer.map((gate: any) => {
         const qubits = gate[1].map((bit: number) => {
@@ -349,21 +373,33 @@ export class ComponentCircuit {
       newEdges.push(mergableEdges);
     }
 
-    // let superQubitMap = new Map<Qubit, number>();
+    let superQubitMap = new Map<Qubit, number>();
     let qubitMap = new Map<Qubit, SuperQubit>();
+    // let newQubitMap = new Map<Qubit, number>();
+    let qubitMapping = new Map<Qubit, number>();
     let superQubits = newEdges.map((edges: number[], index) => {
       const qubits = edges.map((index) => {
         return this._qubits[index];
       });
       const superQubit = new SuperQubit(qubits.length.toString(), qubits);
-      //   superQubitMap.set(superQubit, index);
+      superQubitMap.set(superQubit, index);
       qubits.forEach((qubit: Qubit) => {
         qubitMap.set(qubit, superQubit);
       });
       return superQubit;
     });
-
-    this._qubits = superQubits;
+    // this._qubits.forEach((qubit: Qubit) => {
+    //   const superQubit = qubitMap.get(qubit);
+    //   if (superQubit !== undefined) {
+    //     const superQubitIndex = superQubitMap.get(superQubit);
+    //     if (superQubitIndex !== undefined) {
+    //     //   newQubitMap.set(qubit, superQubitIndex);
+    //     }
+    //   }
+    // });
+    this._superQubits = superQubits;
+    this._superQubitMap = superQubitMap;
+    // this._newQubitMap = newQubitMap;
 
     //mapping to new edge
     newEdges.forEach((edges: number[], index) => {
@@ -387,7 +423,7 @@ export class ComponentCircuit {
     qubitMap: Map<Qubit, SuperQubit>
   ) {
     //gate placement
-    let qubitsPlacement = this._qubits.map((bit: Qubit) => {
+    let qubitsPlacement = this._superQubits.map((bit: Qubit) => {
       return 0;
     });
 
@@ -416,8 +452,9 @@ export class ComponentCircuit {
       });
     });
 
-    const _taggedLayers = layers.map((layer: number[]) => {
-      return layer.map((gateIndex: number) => {
+    this._gates = [];
+    const componentLayers = layers.map((layer: number[]) => {
+      const gates = layer.map((gateIndex: number) => {
         const gateInfo = gatesInfo[gateIndex];
         const qubits = new Set<SuperQubit>();
         gateInfo.qubits.forEach((qubit) => {
@@ -432,9 +469,19 @@ export class ComponentCircuit {
           gateInfo.range,
           gateInfo.treeIndex
         );
+        this._gates.push(gate);
         return gate;
       });
+      return new Layer(gates);
     });
+    this._layers = componentLayers;
+    this._mapGateToLayer();
+    this._drawableCircuit.loadFromLayers(
+      componentLayers,
+      this._superQubits,
+      this._superQubitMap
+    );
+    // const test = this.layerInfo;
   }
 
   get layers() {
@@ -455,5 +502,29 @@ export class ComponentCircuit {
 
   get height() {
     return this._qubits.length;
+  }
+
+  get layerInfo() {
+    let ret: any[] = [];
+    this._layers.forEach((layer, layerIndex) => {
+      let layerInfo: any[] = [];
+      layer.gates.forEach((gate) => {
+        let gateInfo: any[] = [];
+        const opNameIndex = gate.gateName;
+        const qubitsIndex = gate.qubits.map((qubit) =>
+          this._superQubitMap.get(qubit)
+        );
+        gateInfo.push(opNameIndex);
+        gateInfo.push([layerIndex]);
+        gateInfo.push(qubitsIndex);
+        layerInfo.push(gateInfo);
+      });
+      ret.push(...layerInfo);
+    });
+    return ret;
+  }
+
+  exportJson(): any {
+    return this._drawableCircuit.exportJson();
   }
 }

@@ -76,6 +76,27 @@ const OverviewPanel = (props: OverviewPanelProps) => {
     }
   }, [highlightGate]);
 
+  useEffect(() => {
+    const handleMessageEvent = (event: any) => {
+      const message = event.data;
+      console.log(message);
+      switch (message.command) {
+        case "component.setCircuit":
+          setCircuit(message.data);
+          console.log(message.data);
+          break;
+        case "abstraction.setCanvasSize":
+          setCanvasWidth(message.data.width);
+          setCanvasHeight(message.data.height);
+          break;
+      }
+    };
+    window.addEventListener("message", handleMessageEvent);
+    return () => {
+      window.removeEventListener("message", handleMessageEvent);
+    };
+  }, []);
+
   return (
     <div className="panel">
       <div
