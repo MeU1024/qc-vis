@@ -48,14 +48,14 @@ export class QCViewerPanel {
   }
 
   updateData() {
-    if (!this._abstractionData) {
-      this._abstractionData = new AbstractionDataProvider(this.dataFileUri);
-    }
     if (!this._componentData) {
       this._componentData = new ComponentDataProvider(this.dataFileUri);
     }
-    this._abstractionData.updateData();
+    if (!this._abstractionData) {
+      this._abstractionData = new AbstractionDataProvider(this.dataFileUri);
+    }
     this._componentData.updateData();
+    this._abstractionData.updateData();
   }
 }
 

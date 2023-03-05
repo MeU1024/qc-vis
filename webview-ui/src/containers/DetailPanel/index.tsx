@@ -40,6 +40,9 @@ const DetailPanel = (props: DetailPanelProps) => {
 
     setGridWidth(gridSize);
     setGridHeight(gridSize);
+    if (gridSize * circuit.output_size[0] < canvasWidth) {
+      setGridHeight(canvasHeight / circuit.output_size[0]);
+    }
     setQbitLength(circuit.qubits);
   }, [circuit]);
 
@@ -95,7 +98,8 @@ const DetailPanel = (props: DetailPanelProps) => {
       <div
         className="circuit"
         style={{
-          gridTemplateColumns: (gridHeight * 0.6).toString() + "px auto",
+          gridTemplateColumns:
+            ((gridHeight < 50 ? gridHeight : 50) * 0.6).toString() + "px auto",
         }}
       >
         <BitsName
