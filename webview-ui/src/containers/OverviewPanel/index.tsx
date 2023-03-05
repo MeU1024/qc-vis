@@ -83,7 +83,6 @@ const OverviewPanel = (props: OverviewPanelProps) => {
       switch (message.command) {
         case "component.setCircuit":
           setCircuit(message.data);
-          console.log(message.data);
           break;
         case "abstraction.setCanvasSize":
           setCanvasWidth(message.data.width);

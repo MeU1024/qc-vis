@@ -79,8 +79,9 @@ export class ComponentCircuit {
   private _layers: Layer[];
   private _gateLayerMap: Map<ComponentGate, number>;
   private _originalGates: ComponentGate[];
+  private _originalQubits: Qubit[];
   private _taggedLayers: Layer[];
-  private _superQubits: Qubit[];
+  //   private _superQubits: Qubit[];
   private _superQubitMap: Map<Qubit, number>;
   private _newQubitMap: Map<Qubit, number>;
   private _drawableCircuit: DrawableCircuit;
@@ -102,10 +103,12 @@ export class ComponentCircuit {
     this._gates = [];
     this._layers = [];
     this._originalGates = [];
-    this._superQubits = [];
+    // this._superQubits = [];
+    this._originalQubits = [];
     this._drawableCircuit = new DrawableCircuit();
     this._superQubitMap = new Map<Qubit, number>();
     this._newQubitMap = new Map<Qubit, number>();
+    this._gateLayerMap = new Map<ComponentGate, number>();
     const file = vscode.Uri.file(
       vscode.Uri.joinPath(
         getExtensionUri(),
@@ -131,7 +134,6 @@ export class ComponentCircuit {
       });
     }
 
-    this._gateLayerMap = this._mapGateToLayer();
     this._taggedLayers = this._importLayersFromFile(file);
     this._treeStructure = this._importStructureFromFile();
     this._build();
@@ -154,15 +156,17 @@ export class ComponentCircuit {
     logger.log("Load layer data from: " + dataFile.fsPath);
     let data = require(dataFile.fsPath);
     let layers: Layer[] = [];
-    this._qubits = [];
+    this._originalQubits = [];
     data.qubits.forEach((qubitName: string) => {
-      this._qubits.push(new Qubit(qubitName, this._qubits.length));
+      this._originalQubits.push(
+        new Qubit(qubitName, this._originalQubits.length)
+      );
     });
 
     data.layers.forEach((layer: any) => {
       const gates = layer.map((gate: any) => {
         const qubits = gate[1].map((bit: number) => {
-          return this._qubits[bit];
+          return this._originalQubits[bit];
         });
         const componentGate = new ComponentGate(
           gate[0],
@@ -328,10 +332,10 @@ export class ComponentCircuit {
   ) {
     //bundling
     let qubitsGateSetList: { gateSet: Set<number>; isMergable: boolean }[] =
-      this._qubits.map((bit: Qubit) => {
+      this._originalQubits.map((bit: Qubit) => {
         return { gateSet: new Set(), isMergable: true };
       });
-    let edgeMap = this._qubits.map((qubit: Qubit, qubitIndex) => {
+    let edgeMap = this._originalQubits.map((qubit: Qubit, qubitIndex) => {
       return qubitIndex;
     });
 
@@ -375,11 +379,10 @@ export class ComponentCircuit {
 
     let superQubitMap = new Map<Qubit, number>();
     let qubitMap = new Map<Qubit, SuperQubit>();
-    // let newQubitMap = new Map<Qubit, number>();
-    let qubitMapping = new Map<Qubit, number>();
+
     let superQubits = newEdges.map((edges: number[], index) => {
       const qubits = edges.map((index) => {
-        return this._qubits[index];
+        return this._originalQubits[index];
       });
       const superQubit = new SuperQubit(qubits.length.toString(), qubits);
       superQubitMap.set(superQubit, index);
@@ -397,9 +400,8 @@ export class ComponentCircuit {
     //     }
     //   }
     // });
-    this._superQubits = superQubits;
+    this._qubits = superQubits;
     this._superQubitMap = superQubitMap;
-    // this._newQubitMap = newQubitMap;
 
     //mapping to new edge
     newEdges.forEach((edges: number[], index) => {
@@ -423,7 +425,7 @@ export class ComponentCircuit {
     qubitMap: Map<Qubit, SuperQubit>
   ) {
     //gate placement
-    let qubitsPlacement = this._superQubits.map((bit: Qubit) => {
+    let qubitsPlacement = this._qubits.map((bit: Qubit) => {
       return 0;
     });
 
@@ -475,10 +477,10 @@ export class ComponentCircuit {
       return new Layer(gates);
     });
     this._layers = componentLayers;
-    this._mapGateToLayer();
+    this._gateLayerMap = this._mapGateToLayer();
     this._drawableCircuit.loadFromLayers(
       componentLayers,
-      this._superQubits,
+      this._qubits,
       this._superQubitMap
     );
     // const test = this.layerInfo;
