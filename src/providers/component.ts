@@ -52,7 +52,7 @@ export class ComponentDataProvider {
     }
     let message1 = {
       command: "component.setTitle",
-      data: { title: "Abstraction View" },
+      data: { title: "Component View" },
     };
 
     let message2 = {

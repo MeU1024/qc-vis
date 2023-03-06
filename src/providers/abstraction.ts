@@ -71,7 +71,7 @@ export class AbstractionDataProvider {
     panelSet?.forEach((panel) => {
       panel.postMessage(message1);
       panel.postMessage(message2);
-      logger.log(`Sent Message: ${panel.dataFileUri}`);
+      // logger.log(`Sent Message: ${panel.dataFileUri}`);
     });
   }
 }
@@ -129,6 +129,7 @@ class AbstractedCircuit {
   }
 
   private _build() {
+    // qv.semanticTreeViewer.logTreeData();
     let width = this._componentCircuit.width;
     let height = this._componentCircuit.height;
 
