@@ -369,7 +369,11 @@ export class ComponentCircuit {
       const qubits = edges.map((index) => {
         return this._originalQubits[index];
       });
-      const superQubit = new SuperQubit(qubits.length.toString(), qubits);
+      const qubitName =
+        qubits.length === 1
+          ? edges[0].toString()
+          : edges[0].toString() + "-" + edges[edges.length - 1].toString();
+      const superQubit = new SuperQubit(qubitName, qubits);
       superQubitMap.set(superQubit, index);
       qubits.forEach((qubit: Qubit) => {
         qubitMap.set(qubit, superQubit);
