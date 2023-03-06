@@ -62,15 +62,20 @@ export class AbstractionRule {
     return;
   }
 
-  private static _normal(gates: ComponentGate[],
-    sem: Semantics): Abstraction | undefined {
+  private static _normal(
+    gates: ComponentGate[],
+    sem: Semantics
+  ): Abstraction | undefined {
     return new Abstraction(gates, 'normal', 1);
   }
 
-  private static _checkVisible(sem: any): boolean {
+  private static _checkVisible(sem: Semantics): boolean {
     let treeIndex = sem.treeIndex;
 
-    return qv.semanticTreeViewer.isVisible(treeIndex);
+    return (
+      qv.semanticTreeViewer.isVisible(treeIndex) &&
+      !qv.semanticTreeViewer.isExpanded(treeIndex)
+    );
   }
 }
 
@@ -92,10 +97,7 @@ export class Abstraction {
   }
 
   get end() {
-    return this.gates.slice(
-      this.gates.length - this.step,
-      this.gates.length
-    );
+    return this.gates.slice(this.gates.length - this.step, this.gates.length);
   }
 }
 

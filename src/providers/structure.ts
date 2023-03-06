@@ -11,7 +11,9 @@ import {QcStructure} from './structurelib/qcmodel';
 
 const logger = getLogger('DataProvider', 'Structure');
 
-export class GateNodeProvider implements vscode.TreeDataProvider<QuantumTreeNode> {
+export class GateNodeProvider
+  implements vscode.TreeDataProvider<QuantumTreeNode>
+{
   private readonly _onDidChangeTreeData: vscode.EventEmitter<
     QuantumTreeNode | undefined
   > = new vscode.EventEmitter<QuantumTreeNode | undefined>();
@@ -19,6 +21,14 @@ export class GateNodeProvider implements vscode.TreeDataProvider<QuantumTreeNode
 
   public ds: QuantumTreeNode[] = [];
   private cachedGates: QuantumTreeNode[] | undefined = undefined;
+  private _nodeMap: Map<number, QuantumTreeNode> = new Map<
+    number,
+    QuantumTreeNode
+  >();
+  private _statMap: Map<number, vscode.TreeItemCollapsibleState> = new Map<
+    number,
+    vscode.TreeItemCollapsibleState
+  >();
 
   constructor() {
     this.onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -35,6 +45,7 @@ export class GateNodeProvider implements vscode.TreeDataProvider<QuantumTreeNode
         this.cachedGates = await QcStructure.buildQcModel();
       }
       this.ds = this.cachedGates;
+      this.ds.forEach((gate) => this._updateTreeMap(gate));
       logger.log(
         `Structure ${force ? 'force ' : ''}updated with ${this.ds.length} for ${
           qv.manager.sourceFile
@@ -42,15 +53,35 @@ export class GateNodeProvider implements vscode.TreeDataProvider<QuantumTreeNode
       );
     } else {
       this.ds = [];
+      this._clearTreeMap();
       logger.log('Structure cleared on undefined source file.');
     }
     return this.ds;
+  }
+
+  private _updateTreeMap(node: QuantumTreeNode) {
+    this._nodeMap.set(node.treeIndex, node);
+    this._statMap.set(node.treeIndex, node.collapsibleState);
+    node.children.forEach((child) => this._updateTreeMap(child));
+  }
+
+  private _clearTreeMap() {
+    this._nodeMap.clear();
+    this._statMap.clear();
   }
 
   async update(force: boolean) {
     this.ds = await this.build(force);
     this._onDidChangeTreeData.fire(undefined);
     qv.eventBus.fire(StructureUpdated);
+  }
+
+  expand(treeIndex: number) {
+    this._statMap.set(treeIndex, vscode.TreeItemCollapsibleState.Expanded);
+  }
+
+  collapse(treeIndex: number) {
+    this._statMap.set(treeIndex, vscode.TreeItemCollapsibleState.Collapsed);
   }
 
   getTreeItem(element: QuantumTreeNode): vscode.TreeItem {
@@ -76,7 +107,9 @@ export class GateNodeProvider implements vscode.TreeDataProvider<QuantumTreeNode
     return treeItem;
   }
 
-  getChildren(element?: QuantumTreeNode): vscode.ProviderResult<QuantumTreeNode[]> {
+  getChildren(
+    element?: QuantumTreeNode
+  ): vscode.ProviderResult<QuantumTreeNode[]> {
     if (qv.manager.sourceFile === undefined) {
       return [];
     }
@@ -95,14 +128,42 @@ export class GateNodeProvider implements vscode.TreeDataProvider<QuantumTreeNode
     return element.parent;
   }
 
-  isExpanded(treeIndex: number): boolean {
-    this.ds.forEach((gate) => {
-      if (gate.treeIndex === treeIndex) {
-        return gate.collapsibleState === vscode.TreeItemCollapsibleState.Expanded;
-      }
-    });
+  isVisible(treeIndex: number): boolean {
+    let node = this._nodeMap.get(treeIndex);
 
-    throw new Error('Gate not found');
+    if (node === undefined) {
+      throw new Error('Gate not found');
+    }
+
+    while (node.parent) {
+      node = node.parent;
+      if (
+        this._statMap.get(node.treeIndex) ===
+        vscode.TreeItemCollapsibleState.Collapsed
+      ) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  isExpanded(treeIndex: number): boolean {
+    return (
+      this._statMap.get(treeIndex) ===
+      vscode.TreeItemCollapsibleState.Expanded
+    );
+  }
+
+  logTree(node: QuantumTreeNode | undefined) {
+    if (node) {
+      logger.log(
+        `${node.label} ${this._statMap.get(node.treeIndex)}`
+      );
+      node.children.forEach((child) => this.logTree(child));
+    } else {
+      this.ds.forEach((child) => this.logTree(child));
+    }
   }
 }
 
@@ -129,6 +190,24 @@ export class SemanticTreeViewer {
         void qv.semanticTreeViewer.computeTreeStructure();
       })
     );
+
+    qv.registerDisposable(
+      this._viewer.onDidCollapseElement((e) => {
+        if (e.element) {
+          logger.log(`Collapsed ${e.element.label}`);
+          this._treeDataProvider.collapse(e.element.treeIndex);
+        }
+      })
+    );
+
+    qv.registerDisposable(
+      this._viewer.onDidExpandElement((e) => {
+        if (e.element) {
+          logger.log(`Expanded ${e.element.label}`);
+          this._treeDataProvider.expand(e.element.treeIndex);
+        }
+      })
+    );
   }
 
   /**
@@ -145,9 +224,21 @@ export class SemanticTreeViewer {
     await this._treeDataProvider.update(false);
   }
 
+  /**
+   * Check if the node is visible in the tree view.
+   * A node is visible if all its parents are expanded.
+   * @param treeIndex
+   * @returns
+   */
   isVisible(treeIndex: number): boolean {
-    // TODO: check node visibility
-    
-    return true;
+    return this._treeDataProvider.isVisible(treeIndex);
+  }
+
+  isExpanded(treeIndex: number): boolean {
+    return this._treeDataProvider.isExpanded(treeIndex);
+  }
+
+  logTreeData() {
+    this._treeDataProvider.logTree(undefined);
   }
 }
