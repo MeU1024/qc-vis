@@ -12,6 +12,7 @@ import {
   SuperQubit,
   DrawableCircuit,
 } from "./structurelib/qcmodel";
+import { QuantumTreeNode } from "./structurelib/quantumgate";
 
 const logger = getLogger("DataProvider", "Component");
 
@@ -65,12 +66,18 @@ export class ComponentDataProvider {
     panelSet?.forEach((panel) => {
       panel.postMessage(message1);
       panel.postMessage(message2);
-      logger.log(`Sent Message: ${panel.dataFileUri}`);
+      // logger.log(`Sent Message: ${panel.dataFileUri}`);
     });
   }
 }
 
 export class ComponentCircuit {
+  getPredecessors(gate: ComponentGate): ComponentGate[] {
+    throw new Error('Method not implemented.');
+  }
+  getSuccessors(gate: ComponentGate): ComponentGate[] {
+    throw new Error('Method not implemented.');
+  }
   private _originalGates: ComponentGate[];
   private _originalQubits: Qubit[];
   private _treeStructure: {

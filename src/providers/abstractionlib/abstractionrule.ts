@@ -16,17 +16,10 @@ export class AbstractionRule {
     if (!AbstractionRule._checkVisible(sem)) {
       return;
     }
+    let semType = sem.type.toLocaleLowerCase();
 
-    if (sem.type === 'vertical') {
-      return AbstractionRule._vertical(gates, sem);
-    }
-
-    if (sem.type === 'diagonal') {
-      return AbstractionRule._diagonal(gates, sem);
-    }
-
-    if (sem.type === 'horizontal') {
-      return AbstractionRule._horizontal(gates, sem);
+    if (['vertical', 'horizontal', 'diagonal'].includes(semType)) {
+      return AbstractionRule._directional(gates, sem);
     }
 
     if (sem.type === 'linkage') {
@@ -40,25 +33,17 @@ export class AbstractionRule {
     return;
   }
 
-  private static _vertical(
+  private static _directional(
     gates: ComponentGate[],
     sem: Semantics
   ): Abstraction | undefined {
-    return new Abstraction(gates, 'vertical', sem.step);
+    return new Abstraction(gates, sem.type, sem.step);
   }
 
-  private static _diagonal(
+  private static _linkage(
     gates: ComponentGate[],
     sem: Semantics
   ): Abstraction | undefined {
-    return new Abstraction(gates, 'diagonal', sem.step);
-  }
-
-  private static _horizontal(circuit: any, sem: any): Abstraction | undefined {
-    return;
-  }
-
-  private static _linkage(circuit: any, sem: any): Abstraction | undefined {
     return;
   }
 
@@ -94,6 +79,13 @@ export class Abstraction {
 
   get start() {
     return this.gates.slice(0, this.step);
+  }
+
+  get second() {
+    if (this.gates.length < this.step * 2) {
+      return [];
+    }
+    return this.gates.slice(this.step, this.step * 2);
   }
 
   get end() {

@@ -29,6 +29,8 @@ export class GateNodeProvider
     number,
     vscode.TreeItemCollapsibleState
   >();
+  private _focusPath: string[] | undefined;
+  private _focusNode: QuantumTreeNode | undefined;
 
   constructor() {
     this.onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -84,13 +86,37 @@ export class GateNodeProvider
     this._statMap.set(treeIndex, vscode.TreeItemCollapsibleState.Collapsed);
   }
 
+  focusOn(selection: readonly (QuantumTreeNode | undefined)[]) {
+    if (selection.length === 0) {
+      this._focusNode = undefined;
+      this._focusPath = undefined;
+      return;
+    }
+    if (selection.length === 1) {
+      const node = selection[0];
+      this._focusNode = node;
+      this._focusPath = this._getPath(node);
+    } else {
+      throw new Error('Method not implemented.');
+    }
+  }
+  private _getPath(node: QuantumTreeNode | undefined): string[] | undefined {
+    if (node === undefined) {
+      return;
+    }
+    let ret = [node.label];
+    while (node.parent) {
+      node = node.parent;
+      ret.push(node.label);
+    }
+    return ret;
+  }
   getTreeItem(element: QuantumTreeNode): vscode.TreeItem {
-    const hasChildren = element.children.length > 0;
+    const collapsibleState = element.collapsibleState;
+
     const treeItem: vscode.TreeItem = new vscode.TreeItem(
       element.label,
-      hasChildren
-        ? vscode.TreeItemCollapsibleState.Expanded
-        : vscode.TreeItemCollapsibleState.None
+      collapsibleState
     );
 
     // treeItem.command = {
@@ -150,20 +176,25 @@ export class GateNodeProvider
 
   isExpanded(treeIndex: number): boolean {
     return (
-      this._statMap.get(treeIndex) ===
-      vscode.TreeItemCollapsibleState.Expanded
+      this._statMap.get(treeIndex) === vscode.TreeItemCollapsibleState.Expanded
     );
   }
 
   logTree(node: QuantumTreeNode | undefined) {
     if (node) {
-      logger.log(
-        `${node.label} ${this._statMap.get(node.treeIndex)}`
-      );
+      logger.log(`${node.label} ${this._statMap.get(node.treeIndex)}`);
       node.children.forEach((child) => this.logTree(child));
     } else {
       this.ds.forEach((child) => this.logTree(child));
     }
+  }
+
+  get focusNode() {
+    return this._focusNode;
+  }
+
+  get focusPath() {
+    return this._focusPath;
   }
 }
 
@@ -194,7 +225,7 @@ export class SemanticTreeViewer {
     qv.registerDisposable(
       this._viewer.onDidCollapseElement((e) => {
         if (e.element) {
-          logger.log(`Collapsed ${e.element.label}`);
+          // logger.log(`Collapsed ${e.element.label}`);
           this._treeDataProvider.collapse(e.element.treeIndex);
         }
       })
@@ -203,8 +234,17 @@ export class SemanticTreeViewer {
     qv.registerDisposable(
       this._viewer.onDidExpandElement((e) => {
         if (e.element) {
-          logger.log(`Expanded ${e.element.label}`);
+          // logger.log(`Expanded ${e.element.label}`);
           this._treeDataProvider.expand(e.element.treeIndex);
+        }
+      })
+    );
+
+    qv.registerDisposable(
+      this._viewer.onDidChangeSelection((e) => {
+        if (e.selection) {
+          logger.log(`Select ${e.selection[0]?.label}`);
+          this._treeDataProvider.focusOn(e.selection);
         }
       })
     );
@@ -240,5 +280,13 @@ export class SemanticTreeViewer {
 
   logTreeData() {
     this._treeDataProvider.logTree(undefined);
+  }
+
+  get focusPath() {
+    return this._treeDataProvider.focusPath;
+  }
+
+  get data() {
+    return this._treeDataProvider;
   }
 }

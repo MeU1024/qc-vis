@@ -15,6 +15,7 @@ const DataFlowPanel = (props: DataFlowPanelProps) => {
   const [canvasWidth, setCanvasWidth] = useState(550);
   const [canvasHeight, setCanvasHeight] = useState(250);
   const [qbitLengths, setQbitLength] = useState<string[]>([]);
+  const [panelTitle, setPanelTitle] = useState("Context");
 
   const [circuit, setCircuit] = useState<{
     output_size: number[];
@@ -62,9 +63,34 @@ const DataFlowPanel = (props: DataFlowPanelProps) => {
     }
   }, [circuit, gridWidth, theme]);
 
+  
+  useEffect(() => {
+    const handleMessageEvent = (event: any) => {
+      const message = event.data;
+      console.log(message);
+      switch (message.command) {
+        case "context.setCircuit":
+          setCircuit(message.data);
+          console.log(message.data);
+          break;
+        case "context.setCanvasSize":
+          setCanvasWidth(message.data.width);
+          setCanvasHeight(message.data.height);
+          break;
+        case "context.setTitle":
+          setPanelTitle(message.data.title);
+          break;
+      }
+    };
+    window.addEventListener("message", handleMessageEvent);
+    return () => {
+      window.removeEventListener("message", handleMessageEvent);
+    };
+  }, []);
+
   return (
     <div className="panel">
-      <div className="panelHeader"> DataFlow</div>
+      <div className="panelHeader">{panelTitle}</div>
       <div
         className="circuit"
         style={{

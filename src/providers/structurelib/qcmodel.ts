@@ -126,19 +126,22 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
           ? NodeType.repetition
           : NodeType.basicGate;
       let description = undefined;
+      let collapsibleState = vscode.TreeItemCollapsibleState.None;
 
       if (nodeType === NodeType.superGate) {
         nodeName = nodeName.slice(1, nodeName.length);
+        collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
       }
 
       if (nodeType === NodeType.repetition) {
         description = "×" + " ? times";
+        collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
       }
 
       let newGate = new QuantumTreeNode(
         nodeType,
         nodeName,
-        vscode.TreeItemCollapsibleState.Expanded,
+        collapsibleState,
         parent.depth + 1,
         node.index,
         description

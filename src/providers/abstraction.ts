@@ -149,6 +149,7 @@ class AbstractedCircuit {
       let ret = this._writtenInSemantics(gate);
       if (ret) {
         ret.start.forEach((g) => this._visGate(g));
+        ret.second.forEach((g) => this._visGate(g));
         ret.end.forEach((g) => this._visGate(g));
         this._abstractions.push(ret);
         // Cache gates in abstraction
