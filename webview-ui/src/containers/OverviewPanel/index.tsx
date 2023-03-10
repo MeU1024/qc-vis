@@ -117,7 +117,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
       >
         <BitsName
           qbitLengths={qbitLengths}
-          alignment={"super"}
+          alignment={"sub"}
           gridHeight={gridHeight}
         />
         <canvas id="overviewCanvas" width="550" height="250"></canvas>

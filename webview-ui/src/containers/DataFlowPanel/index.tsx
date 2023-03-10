@@ -63,14 +63,13 @@ const DataFlowPanel = (props: DataFlowPanelProps) => {
     }
   }, [circuit, gridWidth, theme]);
 
-  
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
       const message = event.data;
       console.log(message);
       switch (message.command) {
         case "context.setCircuit":
-          setCircuit(message.data);
+          // setCircuit(message.data);
           console.log(message.data);
           break;
         case "context.setCanvasSize":

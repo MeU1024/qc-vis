@@ -7,7 +7,7 @@
   { "name": "| Rz |", "parentIndex": 2, "index": 5, "type": "rep" },
   { "name": "| Cx | Rz | Cx |", "parentIndex": 2, "index": 6, "type": "rep" },
   { "name": "| Unknown |", "parentIndex": 3, "index": 7, "type": "rep" },
-  { "name": "H", "parentIndex": 4, "index": 8, "type": "rep_item" },
+  { "name": "h", "parentIndex": 4, "index": 8, "type": "rep_item" },
   { "name": "rz", "parentIndex": 5, "index": 9, "type": "rep_item" },
   { "name": "cx", "parentIndex": 6, "index": 10, "type": "rep_item" },
   { "name": "rz", "parentIndex": 6, "index": 11, "type": "rep_item" },
