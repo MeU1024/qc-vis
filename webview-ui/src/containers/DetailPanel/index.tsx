@@ -71,7 +71,7 @@ const DetailPanel = (props: DetailPanelProps) => {
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
       const message = event.data;
-      console.log(message);
+      // console.log(message);
       switch (message.command) {
         case "abstraction.setCircuit":
           setCircuit(message.data);

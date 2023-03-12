@@ -161,6 +161,13 @@ export class ComponentCircuit {
     return this._gateLayerMap.get(gate);
   }
 
+  getOriginalGates(): ComponentGate[] {
+    return this._originalGates;
+  }
+
+  getOriginalQubits(): Qubit[] {
+    return this._originalQubits;
+  }
   private _importGatesFromFile(dataFile: vscode.Uri) {
     logger.log("Load layer data from: " + dataFile.fsPath);
     let data = require(dataFile.fsPath);
