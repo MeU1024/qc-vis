@@ -11,11 +11,12 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
 
   const [panelTitle, setPanelTitle] = useState("Connectivity");
   const [matrix, setMatrix] = useState(matrixData());
-  const [rectSize, setRectSize] = useState(20);
+  // const [rectSize, setRectSize] = useState(20);
 
   useEffect(() => {
+    const rectSize = 400 / matrix.length;
     var svg = d3.select("#matrixSVG");
-
+    svg.selectAll("rect").remove();
     var rects = svg.selectAll("rect").data(matrix);
 
     for (let index = 0; index < matrix.length; index++) {
@@ -31,11 +32,31 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         .attr("width", rectSize)
         .attr("height", rectSize)
         .attr("fill", function (d, i) {
-          return d[index] ? "balck" : "white";
+          return d[index] ? "black" : "white";
         })
         .attr("stroke", "gray");
     }
   }, [matrix]);
+
+  useEffect(() => {
+    const handleMessageEvent = (event: any) => {
+      const message = event.data;
+      console.log(message);
+      switch (message.command) {
+        case "context.setCircuit":
+          setMatrix(message.data.matrix);
+
+          break;
+        case "context.setTitle":
+          setPanelTitle(message.data.title);
+          break;
+      }
+    };
+    window.addEventListener("message", handleMessageEvent);
+    return () => {
+      window.removeEventListener("message", handleMessageEvent);
+    };
+  }, []);
 
   return (
     <div className="panel" id="connectivityPanel">
@@ -72,7 +93,8 @@ const matrixData = () => {
   }
   for (let row = 0; row < 20; row++) {
     for (let col = row + 1; col < 20; col++) {
-      connectivityMatrix[row][col] = 1;
+      // connectivityMatrix[row][col] = 1;
+      // connectivityMatrix[col][row] = 1;
     }
   }
   return connectivityMatrix;

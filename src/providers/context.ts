@@ -22,10 +22,23 @@ export class ContextDataProvider {
       this._dataFile = qv.getDefaultDataFile();
     }
   }
+  get data() {
+    return this._data;
+  }
 
+  set data(data: any) {
+    this._data = data;
+  }
   async updateData() {
     // TODO: Update Data
+    this._data = await this.contextualQcData();
     this._postData();
+  }
+
+  async contextualQcData() {
+    let contextualCircuit = new ContextualCircuit(this._dataFile);
+
+    return contextualCircuit;
   }
 
   private async _postData() {
@@ -46,7 +59,7 @@ export class ContextDataProvider {
     panelSet?.forEach((panel) => {
       panel.postMessage(message1);
       panel.postMessage(message2);
-      // logger.log(`Sent Message: ${panel.dataFileUri}`);
+      logger.log(`Sent Message: ${panel.dataFileUri}`);
     });
   }
 }
@@ -60,6 +73,12 @@ class ContextualCircuit {
   private _originalQubits: Qubit[];
   private _originalGates: ComponentGate[];
   private _connectivityMatrix: number[][];
+  private _treeStructure: {
+    name: string;
+    parentIndex: number;
+    index: number;
+    type: string;
+  }[];
 
   constructor(_dataFile: vscode.Uri) {
     this._compnentCircuit = new ComponentCircuit(_dataFile);
@@ -69,15 +88,37 @@ class ContextualCircuit {
     this._originalQubits = [];
     this._originalGates = [];
     this._connectivityMatrix = [];
+    this._treeStructure = this._importStructureFromFile();
+    this._updateConnectivity();
+    this._updateQubit();
   }
 
   setFocusNode(gate: ComponentGate | undefined) {
     this._focusGate = gate;
     this._updateDependency();
     this._updateParallisim();
-    this._updateConnectivity();
   }
-
+  private _importStructureFromFile(): {
+    name: string;
+    parentIndex: number;
+    index: number;
+    type: string;
+  }[] {
+    let dataSource = vscode.Uri.joinPath(
+      getExtensionUri(),
+      "/resources/data/vqc-structure.json"
+    ).fsPath;
+    let data = require(dataSource);
+    let treeStructure = data.map((tree: any) => {
+      return {
+        name: tree.name,
+        parentIndex: tree.parentIndex,
+        index: tree.index,
+        type: tree.type,
+      };
+    });
+    return treeStructure;
+  }
   private _updateDependency() {
     this._gateHighlight.clear();
     if (!this._focusGate) {
@@ -101,12 +142,17 @@ class ContextualCircuit {
     const originalQubits = this._compnentCircuit.getOriginalQubits();
 
     for (let row = 0; row < originalQubits.length; row++) {
+      this._connectivityMatrix.push([]);
       for (let col = 0; col < originalQubits.length; col++) {
-        this._connectivityMatrix[row][col] = 0;
+        this._connectivityMatrix[row].push(0);
       }
     }
     originalGates.forEach((gate: ComponentGate) => {
-      if (gate.treeIndex === this._connectivityComponentIndex) {
+      let node = this._treeStructure[gate.treeIndex];
+      while (node.type !== "fun") {
+        node = this._treeStructure[node.parentIndex];
+      }
+      if (node.index === this._connectivityComponentIndex) {
         const qubits = gate.qubits.map((qubit: Qubit) => {
           return parseInt(qubit.qubitName);
         });
@@ -115,11 +161,18 @@ class ContextualCircuit {
           for (let start = 0; start < qubits.length; start++) {
             for (let end = start + 1; end < qubits.length; end++) {
               this._connectivityMatrix[qubits[start]][qubits[end]] = 1;
+              if (gate.gateName === "cz") {
+                this._connectivityMatrix[qubits[end]][qubits[start]] = 1;
+              }
             }
           }
         }
       }
     });
+  }
+  private _updateQubit() {
+    logger.log("qubits update");
+    const layers = this._compnentCircuit.exportJson().all_gates;
   }
 
   exportJson() {
@@ -134,6 +187,8 @@ class ContextualCircuit {
     return {
       ...this._compnentCircuit.exportJson(),
       highlights: highlights,
+      matrix: this._connectivityMatrix,
+      // qubits:this.
     };
   }
 
