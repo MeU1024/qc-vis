@@ -6,7 +6,7 @@ import { ComponentCircuit } from "./component";
 import { QCViewerManagerService } from "../components/viewerlib/qcviewermanager";
 import { QuantumTreeNode } from "./structurelib/quantumgate";
 import { GateNodeProvider } from "./structure";
-import { ComponentGate, Qubit } from "./structurelib/qcmodel";
+import { ComponentGate, Layer, Qubit } from "./structurelib/qcmodel";
 import { getExtensionUri } from "../quantivine";
 
 const logger = getLogger("DataProvider", "Context");
@@ -73,12 +73,14 @@ class ContextualCircuit {
   private _originalQubits: Qubit[];
   private _originalGates: ComponentGate[];
   private _connectivityMatrix: number[][];
+  private _focusQubitGates: ComponentGate[];
   private _treeStructure: {
     name: string;
     parentIndex: number;
     index: number;
     type: string;
   }[];
+  private _focusQubitIndex: number;
 
   constructor(_dataFile: vscode.Uri) {
     this._compnentCircuit = new ComponentCircuit(_dataFile);
@@ -88,9 +90,10 @@ class ContextualCircuit {
     this._originalQubits = [];
     this._originalGates = [];
     this._connectivityMatrix = [];
+    this._focusQubitIndex = 0;
     this._treeStructure = this._importStructureFromFile();
     this._updateConnectivity();
-    this._updateQubit();
+    this._focusQubitGates = this._updateQubit();
   }
 
   setFocusNode(gate: ComponentGate | undefined) {
@@ -171,8 +174,19 @@ class ContextualCircuit {
     });
   }
   private _updateQubit() {
-    logger.log("qubits update");
-    const layers = this._compnentCircuit.exportJson().all_gates;
+    const layers = this._compnentCircuit.getLayers();
+    const qubits = this._compnentCircuit.getQubits();
+    const focusQubit = qubits[this._focusQubitIndex];
+    const focusGates: ComponentGate[] = [];
+    layers.forEach((layer: Layer) => {
+      layer.gates.forEach((gate: ComponentGate) => {
+        if (gate.qubits.includes(focusQubit)) {
+          focusGates.push(gate);
+        }
+      });
+    });
+
+    return focusGates;
   }
 
   exportJson() {
@@ -188,7 +202,7 @@ class ContextualCircuit {
       ...this._compnentCircuit.exportJson(),
       highlights: highlights,
       matrix: this._connectivityMatrix,
-      // qubits:this.
+      // focusQubitGates: this._focusQubitGates,
     };
   }
 
