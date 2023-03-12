@@ -454,6 +454,9 @@ export class ComponentCircuit {
     let qubitsPlacement = this._qubits.map((bit: Qubit) => {
       return 0;
     });
+    let qubitsMask = this._qubits.map((bit: Qubit) => {
+      return 0;
+    });
 
     let layers: number[][] = [];
     gatesInfo.forEach((gateInfo, index) => {
@@ -472,12 +475,27 @@ export class ComponentCircuit {
       } else {
         layers[layerIndex].push(index);
       }
+
       gateInfo.qubits.forEach((qubit: Qubit) => {
         const qubitIndex = edgeMap[parseInt(qubit.qubitName)];
         if (qubitIndex !== undefined) {
           qubitsPlacement[qubitIndex] = layerIndex + 1;
         }
       });
+
+      // let minQubit = edgeMap[parseInt(gateInfo.qubits[0].qubitName)];
+      // let maxQubit =
+      //   edgeMap[
+      //     parseInt(gateInfo.qubits[gateInfo.qubits.length - 1].qubitName)
+      //   ];
+      // if (minQubit > maxQubit) {
+      //   const temp = maxQubit;
+      //   maxQubit = minQubit;
+      //   minQubit = temp;
+      // }
+      // for (let index = minQubit; index <= maxQubit; index++) {
+      //   qubitsPlacement[index] = layerIndex + 1;
+      // }
     });
 
     return layers;

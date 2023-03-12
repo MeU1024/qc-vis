@@ -120,7 +120,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
           alignment={"sub"}
           gridHeight={gridHeight}
         />
-        <canvas id="overviewCanvas" width="550" height="250"></canvas>
+        <canvas id="overviewCanvas" width="1550" height="250"></canvas>
       </div>
     </div>
   );
