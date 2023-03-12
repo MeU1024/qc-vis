@@ -1,0 +1,18 @@
+#connectivityPanel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.legend {
+  margin: 10px;
+  align-self: flex-end;
+}
+.legendName {
+  margin: 5px;
+}
+.matrix {
+}
+.first {
+  align-self: flex-start;
+}

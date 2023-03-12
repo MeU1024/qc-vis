@@ -24,4 +24,6 @@ export const opDict = {
   multi_gate_up: 19,
   custom_gate: 20,
 };
+
+// export const
 export const opList = Object.keys(opDict);

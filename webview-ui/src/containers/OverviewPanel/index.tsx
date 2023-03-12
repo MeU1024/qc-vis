@@ -79,7 +79,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
       const message = event.data;
-      console.log(message);
+      // console.log(message);
       switch (message.command) {
         case "component.setCircuit":
           setCircuit(message.data);
