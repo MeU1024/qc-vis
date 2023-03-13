@@ -107,7 +107,7 @@ const Circuit2GridData = (circuitData: {
           graphText.push({
             x: xRange,
             y: yRange,
-            content: op.substring(1),
+            content: op,
           });
         }
         break;

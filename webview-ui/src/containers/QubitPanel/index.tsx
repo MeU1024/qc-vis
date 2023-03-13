@@ -9,6 +9,8 @@ import {
   MULTI_GATE_STROKE,
   SINGLE_GATE_STROKE,
   WIRE_STROKE,
+  opTypeDict,
+  colorDict,
 } from "../../const";
 
 export interface QubitPanelProps {
@@ -39,21 +41,6 @@ const QubitPanel = (props: QubitPanelProps) => {
   >(undefined);
 
   const [focusQubit, setFocusQubit] = useState(0);
-  const opTypeDict: { [key: string]: string } = {
-    rx: "single",
-    ry: "single",
-    rz: "single",
-    h: "single",
-    cx: "multi",
-    cy: "multi",
-    cz: "multi",
-  };
-  const colorDict: { [key: string]: string } = {
-    single: SINGLE_GATE_STROKE,
-    customized: CUSTOM_GATE_STROKE,
-    target: MULTI_GATE_STROKE,
-    control: MULTI_GATE_STROKE,
-  };
 
   const width = 650;
   const height = 80;

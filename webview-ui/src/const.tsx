@@ -36,3 +36,18 @@ export const MATRIX_BG = "#6FD7F3";
 export const MATRIX_STROKE = "#EBF1F4";
 export const GATE_FILL = "#FFFFFF";
 export const GATE_FILL_OPACITY = "80%";
+export const opTypeDict: { [key: string]: string } = {
+  rx: "single",
+  ry: "single",
+  rz: "single",
+  h: "single",
+  cx: "multi",
+  cy: "multi",
+  cz: "multi",
+};
+export const colorDict: { [key: string]: string } = {
+  single: SINGLE_GATE_STROKE,
+  customized: CUSTOM_GATE_STROKE,
+  target: MULTI_GATE_STROKE,
+  control: MULTI_GATE_STROKE,
+};

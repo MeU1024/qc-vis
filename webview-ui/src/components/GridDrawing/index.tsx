@@ -1,5 +1,14 @@
 // import { ThemeColor } from "vscode";
-import { FILL_STYLE, LINE_WIDTH, opList, STROKE_STYLE } from "../../const";
+import {
+  CUSTOM_GATE_STROKE,
+  FILL_STYLE,
+  LINE_WIDTH,
+  MULTI_GATE_STROKE,
+  opList,
+  SINGLE_GATE_STROKE,
+  STROKE_STYLE,
+  WIRE_STROKE,
+} from "../../const";
 //import { vscode } from "../../utilities/vscode";
 
 export interface GridDrawingProps {
@@ -18,12 +27,13 @@ const GridDrawing = (props: GridDrawingProps) => {
   const xCoord = x * width;
   const yCoord = y * height;
 
-  ctx.strokeStyle = strokeStyle;
+  // ctx.strokeStyle = strokeStyle;
   ctx.fillStyle = fillStyle.length == 0 ? FILL_STYLE : fillStyle;
   ctx.lineWidth = LINE_WIDTH;
 
   switch (opList[op]) {
     case "horizon_line":
+      ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
@@ -32,6 +42,7 @@ const GridDrawing = (props: GridDrawingProps) => {
     case "single_gate":
       ctx.beginPath();
       //lines
+      ctx.strokeStyle = WIRE_STROKE;
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
 
@@ -42,6 +53,7 @@ const GridDrawing = (props: GridDrawingProps) => {
 
       ctx.stroke();
       //square
+      ctx.strokeStyle = SINGLE_GATE_STROKE;
       ctx.strokeRect(
         xCoord + width / 8,
         yCoord + height / 8,
@@ -52,6 +64,7 @@ const GridDrawing = (props: GridDrawingProps) => {
     case "single_gate_middle":
       ctx.beginPath();
       //lines
+      ctx.strokeStyle = WIRE_STROKE;
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
 
@@ -62,6 +75,7 @@ const GridDrawing = (props: GridDrawingProps) => {
 
       ctx.stroke();
       // square
+      ctx.strokeStyle = CUSTOM_GATE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 8, yCoord);
       ctx.lineTo(xCoord + width / 8, yCoord + height);
@@ -74,6 +88,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
       break;
     case "single_gate_up":
+      ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
       //lines
       ctx.moveTo(xCoord, yCoord + height / 2);
@@ -86,6 +101,7 @@ const GridDrawing = (props: GridDrawingProps) => {
 
       ctx.stroke();
       // square
+      ctx.strokeStyle = CUSTOM_GATE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 8, yCoord + height);
       ctx.lineTo(xCoord + width / 8, yCoord + height / 8);
@@ -96,6 +112,7 @@ const GridDrawing = (props: GridDrawingProps) => {
 
       break;
     case "single_gate_bottom":
+      ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
       //lines
       ctx.moveTo(xCoord, yCoord + height / 2);
@@ -108,6 +125,7 @@ const GridDrawing = (props: GridDrawingProps) => {
 
       ctx.stroke();
       // square
+      ctx.strokeStyle = CUSTOM_GATE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 8, yCoord);
       ctx.lineTo(xCoord + width / 8, yCoord + (height / 8) * 7);
@@ -122,10 +140,14 @@ const GridDrawing = (props: GridDrawingProps) => {
     case "dots":
       break;
     case "ctrl_up":
+      ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
       ctx.stroke();
+
+      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.fillStyle = MULTI_GATE_STROKE;
       ctx.arc(
         xCoord + width / 2,
         yCoord + height / 2,
@@ -140,10 +162,14 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
       break;
     case "ctrl_down":
+      ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
       ctx.stroke();
+
+      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.fillStyle = MULTI_GATE_STROKE;
       ctx.arc(
         xCoord + width / 2,
         yCoord + height / 2,
@@ -163,6 +189,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.lineTo(xCoord + width / 2, yCoord + height);
       ctx.stroke();
 
+      ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
@@ -170,6 +197,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       break;
     case "cx_up":
       //gate
+      ctx.strokeStyle = MULTI_GATE_STROKE;
       ctx.beginPath();
       ctx.arc(
         xCoord + width / 2,
@@ -189,8 +217,13 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.moveTo(xCoord + width / 2, yCoord + (height / 8) * 3);
       ctx.lineTo(xCoord + width / 2, yCoord + (height / 8) * 5);
       ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord + (height / 4) * 3);
+      ctx.lineTo(xCoord + width / 2, yCoord + height);
+      ctx.stroke();
 
       //lines
+      ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width / 4, yCoord + height / 2);
@@ -201,10 +234,6 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.lineTo(xCoord + width, yCoord + height / 2);
       ctx.stroke();
 
-      ctx.beginPath();
-      ctx.moveTo(xCoord + width / 2, yCoord + (height / 4) * 3);
-      ctx.lineTo(xCoord + width / 2, yCoord + height);
-      ctx.stroke();
       break;
     case "cx_down":
       //gate
@@ -228,7 +257,13 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.lineTo(xCoord + width / 2, yCoord + (height / 8) * 5);
       ctx.stroke();
 
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord);
+      ctx.lineTo(xCoord + width / 2, yCoord + height / 4);
+      ctx.stroke();
+
       //lines
+      ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width / 4, yCoord + height / 2);
@@ -239,10 +274,6 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.lineTo(xCoord + width, yCoord + height / 2);
       ctx.stroke();
 
-      ctx.beginPath();
-      ctx.moveTo(xCoord + width / 2, yCoord);
-      ctx.lineTo(xCoord + width / 2, yCoord + height / 4);
-      ctx.stroke();
       break;
     case "multi_gate_left_up":
       ctx.beginPath();
@@ -348,6 +379,7 @@ const GridDrawing = (props: GridDrawingProps) => {
 
       ctx.stroke();
       //square
+
       ctx.strokeRect(
         xCoord + width / 4,
         yCoord + height / 8,

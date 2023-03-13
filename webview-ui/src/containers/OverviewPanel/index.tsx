@@ -18,8 +18,8 @@ const OverviewPanel = (props: OverviewPanelProps) => {
 
   const [gridWidth, setGridWidth] = useState<number>(25);
   const [gridHeight, setGridHeight] = useState<number>(25);
-  const [canvasWidth, setCanvasWidth] = useState(550);
-  const [canvasHeight, setCanvasHeight] = useState(250);
+  const [canvasWidth, setCanvasWidth] = useState(1550);
+  const [canvasHeight, setCanvasHeight] = useState(400);
   const [qbitLengths, setQbitLength] = useState<string[]>([]);
 
   const [circuit, setCircuit] = useState<{
@@ -28,7 +28,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
     qubits: string[];
     gate_format: string;
     all_gates: (number | number[])[][];
-  }>(overviewData);
+  }>(overviewData_abs);
 
   useEffect(() => {
     var gridSize =
@@ -72,7 +72,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
     if (highlightGate == "PA") {
       setCircuit(generateData());
     } else {
-      setCircuit(overviewData);
+      setCircuit(generateData());
     }
   }, [highlightGate]);
 
@@ -120,7 +120,11 @@ const OverviewPanel = (props: OverviewPanelProps) => {
           alignment={"sub"}
           gridHeight={gridHeight}
         />
-        <canvas id="overviewCanvas" width="1550" height="250"></canvas>
+        <canvas
+          id="overviewCanvas"
+          width={canvasWidth}
+          height={canvasHeight}
+        ></canvas>
       </div>
     </div>
   );
