@@ -34,59 +34,84 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     svg.selectAll("*").remove();
     const rectNumber = paraData.length;
     const rectWidth = paraBarwidth / rectNumber;
-    var shapes = svg.selectAll("g").data(paraData).enter().append("g");
-    for (let index = 0; index < rectNumber - 1; index++) {
-      var gradient = svg
-        .append("defs")
-        .append("linearGradient")
-        .attr("id", "myGradient" + index.toString())
-        .attr("x1", "0%")
-        .attr("y1", "0%")
-        .attr("x2", "100%")
-        .attr("y2", "0%");
-
+    var gradient = svg
+      .append("defs")
+      .append("linearGradient")
+      .attr("id", "myGradient");
+    // .attr("x1", "0%")
+    // .attr("y1", "0%")
+    // .attr("x2", "100%")
+    // .attr("y2", "0%");
+    for (let index = 0; index < rectNumber; index++) {
       gradient
         .append("stop")
-        .attr("offset", "0%")
+        .attr("offset", (index / rectNumber).toString())
         .attr("stop-color", colorScale(paraData[index]));
-
-      gradient
-        .append("stop")
-        .attr("offset", "100%")
-        .attr("stop-color", colorScale(paraData[index + 1]));
     }
 
-    shapes.each(function (d, i) {
-      var shape;
+    svg
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", paraBarwidth)
+      .attr("height", paraBarheight)
+      // .attr("margin", "-1px")
+      .style("stroke-width", 0)
+      // .style("fill", colorScale(0));
+      .style("fill", "url(#myGradient)");
+    // var shapes = svg.selectAll("g").data(paraData).enter().append("g");
+    // for (let index = 0; index < rectNumber - 1; index++) {
+    //   var gradient = svg
+    //     .append("defs")
+    //     .append("linearGradient")
+    //     .attr("id", "myGradient" + index.toString())
+    //     .attr("x1", "0%")
+    //     .attr("y1", "0%")
+    //     .attr("x2", "100%")
+    //     .attr("y2", "0%");
 
-      shape = d3.select(this).append("rect");
-      // Draw the rectangle
-      shape
-        .attr("x", i == 0 ? 0 : i * rectWidth + rectWidth / 4)
-        .attr("y", 0)
-        .attr(
-          "width",
-          (i == 0 || i == rectNumber - 1
-            ? (rectWidth / 4) * 3
-            : rectWidth / 2) + 0.5
-        )
-        .attr("height", paraBarheight)
-        // .attr("margin", "-1px")
-        .style("stroke-width", 0)
-        // .style("fill", colorScale(0));
-        .style("fill", colorScale(d));
+    //   gradient
+    //     .append("stop")
+    //     .attr("offset", "0%")
+    //     .attr("stop-color", colorScale(paraData[index]));
 
-      shape = d3.select(this).append("rect");
-      // Draw the gradient rectangle
-      shape
-        .attr("x", i * rectWidth + (rectWidth / 4) * 3)
-        .attr("y", 0)
-        .attr("width", rectWidth / 2 + 0.5)
-        .attr("height", paraBarheight)
-        .style("stroke-width", 0)
-        // .style("fill", colorScale(0));
-        .style("fill", "url(#myGradient" + i.toString() + ")");
-    });
+    //   gradient
+    //     .append("stop")
+    //     .attr("offset", "100%")
+    //     .attr("stop-color", colorScale(paraData[index + 1]));
+    // }
+
+    // shapes.each(function (d, i) {
+    //   var shape;
+
+    //   shape = d3.select(this).append("rect");
+    //   // Draw the rectangle
+    //   shape
+    //     .attr("x", i == 0 ? 0 : i * rectWidth + rectWidth / 4)
+    //     .attr("y", 0)
+    //     .attr(
+    //       "width",
+    //       (i == 0 || i == rectNumber - 1
+    //         ? (rectWidth / 4) * 3
+    //         : rectWidth / 2) + 0.5
+    //     )
+    //     .attr("height", paraBarheight)
+    //     // .attr("margin", "-1px")
+    //     .style("stroke-width", 0)
+    //     // .style("fill", colorScale(0));
+    //     .style("fill", colorScale(d));
+
+    //   shape = d3.select(this).append("rect");
+    //   // Draw the gradient rectangle
+    //   shape
+    //     .attr("x", i * rectWidth + (rectWidth / 4) * 3)
+    //     .attr("y", 0)
+    //     .attr("width", rectWidth / 2 + 0.5)
+    //     .attr("height", paraBarheight)
+    //     .style("stroke-width", 0)
+    //     // .style("fill", colorScale(0));
+    //     .style("fill", "url(#myGradient" + i.toString() + ")");
+    // });
   }, [paraData]);
 
   useEffect(() => {
