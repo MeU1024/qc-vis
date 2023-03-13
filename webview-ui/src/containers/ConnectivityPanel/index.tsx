@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import "./index.scss";
 import * as d3 from "d3";
+import { MATRIX_BG, MATRIX_STROKE } from "../../const";
 
 export interface ConnectivityPanelProps {
   theme: any;
@@ -32,9 +33,9 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         .attr("width", rectSize)
         .attr("height", rectSize)
         .attr("fill", function (d, i) {
-          return d[index] ? "black" : "white";
+          return d[index] ? MATRIX_BG : "white";
         })
-        .attr("stroke", "gray");
+        .attr("stroke", "white");
     }
   }, [matrix]);
 
@@ -64,10 +65,16 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
       <div className="legend">
         <span className="legendName">Linked</span>
         <svg viewBox="0 0 8 8" width="8" height="8">
-          <rect width="8" height="8" />
+          <rect width="8" height="8" fill={MATRIX_BG} stroke={MATRIX_STROKE} />
         </svg>
         <span className="legendName">Unlinked</span>
-        <svg viewBox="0 0 8 8" width="8" height="8">
+        <svg
+          viewBox="0 0 8 8"
+          width="8"
+          height="8"
+          fill="white"
+          stroke={MATRIX_STROKE}
+        >
           <rect width="8" height="8" />
         </svg>
       </div>
@@ -93,8 +100,8 @@ const matrixData = () => {
   }
   for (let row = 0; row < 20; row++) {
     for (let col = row + 1; col < 20; col++) {
-      // connectivityMatrix[row][col] = 1;
-      // connectivityMatrix[col][row] = 1;
+      connectivityMatrix[row][col] = 1;
+      connectivityMatrix[col][row] = 1;
     }
   }
   return connectivityMatrix;

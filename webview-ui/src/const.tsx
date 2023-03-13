@@ -27,3 +27,12 @@ export const opDict = {
 
 // export const
 export const opList = Object.keys(opDict);
+export const WIRE_STROKE = "#6FD7F3";
+export const SINGLE_GATE_STROKE = "#4886E4";
+export const MULTI_GATE_STROKE = "#E44898";
+export const CUSTOM_GATE_STROKE = "#BDCCD4";
+export const SELECTION_BG = "#CCCCCC";
+export const MATRIX_BG = "#6FD7F3";
+export const MATRIX_STROKE = "#EBF1F4";
+export const GATE_FILL = "#FFFFFF";
+export const GATE_FILL_OPACITY = "80%";

@@ -198,11 +198,20 @@ class ContextualCircuit {
         highlights.push(0);
       }
     });
+    let focusQubitGates = this._focusQubitGates.map((gate: ComponentGate) => {
+      return {
+        gateName: gate.gateName,
+        qubits: gate.qubits.map((item: Qubit) => {
+          return item.qubitName;
+        }),
+      };
+    });
+
     return {
       ...this._compnentCircuit.exportJson(),
       highlights: highlights,
       matrix: this._connectivityMatrix,
-      // focusQubitGates: this._focusQubitGates,
+      focusQubitGates: focusQubitGates,
     };
   }
 
