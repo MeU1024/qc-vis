@@ -82,6 +82,7 @@ class ContextualCircuit {
   }[];
   private _focusQubitIndex: number;
   private _layerParallelism: number[];
+  private _originalLayers: ComponentGate[][];
 
   constructor(_dataFile: vscode.Uri) {
     this._compnentCircuit = new ComponentCircuit(_dataFile);
@@ -96,6 +97,7 @@ class ContextualCircuit {
     this._updateConnectivity();
     this._focusQubitGates = this._updateQubit();
     this._layerParallelism = [];
+    this._originalLayers = this._placement();
     this._updateParallelism();
   }
 
@@ -143,11 +145,11 @@ class ContextualCircuit {
   }
 
   private _updateParallelism() {
-    const layers = this._compnentCircuit.getLayers();
+    // const layers = this._compnentCircuit.getLayers();
     const originalQubits = this._compnentCircuit.getOriginalQubits();
     const qubitsLength = originalQubits.length;
-    const layerPara = layers.map((layer: Layer) => {
-      return layer.gates.length / qubitsLength;
+    const layerPara = this._originalLayers.map((layer: ComponentGate[]) => {
+      return layer.length / qubitsLength;
     });
     this._layerParallelism = layerPara;
   }
@@ -201,6 +203,38 @@ class ContextualCircuit {
     return focusGates;
   }
 
+  private _placement() {
+    const originalGates = this._compnentCircuit.getOriginalGates();
+    const originalQubits = this._compnentCircuit.getOriginalQubits();
+    //gate placement
+    let qubitsPlacement = originalQubits.map((bit: Qubit) => {
+      return 0;
+    });
+
+    let layers: ComponentGate[][] = [];
+    originalGates.forEach((gate, index) => {
+      //placement
+      let layerIndex = 0;
+      gate.qubits.forEach((qubit: Qubit) => {
+        const qubitIndex = parseInt(qubit.qubitName);
+        if (qubitsPlacement[qubitIndex] > layerIndex) {
+          layerIndex = qubitsPlacement[qubitIndex];
+        }
+      });
+      if (layers.length < layerIndex + 1) {
+        layers.push([gate]);
+      } else {
+        layers[layerIndex].push(gate);
+      }
+
+      gate.qubits.forEach((qubit: Qubit) => {
+        const qubitIndex = parseInt(qubit.qubitName);
+        qubitsPlacement[qubitIndex] = layerIndex + 1;
+      });
+    });
+
+    return layers;
+  }
   exportJson() {
     let highlights: number[] = [];
     this._compnentCircuit.gates.forEach((gate) => {
