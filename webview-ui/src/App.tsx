@@ -7,7 +7,7 @@ import ParamPanel from "./containers/ParamPanel";
 import "./App.scss";
 import { useEffect, useState } from "react";
 import ConnectivityPanel from "./containers/ConnectivityPanel";
-import QubitPanel from "./containers/QubitPanel";
+import ProvenancePanel from "./containers/ProvenancePanel";
 import ParallelismPanel from "./containers/ParallelismPanel";
 
 function App() {
@@ -44,7 +44,7 @@ function App() {
         <div className="BottomContent">
           <div className="BottomLeft">
             <DetailPanel highlightGate={highlightGate} theme={theme} />
-            <QubitPanel highlightGate={highlightGate} theme={theme} />
+            <ProvenancePanel highlightGate={highlightGate} theme={theme} />
           </div>
           <div className="BottomRight">
             <ParallelismPanel theme={theme} highlightGate={highlightGate} />

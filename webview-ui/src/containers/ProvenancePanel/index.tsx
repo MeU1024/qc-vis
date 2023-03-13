@@ -13,7 +13,7 @@ import {
   colorDict,
 } from "../../const";
 
-export interface QubitPanelProps {
+export interface ProvenancePanelProps {
   theme: any;
   highlightGate: string | null;
 }
@@ -28,17 +28,17 @@ const generateQubitData = () => {
   ];
 };
 
-const QubitPanel = (props: QubitPanelProps) => {
+const ProvenancePanel = (props: ProvenancePanelProps) => {
   const { theme, highlightGate } = props;
 
-  const [panelTitle, setPanelTitle] = useState("QubitPanel");
+  const [panelTitle, setPanelTitle] = useState("Provenance");
   const [qubitData, setQubitData] = useState<
     | undefined
     | {
         gateName: string;
         qubits: string[];
       }[]
-  >(undefined);
+  >(generateQubitData());
 
   const [focusQubit, setFocusQubit] = useState(0);
 
@@ -212,4 +212,4 @@ const QubitPanel = (props: QubitPanelProps) => {
   );
 };
 
-export default QubitPanel;
+export default ProvenancePanel;

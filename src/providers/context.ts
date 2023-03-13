@@ -81,6 +81,7 @@ class ContextualCircuit {
     type: string;
   }[];
   private _focusQubitIndex: number;
+  private _layerParallelism: number[];
 
   constructor(_dataFile: vscode.Uri) {
     this._compnentCircuit = new ComponentCircuit(_dataFile);
@@ -94,12 +95,14 @@ class ContextualCircuit {
     this._treeStructure = this._importStructureFromFile();
     this._updateConnectivity();
     this._focusQubitGates = this._updateQubit();
+    this._layerParallelism = [];
+    this._updateParallelism();
   }
 
   setFocusNode(gate: ComponentGate | undefined) {
     this._focusGate = gate;
     this._updateDependency();
-    this._updateParallisim();
+    this._updateParallelism();
   }
   private _importStructureFromFile(): {
     name: string;
@@ -139,7 +142,16 @@ class ContextualCircuit {
     this._gateHighlight.set(this._focusGate, 2);
   }
 
-  private _updateParallisim() {}
+  private _updateParallelism() {
+    const layers = this._compnentCircuit.getLayers();
+    const originalQubits = this._compnentCircuit.getOriginalQubits();
+    const qubitsLength = originalQubits.length;
+    const layerPara = layers.map((layer: Layer) => {
+      return layer.gates.length / qubitsLength;
+    });
+    this._layerParallelism = layerPara;
+  }
+
   private _updateConnectivity() {
     const originalGates = this._compnentCircuit.getOriginalGates();
     const originalQubits = this._compnentCircuit.getOriginalQubits();
@@ -212,6 +224,7 @@ class ContextualCircuit {
       highlights: highlights,
       matrix: this._connectivityMatrix,
       focusQubitGates: focusQubitGates,
+      layerParallelism: this._layerParallelism,
     };
   }
 

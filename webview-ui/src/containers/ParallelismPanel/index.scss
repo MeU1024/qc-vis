@@ -1,0 +1,23 @@
+.parallelismPanel {
+  display: flex;
+  flex-direction: column;
+  // justify-content: center;
+  // align-items: center;
+
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border: solid;
+  border-width: 0.5px;
+  .firstRow {
+    align-self: center;
+    display: flex;
+    flex-direction: row;
+  }
+  #parallelismSVG {
+    margin-right: 30px;
+    margin-left: 20px;
+  }
+  #parallelismBar {
+    margin-left: 20px;
+  }
+}
