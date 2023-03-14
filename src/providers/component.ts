@@ -91,9 +91,11 @@ export class ComponentCircuit {
   private _qubits: Qubit[];
   private _gates: ComponentGate[];
   private _layers: Layer[];
+  private _pushLayers: Layer[];
   private _gateLayerMap: Map<ComponentGate, number>;
   private _treeMap: Map<number, number>;
   private _superQubitMap: Map<Qubit, number>;
+  private _layerMap: Map<number, number[]>;
   private _drawableCircuit: DrawableCircuit;
 
   constructor(jsonData: any) {
@@ -107,6 +109,7 @@ export class ComponentCircuit {
 
     this._gates = [];
     this._layers = [];
+    this._pushLayers = [];
 
     this._superQubits = [];
     this._originalQubits = [];
@@ -114,6 +117,7 @@ export class ComponentCircuit {
     this._superQubitMap = new Map<Qubit, number>();
     this._gateLayerMap = new Map<ComponentGate, number>();
     this._treeMap = new Map<number, number>();
+    this._layerMap = new Map<number, number[]>();
     this._drawableCircuit = new DrawableCircuit();
 
     const file = vscode.Uri.file(
@@ -490,20 +494,6 @@ export class ComponentCircuit {
           qubitsPlacement[qubitIndex] = layerIndex + 1;
         }
       });
-
-      // let minQubit = edgeMap[parseInt(gateInfo.qubits[0].qubitName)];
-      // let maxQubit =
-      //   edgeMap[
-      //     parseInt(gateInfo.qubits[gateInfo.qubits.length - 1].qubitName)
-      //   ];
-      // if (minQubit > maxQubit) {
-      //   const temp = maxQubit;
-      //   maxQubit = minQubit;
-      //   minQubit = temp;
-      // }
-      // for (let index = minQubit; index <= maxQubit; index++) {
-      //   qubitsPlacement[index] = layerIndex + 1;
-      // }
     });
 
     return layers;
@@ -545,12 +535,74 @@ export class ComponentCircuit {
     });
 
     this._layers = componentLayers;
+    this._pushLayers = this._checkOverlap(componentLayers);
     this._gateLayerMap = this._mapGateToLayer();
     this._drawableCircuit.loadFromLayers(
-      componentLayers,
+      this._pushLayers,
       this._qubits,
       this._superQubitMap
     );
+  }
+  private _checkOverlap(componentLayers: Layer[]) {
+    const newLayers: Layer[] = [];
+    const layerMap: Map<number, number[]> = new Map<number, number[]>();
+    for (
+      let layerIndex = 0;
+      layerIndex < componentLayers.length;
+      layerIndex++
+    ) {
+      const layer = componentLayers[layerIndex];
+      let qubitsPlacement = new Array(this._qubits.length).fill(0);
+      let newLayer: ComponentGate[] = [];
+      const layerMapValue: number[] = [];
+      layer.gates.forEach((gate: ComponentGate, index) => {
+        let minQubit = this._superQubitMap.get(gate.qubits[0]);
+        let maxQubit = this._superQubitMap.get(
+          gate.qubits[gate.qubits.length - 1]
+        );
+        if (minQubit !== undefined && maxQubit !== undefined) {
+          if (minQubit > maxQubit) {
+            const temp = maxQubit;
+            maxQubit = minQubit;
+            minQubit = temp;
+          }
+          let ifOverlap = false;
+          for (let index = minQubit; index <= maxQubit; index++) {
+            if (qubitsPlacement[index] === 1) {
+              ifOverlap = true;
+              break;
+            }
+          }
+          if (ifOverlap) {
+            layerMapValue.push(newLayers.length);
+            newLayers.push(new Layer(newLayer));
+            for (let index = 0; index <= this._qubits.length; index++) {
+              qubitsPlacement[index] = 0;
+            }
+            for (let index = minQubit; index <= maxQubit; index++) {
+              qubitsPlacement[index] = 1;
+            }
+            newLayer = [];
+            newLayer.push(gate);
+          } else {
+            newLayer.push(gate);
+            for (let index = minQubit; index <= maxQubit; index++) {
+              qubitsPlacement[index] = 1;
+            }
+          }
+        }
+      });
+      if (newLayer.length !== 0) {
+        newLayers.push(new Layer(newLayer));
+        newLayer = [];
+        for (let index = 0; index <= this._qubits.length; index++) {
+          qubitsPlacement[index] = 0;
+        }
+      }
+      layerMap.set(layerIndex, layerMapValue);
+    }
+    this._layerMap = layerMap;
+    return newLayers;
   }
 
   slice(range: number[]): ComponentGate[] {

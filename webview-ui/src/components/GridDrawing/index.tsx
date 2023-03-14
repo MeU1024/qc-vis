@@ -184,6 +184,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
       break;
     case "vertical_line":
+      ctx.strokeStyle = MULTI_GATE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 2, yCoord);
       ctx.lineTo(xCoord + width / 2, yCoord + height);
