@@ -146,7 +146,6 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.lineTo(xCoord + width, yCoord + height / 2);
       ctx.stroke();
 
-      ctx.strokeStyle = MULTI_GATE_STROKE;
       ctx.fillStyle = MULTI_GATE_STROKE;
       ctx.arc(
         xCoord + width / 2,
@@ -156,6 +155,8 @@ const GridDrawing = (props: GridDrawingProps) => {
         2 * Math.PI
       );
       ctx.fill();
+
+      ctx.strokeStyle = MULTI_GATE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 2, yCoord + height / 2);
       ctx.lineTo(xCoord + width / 2, yCoord + height);
@@ -388,6 +389,56 @@ const GridDrawing = (props: GridDrawingProps) => {
         (height / 4) * 3
       );
 
+      break;
+    case "cy_up":
+      //lines
+      ctx.strokeStyle = WIRE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord, yCoord + height / 2);
+      ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
+
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width / 8) * 7, yCoord + height / 2);
+      ctx.lineTo(xCoord + width, yCoord + height / 2);
+
+      ctx.stroke();
+      //square
+      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.strokeRect(
+        xCoord + width / 8,
+        yCoord + height / 8,
+        (width / 4) * 3,
+        (height / 4) * 3
+      );
+      ctx.moveTo(xCoord + width / 2, yCoord);
+      ctx.lineTo(xCoord + width / 2, yCoord + height / 8);
+      break;
+    case "cy_down":
+      ctx.strokeStyle = WIRE_STROKE;
+      ctx.beginPath();
+      //lines
+      ctx.moveTo(xCoord, yCoord + height / 2);
+      ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width / 8) * 7, yCoord + height / 2);
+      ctx.lineTo(xCoord + width, yCoord + height / 2);
+      ctx.stroke();
+
+      //square
+      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.strokeRect(
+        xCoord + width / 8,
+        yCoord + height / 8,
+        (width / 4) * 3,
+        (height / 4) * 3
+      );
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord);
+      ctx.lineTo(xCoord + width / 2, yCoord + height / 8);
+
+      ctx.stroke();
       break;
     default:
       break;

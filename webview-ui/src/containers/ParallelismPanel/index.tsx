@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import "./index.scss";
 import * as d3 from "d3";
-import { PARA_HIGH_FILL, PARA_LOW_FILL } from "../../const";
+import { IDLE_FILL, PARA_HIGH_FILL, PARA_LOW_FILL } from "../../const";
 import overviewData_abs from "../../../data/vqc-10-detail-abstract.json";
 import Circuit2GridData from "../../utilities/Circuit2GridData";
 import { svgCircuitRender } from "../../utilities/svgCircuitRender";
+import { vscode } from "../../utilities/vscode";
 export interface ParallelismPanelProps {
   theme: any;
   highlightGate: string | null;
@@ -16,12 +17,16 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const { theme, highlightGate } = props;
 
   const [panelTitle, setPanelTitle] = useState("Idle Qubit | Parallelism");
-  const [idleBarwidth, setIdleBarwidth] = useState(30);
+  const [idleBarwidth, setIdleBarwidth] = useState(20);
   const [idleBarheight, setIdleBarheight] = useState(350);
   const [canvasWidth, setCanvasWidth] = useState(350);
   const [canvasHeight, setCanvasHeight] = useState(350);
   const [focusLayer, setFocusLayer] = useState(0);
+  const [gridSize, setGridSize] = useState(50);
   const [paraData, setParaData] = useState(geneParaData());
+  const [idleData, setIdleData] = useState<undefined | number[]>([
+    0, 0.2, 0.8, 1, 0.4, 0.7, 0.3,
+  ]);
   const [circuit, setCircuit] = useState<
     | {
         output_size: number[];
@@ -52,6 +57,28 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       });
     }
   }, [circuit]);
+
+  useEffect(() => {
+    if (idleData !== undefined) {
+      var svg = d3.select("#idleBar");
+      svg.selectAll("*").remove();
+      var rects = svg.selectAll("rect").data(idleData);
+
+      rects
+        .enter()
+        .append("rect")
+        .attr("x", 0) // Set the x-coordinate based on the data index
+        .attr("y", function (d, i) {
+          return i * idleBarwidth + 20;
+        })
+        .attr("width", idleBarwidth)
+        .attr("height", idleBarwidth)
+        .attr("fill", IDLE_FILL)
+        .attr("stroke", IDLE_FILL)
+        .attr("stoke-width", "3px")
+        .attr("fill-opacity", (d, i) => d.toString());
+    }
+  }, [idleData]);
   useEffect(() => {
     var svg = d3.select("#parallelismBar");
     svg.selectAll("*").remove();
@@ -92,6 +119,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         case "context.setCircuit":
           setParaData(message.data.layerParallelism);
           setCircuit(message.data.subGraph);
+          setIdleData(message.data.idleData);
           console.log(message);
           break;
         case "context.setTitle":
@@ -105,6 +133,23 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     };
   }, []);
 
+  function handleClick(event: any) {
+    const rect =
+      event.target.farthestViewportElement !== null
+        ? event.target.farthestViewportElement.getBoundingClientRect()
+        : event.target.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const focusGate = Math.floor(x / gridSize);
+    setFocusLayer(focusGate);
+    vscode.postMessage({
+      type: "focusGate",
+      layer: focusGate,
+    });
+
+    // console.log(`Clicked at (${x}, ${y})`);
+    // console.log(rect);
+  }
   return (
     <div className="parallelismPanel">
       <div className="panelHeader">{panelTitle}</div>
@@ -119,6 +164,9 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             viewBox={"0 0 " + canvasWidth + " " + canvasHeight}
             width={canvasWidth}
             height={canvasHeight}
+            onClick={(event) => {
+              handleClick(event);
+            }}
           ></svg>
           <svg
             id="idleBar"

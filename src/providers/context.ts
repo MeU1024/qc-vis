@@ -40,7 +40,9 @@ export class ContextDataProvider {
 
     return contextualCircuit;
   }
-
+  setFocusLayer(focusLayer: number) {
+    this._data?.setFocusLayer(focusLayer);
+  }
   private async _postData() {
     const contextPath = qv.semanticTreeViewer.focusPath?.reverse().join(" > ");
 
@@ -120,6 +122,9 @@ class ContextualCircuit {
     this._updateDependency();
     this._updateSubCircuit();
   }
+  setFocusLayer(focusLayer: number) {
+    this._focusLayerIndex = focusLayer;
+  }
   private _importStructureFromFile(): {
     name: string;
     parentIndex: number;
@@ -166,6 +171,41 @@ class ContextualCircuit {
       return layer.length / qubitsLength;
     });
     this._layerParallelism = layerPara;
+  }
+  private _updateIdle() {
+    const qubitsNum = this._originalQubits.length;
+    const layerNum = this._originalLayers.length;
+    for (let qubitIndex = 0; qubitIndex < qubitsNum; qubitIndex++) {
+      //next idle gates
+      const nextIdleGates = [];
+      for (let index = this._focusLayerIndex + 1; index < layerNum; index++) {
+        let ifOccupied = false;
+        for (
+          let gateIndex = 0;
+          gateIndex < this._originalLayers[index].length;
+          gateIndex++
+        ) {
+          const qubitsArray = this._originalLayers[index][gateIndex].qubits;
+          let i;
+          for (i = 0; i < qubitsArray.length; i++) {
+            if (parseInt(qubitsArray[i].qubitName) === qubitIndex) {
+              ifOccupied = true;
+              break;
+            }
+          }
+          if (i < qubitsArray.length) {
+            break;
+          }
+        }
+        if (!ifOccupied) {
+          nextIdleGates.push(index);
+        } else {
+          break;
+        }
+      }
+      const previousIdleGates = [];
+      for (let index = this._focusLayerIndex - 1; index >= 0; index--) {}
+    }
   }
 
   private _updateSubCircuit() {

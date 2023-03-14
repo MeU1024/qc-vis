@@ -67,6 +67,7 @@ const Circuit2GridData = (circuitData: {
 
         break;
       case "cx":
+      case "cy":
         for (let index = start; index < end; index++) {
           graph[xRange[0]][index] = opDict["vertical_line"];
         }
@@ -74,12 +75,12 @@ const Circuit2GridData = (circuitData: {
         const target_bit = yRange[yRange.length - 1];
         if (ctrl_bit < target_bit) {
           graph[xRange[0]][ctrl_bit] = opDict["ctrl_up"];
-          graph[xRange[0]][target_bit] = opDict["cx_down"];
+          graph[xRange[0]][target_bit] = opDict["cy_down"];
         } else {
           graph[xRange[0]][ctrl_bit] = opDict["ctrl_down"];
-          graph[xRange[0]][target_bit] = opDict["cx_up"];
+          graph[xRange[0]][target_bit] = opDict["cy_up"];
         }
-
+        graphText.push({ x: xRange, y: [target_bit], content: op });
         break;
       case "...":
       case "···":

@@ -23,6 +23,8 @@ export const opDict = {
   multi_gate_bottom: 18,
   multi_gate_up: 19,
   custom_gate: 20,
+  cy_down: 21,
+  cy_up: 22,
 };
 
 // export const
@@ -37,6 +39,8 @@ export const MATRIX_STROKE = "#EBF1F4";
 export const GATE_FILL = "#FFFFFF";
 export const PARA_HIGH_FILL = "#FF1D25";
 export const PARA_LOW_FILL = "#3FA9F5";
+export const IDLE_FILL = "#BDCCD4";
+export const IDLE_STOKRE = "#D4D4D4";
 export const GATE_FILL_OPACITY = "80%";
 export const opTypeDict: { [key: string]: string } = {
   rx: "single",
