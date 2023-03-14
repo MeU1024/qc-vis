@@ -81,8 +81,12 @@ class ContextualCircuit {
     type: string;
   }[];
   private _focusQubitIndex: number;
+  private _focusLayerIndex: number;
   private _layerParallelism: number[];
   private _originalLayers: ComponentGate[][];
+  private _subGraph: ComponentGate[][];
+  private _subGraphQubitRange: number[];
+  private _subGraphLayerRange: number[];
 
   constructor(_dataFile: vscode.Uri) {
     this._compnentCircuit = new ComponentCircuit(_dataFile);
@@ -92,19 +96,29 @@ class ContextualCircuit {
     this._originalQubits = [];
     this._originalGates = [];
     this._connectivityMatrix = [];
+    this._layerParallelism = [];
+    this._subGraph = [];
+    this._subGraphLayerRange = [];
+    this._subGraphQubitRange = [];
+
     this._focusQubitIndex = 0;
+    this._focusLayerIndex = 0;
+
+    this._originalGates = this._compnentCircuit.getOriginalGates();
+    this._originalQubits = this._compnentCircuit.getOriginalQubits();
+
     this._treeStructure = this._importStructureFromFile();
     this._updateConnectivity();
     this._focusQubitGates = this._updateQubit();
-    this._layerParallelism = [];
     this._originalLayers = this._placement();
     this._updateParallelism();
+    this._updateSubCircuit();
   }
 
   setFocusNode(gate: ComponentGate | undefined) {
     this._focusGate = gate;
     this._updateDependency();
-    this._updateParallelism();
+    this._updateSubCircuit();
   }
   private _importStructureFromFile(): {
     name: string;
@@ -152,6 +166,32 @@ class ContextualCircuit {
       return layer.length / qubitsLength;
     });
     this._layerParallelism = layerPara;
+  }
+
+  private _updateSubCircuit() {
+    const layerNum = this._originalLayers.length;
+    const qubitNum = this._originalQubits.length;
+    let layerRange = [0, 6];
+    let qubitRange = [0, 6];
+
+    if (this._focusLayerIndex >= layerNum - 4) {
+      layerRange = [layerNum - 7, layerNum - 1];
+    } else if (this._focusLayerIndex > 3) {
+      layerRange = [this._focusLayerIndex - 3, this._focusLayerIndex + 3];
+    }
+
+    if (this._focusQubitIndex >= qubitNum - 4) {
+      qubitRange = [qubitNum - 7, qubitNum - 1];
+    } else if (this._focusQubitIndex > 3) {
+      qubitRange = [this._focusQubitIndex - 3, this._focusQubitIndex + 3];
+    }
+
+    this._subGraph = this._originalLayers.slice(layerRange[0], layerRange[1]);
+    this._subGraph = this._subGraph.map((layer) => {
+      return layer.slice(qubitRange[0], qubitRange[1]);
+    });
+    this._subGraphQubitRange = qubitRange;
+    this._subGraphLayerRange = layerRange;
   }
 
   private _updateConnectivity() {
@@ -204,15 +244,13 @@ class ContextualCircuit {
   }
 
   private _placement() {
-    const originalGates = this._compnentCircuit.getOriginalGates();
-    const originalQubits = this._compnentCircuit.getOriginalQubits();
     //gate placement
-    let qubitsPlacement = originalQubits.map((bit: Qubit) => {
+    let qubitsPlacement = this._originalQubits.map((bit: Qubit) => {
       return 0;
     });
 
     let layers: ComponentGate[][] = [];
-    originalGates.forEach((gate, index) => {
+    this._originalGates.forEach((gate, index) => {
       //placement
       let layerIndex = 0;
       gate.qubits.forEach((qubit: Qubit) => {
@@ -235,6 +273,56 @@ class ContextualCircuit {
 
     return layers;
   }
+  private _subCircuit2Json() {
+    const outputSize = [7, 7];
+
+    const qubits = this._originalQubits
+      .slice(this._subGraphQubitRange[0], this._subGraphQubitRange[1])
+      .map((qubit) => {
+        return qubit.qubitName;
+      });
+
+    // build opMap
+    const opMap = new Map<string, number>();
+    opMap.set("...", 0);
+    let opCount = 1;
+    this._subGraph.forEach((layer) => {
+      layer.forEach((gate) => {
+        let opName = gate.gateName;
+        if (!opMap.has(opName)) {
+          opMap.set(opName, opCount++);
+        }
+      });
+    });
+    let ret: any = {};
+    opMap.forEach((value, key) => {
+      ret[key] = value;
+    });
+
+    let allGates: any[] = [];
+    this._subGraph.forEach((layer, layerIndex) => {
+      let layerInfo: any[] = [];
+      layer.forEach((gate) => {
+        let gateInfo: any[] = [];
+        const opNameIndex = opMap.get(gate.gateName);
+        const qubitsIndex = gate.qubits.map((qubit) =>
+          parseInt(qubit.qubitName)
+        );
+        gateInfo.push(opNameIndex);
+        gateInfo.push([layerIndex]);
+        gateInfo.push(qubitsIndex);
+        layerInfo.push(gateInfo);
+      });
+      allGates.push(...layerInfo);
+    });
+    return {
+      output_size: outputSize,
+      op_map: ret,
+      qubits: qubits,
+      all_gates: allGates,
+      gate_format: "",
+    };
+  }
   exportJson() {
     let highlights: number[] = [];
     this._compnentCircuit.gates.forEach((gate) => {
@@ -253,12 +341,14 @@ class ContextualCircuit {
       };
     });
 
+    let subCircuit = this._subCircuit2Json();
     return {
       ...this._compnentCircuit.exportJson(),
       highlights: highlights,
       matrix: this._connectivityMatrix,
       focusQubitGates: focusQubitGates,
       layerParallelism: this._layerParallelism,
+      subCircuit: subCircuit,
     };
   }
 
