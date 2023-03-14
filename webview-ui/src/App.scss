@@ -10,9 +10,9 @@ main {
 
   .MainContent {
     display: grid;
-    grid-template-rows: 50% 50%;
+    grid-template-rows: 45% auto;
     // height: 100vh;
-    height: 960px;
+    height: 1040px;
     width: 1600px;
 
     .BottomContent {

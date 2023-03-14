@@ -52,4 +52,5 @@ export const colorDict: { [key: string]: string } = {
   customized: CUSTOM_GATE_STROKE,
   target: MULTI_GATE_STROKE,
   control: MULTI_GATE_STROKE,
+  multi: MULTI_GATE_STROKE,
 };

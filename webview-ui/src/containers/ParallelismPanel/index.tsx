@@ -4,6 +4,7 @@ import * as d3 from "d3";
 import { PARA_HIGH_FILL, PARA_LOW_FILL } from "../../const";
 import overviewData_abs from "../../../data/vqc-10-detail-abstract.json";
 import Circuit2GridData from "../../utilities/Circuit2GridData";
+import { svgCircuitRender } from "../../utilities/svgCircuitRender";
 export interface ParallelismPanelProps {
   theme: any;
   highlightGate: string | null;
@@ -21,22 +22,36 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [canvasHeight, setCanvasHeight] = useState(350);
   const [focusLayer, setFocusLayer] = useState(0);
   const [paraData, setParaData] = useState(geneParaData());
-  const [circuit, setCircuit] = useState<{
-    output_size: number[];
-    op_map: {};
-    qubits: string[];
-    gate_format: string;
-    all_gates: (number | number[])[][];
-  }>(overviewData_abs);
+  const [circuit, setCircuit] = useState<
+    | {
+        output_size: number[];
+        op_map: {};
+        qubits: string[];
+        gate_format: string;
+        all_gates: ((number | number[])[] | (number | number[])[])[];
+      }
+    | undefined
+  >(generateCircuit());
 
   const paraBarwidth = 350;
-  const paraBarheight = 10;
+  const paraBarheight = 5;
 
   const colorScale = d3
     .scaleLinear<string>()
     .domain([0, 1])
     .range([PARA_LOW_FILL, PARA_HIGH_FILL]);
 
+  useEffect(() => {
+    if (circuit !== undefined) {
+      svgCircuitRender({
+        id: "#parallelismSVG",
+        width: canvasWidth,
+        height: canvasHeight,
+        gridSize: 50,
+        circuit: circuit,
+      });
+    }
+  }, [circuit]);
   useEffect(() => {
     var svg = d3.select("#parallelismBar");
     svg.selectAll("*").remove();
@@ -123,4 +138,37 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   );
 };
 
+const generateCircuit = () => {
+  return {
+    output_size: [7, 7],
+    op_map: { null: 0, h: 1, cx: 2, cz: 3, ry: 4, rz: 5 },
+    qubits: ["0", "1", "2", "3", "4", "5", "6"],
+    gate_format: "[op_idx, x_range, y_range]",
+    all_gates: [
+      [1, [0], [0]],
+      [1, [0], [1]],
+      [1, [0], [2]],
+      [1, [0], [3]],
+      [1, [0], [4]],
+      [1, [0], [5]],
+      [1, [0], [6]],
+
+      [5, [1], [0]],
+      [5, [1], [1]],
+      [5, [1], [2]],
+      [5, [1], [3]],
+      [5, [1], [4]],
+      [5, [1], [5]],
+      [5, [1], [6]],
+
+      [2, [2], [0, 1]],
+      [5, [3], [1]],
+      [2, [4], [0, 1]],
+      [2, [5], [1, 2]],
+      [4, [5], [0]],
+      [5, [6], [2]],
+      [5, [6], [0]],
+    ],
+  };
+};
 export default ParallelismPanel;

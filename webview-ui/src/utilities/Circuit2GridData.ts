@@ -15,6 +15,8 @@ const Circuit2GridData = (circuitData: {
   const graph: number[][] = [];
   const graphText: { x: number[]; y: number[]; content: string }[] = [];
   const lastCtrl: number[] = [];
+  const pushLayer = 0;
+
   for (let col = 0; col < cols; col++) {
     var layer: number[] = [];
     for (let row = 0; row < rows; row++) {
@@ -32,6 +34,7 @@ const Circuit2GridData = (circuitData: {
       }
     }
   });
+
   gateData.forEach((item) => {
     const opList = Object.keys(op_map);
     const op = opList[item[0]];
@@ -137,4 +140,5 @@ const Circuit2GridData = (circuitData: {
   return { graph, graphText };
 };
 
+const checkOverlap = () => {};
 export default Circuit2GridData;
