@@ -14,8 +14,8 @@ const DetailPanel = (props: DetailPanelProps) => {
   const [qbitLengths, setQbitLength] = useState<string[]>([]);
   const [gridWidth, setGridWidth] = useState<number>(25);
   const [gridHeight, setGridHeight] = useState<number>(25);
-  const [canvasWidth, setCanvasWidth] = useState(550);
-  const [canvasHeight, setCanvasHeight] = useState(250);
+  const [canvasWidth, setCanvasWidth] = useState(650);
+  const [canvasHeight, setCanvasHeight] = useState(350);
   const [circuit, setCircuit] = useState<{
     output_size: number[];
     op_map: {};
@@ -107,7 +107,7 @@ const DetailPanel = (props: DetailPanelProps) => {
           alignment={"sub"}
           gridHeight={gridHeight}
         />
-        <canvas id="detailCanvas" width="550" height="250"></canvas>
+        <canvas id="detailCanvas" width="650" height="350"></canvas>
       </div>
     </div>
   );

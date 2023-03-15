@@ -18,7 +18,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
 
   const [gridWidth, setGridWidth] = useState<number>(25);
   const [gridHeight, setGridHeight] = useState<number>(25);
-  const [canvasWidth, setCanvasWidth] = useState(1550);
+  const [canvasWidth, setCanvasWidth] = useState(1500);
   const [canvasHeight, setCanvasHeight] = useState(400);
   const [qbitLengths, setQbitLength] = useState<string[]>([]);
 

@@ -101,11 +101,11 @@ export class ComponentCircuit {
   constructor(jsonData: any) {
     this._qubits = [];
 
-    if (jsonData === undefined) {
-      jsonData.qubits.forEach((qubitName: string) => {
-        this._qubits.push(new Qubit(qubitName, this._qubits.length));
-      });
-    }
+    // if (jsonData === undefined) {
+    //   jsonData.qubits.forEach((qubitName: string) => {
+    //     this._qubits.push(new Qubit(qubitName, this._qubits.length));
+    //   });
+    // }
 
     this._gates = [];
     this._layers = [];
@@ -126,24 +126,24 @@ export class ComponentCircuit {
         "/resources/data/default-data-source.json"
       ).fsPath
     );
-    if (jsonData === undefined) {
-      jsonData.layers.forEach((layer: any) => {
-        this._layers.push(new Layer([]));
-        layer.forEach((gateInfo: any) => {
-          let gateName = gateInfo[0];
-          let qubits: Qubit[] = [];
-          gateInfo[1].forEach((qubitIndex: number) => {
-            qubits.push(this._qubits[qubitIndex]);
-          });
-          let range = gateInfo[2];
-          let treeIndex = gateInfo[3];
+    // if (jsonData === undefined) {
+    //   jsonData.layers.forEach((layer: any) => {
+    //     this._layers.push(new Layer([]));
+    //     layer.forEach((gateInfo: any) => {
+    //       let gateName = gateInfo[0];
+    //       let qubits: Qubit[] = [];
+    //       gateInfo[1].forEach((qubitIndex: number) => {
+    //         qubits.push(this._qubits[qubitIndex]);
+    //       });
+    //       let range = gateInfo[2];
+    //       let treeIndex = gateInfo[3];
 
-          let gate = new ComponentGate(gateName, qubits, range, treeIndex);
-          this._gates.push(gate);
-          this._layers[this._layers.length - 1].gates.push(gate);
-        });
-      });
-    }
+    //       let gate = new ComponentGate(gateName, qubits, range, treeIndex);
+    //       this._gates.push(gate);
+    //       this._layers[this._layers.length - 1].gates.push(gate);
+    //     });
+    //   });
+    // }
 
     this._importGatesFromFile(file);
     this._treeStructure = this._importStructureFromFile();

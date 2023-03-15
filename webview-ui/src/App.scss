@@ -47,7 +47,8 @@ main {
         // height: 250px;
         display: grid;
         grid-template-columns: 25px auto;
-        //overflow: scroll;
+        overflow: scroll;
+        scrollbar-width: thin;
       }
     }
     #connectivityPanel {
