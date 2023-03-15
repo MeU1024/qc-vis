@@ -41,7 +41,30 @@ export class ContextDataProvider {
     return contextualCircuit;
   }
   setFocusLayer(focusLayer: number) {
-    this._data?.setFocusLayer(focusLayer);
+    const message = this._data?.setFocusLayer(focusLayer);
+    this._postFocusData(message);
+  }
+  private async _postFocusData(
+    data:
+      | {
+          idleQubit: number[][];
+          averageIdleValue: number[];
+        }
+      | undefined
+  ) {
+    if (data !== undefined) {
+      let message = {
+        command: "context.setFocusData",
+        data: data,
+      };
+
+      let panelSet = QCViewerManagerService.getPanelSet(this._dataFile);
+
+      panelSet?.forEach((panel) => {
+        panel.postMessage(message);
+        logger.log(`Sent Message: ${panel.dataFileUri}`);
+      });
+    }
   }
   private async _postData() {
     const contextPath = qv.semanticTreeViewer.focusPath?.reverse().join(" > ");
@@ -128,6 +151,10 @@ class ContextualCircuit {
   setFocusLayer(focusLayer: number) {
     this._focusLayerIndex = focusLayer;
     this._updateIdle();
+    return {
+      idleQubit: this._idleQubit,
+      averageIdleValue: this._averageIdleValue,
+    };
   }
   private _importStructureFromFile(): {
     name: string;
@@ -234,7 +261,9 @@ class ContextualCircuit {
           break;
         }
       }
-
+      idleLayers.sort((a, b) => {
+        return a - b;
+      });
       idleQubit.push(idleLayers);
     }
 
@@ -274,9 +303,12 @@ class ContextualCircuit {
       qubitRange = [this._focusQubitIndex - 3, this._focusQubitIndex + 3];
     }
 
-    this._subGraph = this._originalLayers.slice(layerRange[0], layerRange[1]);
+    this._subGraph = this._originalLayers.slice(
+      layerRange[0],
+      layerRange[1] + 1
+    );
     this._subGraph = this._subGraph.map((layer) => {
-      return layer.slice(qubitRange[0], qubitRange[1]);
+      return layer.slice(qubitRange[0], qubitRange[1] + 1);
     });
     this._subGraphQubitRange = qubitRange;
     this._subGraphLayerRange = layerRange;

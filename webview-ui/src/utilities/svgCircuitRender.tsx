@@ -3,6 +3,7 @@ import {
   colorDict,
   GATE_FILL,
   GATE_FILL_OPACITY,
+  IDLE_FILL,
   MATRIX_BG,
   opTypeDict,
   PARA_HIGH_FILL,
@@ -23,6 +24,9 @@ export interface svgCircuitRenderProps {
     gate_format: string;
     all_gates: ((number | number[])[] | (number | number[])[][])[];
   };
+  averageIdleValue: number[] | undefined;
+  idleQubit: number[][] | undefined;
+  focusLayer: number | undefined;
 }
 
 const colorScale = d3
@@ -31,37 +35,70 @@ const colorScale = d3
   .range([PARA_LOW_FILL, PARA_HIGH_FILL]);
 
 export const svgCircuitRender = (props: svgCircuitRenderProps) => {
-  const { circuit, width, height, gridSize } = props;
+  const {
+    circuit,
+    width,
+    height,
+    gridSize,
+    averageIdleValue,
+    idleQubit,
+    focusLayer,
+  } = props;
 
-  const wiresData = [
-    [0, 0.2, 0.6, 1, 0.4, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0],
-  ];
+  const wiresData = [0, 0.2, 0.6, 1, 0.4, 0, 0];
 
   var svg = d3.select(props.id);
   svg.selectAll("*").remove();
 
-  for (let index = 0; index < wiresData.length; index++) {
-    var gradient = svg
-      .append("defs")
-      .append("linearGradient")
-      .attr("id", "myWireGradient" + index.toString());
+  var averageLayer = svg.append("g");
+  var wiresLayer = svg.append("g");
+  var gatesLayer = svg.append("g");
 
-    for (let i = 0; i < wiresData.length; i++) {
-      gradient
-        .append("stop")
-        .attr("offset", (i / wiresData.length).toString())
-        .attr("stop-color", colorScale(wiresData[index][i]));
-    }
+  console.log("aver", averageIdleValue);
+  if (averageIdleValue !== undefined && focusLayer !== undefined) {
+    var rects = averageLayer.selectAll("rect").data(averageIdleValue).enter();
+
+    rects
+      .append("rect")
+      .attr("x", (d) => focusLayer * gridSize)
+      .attr("y", (d, i) => i * gridSize)
+      .attr("width", gridSize)
+      .attr("height", gridSize)
+      .attr("fill", IDLE_FILL)
+      .attr("fill-opacity", (d) => d);
+  }
+  if (idleQubit !== undefined && focusLayer !== undefined) {
+    const idleBackground = averageLayer
+      .selectAll("g")
+      .data(idleQubit)
+      .enter()
+      .append("g");
+    idleBackground.each((d, index) => {
+      let bg = d3.select(idleBackground.nodes()[index]).append("rect");
+      bg.attr("x", d[0] * gridSize)
+        .attr("y", index * gridSize)
+        .attr("width", gridSize * d.length)
+        .attr("height", gridSize)
+        .attr("rx", gridSize / 20)
+        .attr("fill", IDLE_FILL)
+        .attr("fill-opacity", 0.1);
+    });
+  }
+
+  var gradient = svg
+    .append("defs")
+    .append("linearGradient")
+    .attr("id", "myWireGradient");
+
+  for (let i = 0; i < wiresData.length; i++) {
+    gradient
+      .append("stop")
+      .attr("offset", (i / wiresData.length).toString())
+      .attr("stop-color", colorScale(wiresData[i]));
   }
 
   //wire
-  var wires = svg.selectAll("wire").data(wiresData);
+  var wires = wiresLayer.selectAll("rect").data(wiresData);
   wires
     .enter()
     .append("rect")
@@ -73,7 +110,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     .attr("width", width)
     .attr("height", 1)
     .style("fill", (d, i) => {
-      return "url(#myWireGradient" + i.toString() + ")";
+      return "url(#myWireGradient)";
     });
 
   //gate
@@ -81,7 +118,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   const allGates = circuit.all_gates;
   const opMap = circuit.op_map;
 
-  var gates = svg.selectAll("g").data(allGates).enter().append("g");
+  var gates = gatesLayer.selectAll("g").data(allGates).enter().append("g");
   gates.each((gate: any, index) => {
     let shape;
     const opList = Object.keys(opMap);

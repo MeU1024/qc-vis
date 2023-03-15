@@ -1,20 +1,20 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as qv from '../../quantivine';
-import {ViewerStatusChanged} from '../eventbus';
+import * as vscode from "vscode";
+import * as path from "path";
+import * as qv from "../../quantivine";
+import { ViewerStatusChanged } from "../eventbus";
 
-import {getLogger} from '../logger';
+import { getLogger } from "../logger";
 import {
   PanelRequest,
   QCViewerState,
-} from '../../../types/quantivine-protocol-type';
-import {getUri} from '../../utilities/getUri';
-import {getNonce} from '../../utilities/getNonce';
-import {AbstractionDataProvider} from '../../providers/abstraction';
-import {ComponentDataProvider} from '../../providers/component';
-import {ContextDataProvider} from '../../providers/context';
+} from "../../../types/quantivine-protocol-type";
+import { getUri } from "../../utilities/getUri";
+import { getNonce } from "../../utilities/getNonce";
+import { AbstractionDataProvider } from "../../providers/abstraction";
+import { ComponentDataProvider } from "../../providers/component";
+import { ContextDataProvider } from "../../providers/context";
 
-const logger = getLogger('Viewer', 'Panel');
+const logger = getLogger("Viewer", "Panel");
 
 export class QCViewerPanel {
   readonly webviewPanel: vscode.WebviewPanel;
@@ -29,10 +29,14 @@ export class QCViewerPanel {
     this.webviewPanel = panel;
     panel.webview.onDidReceiveMessage((msg: PanelRequest) => {
       switch (msg.type) {
-        case 'state': {
+        case "state": {
           this.viewerState = msg.state;
           qv.eventBus.fire(ViewerStatusChanged, msg.state);
           break;
+        }
+        case "focusGate": {
+          this._contextData?.setFocusLayer(msg.layer);
+          logger.log(msg.layer.toString());
         }
         default: {
           break;
@@ -59,6 +63,7 @@ export class QCViewerPanel {
     if (!this._contextData) {
       this._contextData = new ContextDataProvider(this.dataFileUri);
     }
+
     this._componentData.updateData();
     this._abstractionData.updateData();
     this._contextData.updateData();
@@ -74,8 +79,8 @@ export class QCViewerPanelService {
   ): Promise<QCViewerPanel> {
     // await qv.server.serverStarted;
     const panel = vscode.window.createWebviewPanel(
-      'quantivine-vis',
-      'Quantivine',
+      "quantivine-vis",
+      "Quantivine",
       {
         viewColumn: vscode.ViewColumn.Active,
         preserveFocus,
@@ -107,17 +112,17 @@ export class QCViewerPanelService {
   ): Promise<string> {
     // The CSS file from the React build output
     const stylesUri = getUri(webview, extensionUri, [
-      'webview-ui',
-      'build',
-      'assets',
-      'index.css',
+      "webview-ui",
+      "build",
+      "assets",
+      "index.css",
     ]);
     // The JS file from the React build output
     const scriptUri = getUri(webview, extensionUri, [
-      'webview-ui',
-      'build',
-      'assets',
-      'index.js',
+      "webview-ui",
+      "build",
+      "assets",
+      "index.js",
     ]);
 
     const nonce = getNonce();

@@ -21,10 +21,10 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [idleBarheight, setIdleBarheight] = useState(350);
   const [canvasWidth, setCanvasWidth] = useState(350);
   const [canvasHeight, setCanvasHeight] = useState(350);
-  const [focusLayer, setFocusLayer] = useState(0);
+  const [focusLayer, setFocusLayer] = useState<number | undefined>(undefined);
   const [gridSize, setGridSize] = useState(50);
-  const [paraData, setParaData] = useState(geneParaData());
-  const [idleData, setIdleData] = useState<undefined | number[]>([
+  const [paraBarData, setParaBarData] = useState(geneParaData());
+  const [idleBarData, setIdleBarData] = useState<undefined | number[]>([
     0, 0.2, 0.8, 1, 0.4, 0.7, 0.3,
   ]);
   const [circuit, setCircuit] = useState<
@@ -37,6 +37,14 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       }
     | undefined
   >(generateCircuit());
+  const [idleQubit, setIdleQubit] = useState<number[][] | undefined>([
+    [3],
+    [],
+    [2, 3, 4],
+  ]);
+  const [averageIdleValue, setAverageIdleValue] = useState<
+    number[] | undefined
+  >([0.1, 1, 0.1, 0.13, 0.15, 0.16, 0.22]);
 
   const paraBarwidth = 350;
   const paraBarheight = 5;
@@ -47,22 +55,27 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     .range([PARA_LOW_FILL, PARA_HIGH_FILL]);
 
   useEffect(() => {
-    if (circuit !== undefined) {
+    console.log("circuit", circuit);
+    if (circuit !== undefined && averageIdleValue !== undefined) {
       svgCircuitRender({
         id: "#parallelismSVG",
         width: canvasWidth,
         height: canvasHeight,
         gridSize: 50,
         circuit: circuit,
+        averageIdleValue: averageIdleValue,
+        idleQubit: idleQubit,
+        focusLayer: focusLayer,
       });
     }
-  }, [circuit]);
+  }, [circuit, averageIdleValue]);
 
   useEffect(() => {
-    if (idleData !== undefined) {
+    if (idleBarData !== undefined) {
       var svg = d3.select("#idleBar");
       svg.selectAll("*").remove();
-      var rects = svg.selectAll("rect").data(idleData);
+
+      var rects = svg.selectAll("rect").data(idleBarData);
 
       rects
         .enter()
@@ -78,25 +91,23 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         .attr("stoke-width", "3px")
         .attr("fill-opacity", (d, i) => d.toString());
     }
-  }, [idleData]);
+  }, [idleBarData]);
+
   useEffect(() => {
     var svg = d3.select("#parallelismBar");
     svg.selectAll("*").remove();
-    const rectNumber = paraData.length;
+    const rectNumber = paraBarData.length;
     const rectWidth = paraBarwidth / rectNumber;
     var gradient = svg
       .append("defs")
       .append("linearGradient")
       .attr("id", "myGradient");
-    // .attr("x1", "0%")
-    // .attr("y1", "0%")
-    // .attr("x2", "100%")
-    // .attr("y2", "0%");
+
     for (let index = 0; index < rectNumber; index++) {
       gradient
         .append("stop")
         .attr("offset", (index / rectNumber).toString())
-        .attr("stop-color", colorScale(paraData[index]));
+        .attr("stop-color", colorScale(paraBarData[index]));
     }
 
     svg
@@ -105,11 +116,9 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       .attr("y", 0)
       .attr("width", paraBarwidth)
       .attr("height", paraBarheight)
-      // .attr("margin", "-1px")
       .style("stroke-width", 0)
-      // .style("fill", colorScale(0));
       .style("fill", "url(#myGradient)");
-  }, [paraData]);
+  }, [paraBarData]);
 
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
@@ -117,13 +126,19 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
       switch (message.command) {
         case "context.setCircuit":
-          setParaData(message.data.layerParallelism);
-          setCircuit(message.data.subGraph);
-          setIdleData(message.data.idleData);
-          console.log(message);
+          setParaBarData(message.data.layerParallelism);
+          setCircuit(message.data.subCircuit);
+          setIdleBarData(message.data.idleData);
+          console.log("msg", message);
+          console.log("circuit in msg", message.data.subCircuit);
           break;
         case "context.setTitle":
           setPanelTitle(message.data.title);
+          break;
+        case "context.setFocusData":
+          setIdleQubit(message.data.idleQubit);
+          setAverageIdleValue(message.data.averageIdleValue);
+
           break;
       }
     };
@@ -146,9 +161,6 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       type: "focusGate",
       layer: focusGate,
     });
-
-    // console.log(`Clicked at (${x}, ${y})`);
-    // console.log(rect);
   }
   return (
     <div className="parallelismPanel">
