@@ -34,10 +34,18 @@ export class QCViewerPanel {
           qv.eventBus.fire(ViewerStatusChanged, msg.state);
           break;
         }
-        case "focusGate": {
-          this._contextData?.setFocusLayer(msg.layer);
-          logger.log(msg.layer.toString());
-        }
+        case "focusGate":
+          {
+            this._contextData?.setFocusLayer(msg.layer);
+            logger.log(msg.layer.toString());
+          }
+          break;
+        case "qubitRangeCenter":
+          {
+            this._contextData?.setQubitRangeCenter(msg.qubitRangeCenter);
+            logger.log(msg.qubitRangeCenter.toString());
+          }
+          break;
         default: {
           break;
         }

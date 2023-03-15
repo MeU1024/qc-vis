@@ -46,7 +46,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [averageIdleValue, setAverageIdleValue] = useState<number[]>([]);
   const [curQubit, setCurQubit] = useState([]);
   const [qubitRange, setQubitRange] = useState([0, 7]);
-
+  const [offsetX, setOffsetX] = useState(0);
+  const [offsetY, setOffsetY] = useState(0);
   const paraBarwidth = 350;
   const paraBarheight = 5;
 
@@ -67,6 +68,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         averageIdleValue: averageIdleValue,
         idleQubit: idleQubit,
         focusLayer: focusLayer,
+        offsetX: offsetX,
+        offsetY: offsetY,
       });
     }
   }, [circuit, averageIdleValue]);
@@ -129,7 +132,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         case "context.setCircuit":
           setParaBarData(message.data.layerParallelism);
           setCircuit(message.data.subCircuit);
-
+          setAverageIdleValue(message.data.averageIdleValue);
           setCurQubit(message.data.qubits);
           // console.log("circuit in msg", message.data.subCircuit);
           break;
@@ -176,6 +179,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       y / (idleBarheight / averageIdleValue.length)
     );
     setQubitRangeStart(qubitStart);
+
+    setOffsetY(-qubitStart * gridSize);
     console.log(qubitStart);
     vscode.postMessage({
       type: "qubitRangeCenter",

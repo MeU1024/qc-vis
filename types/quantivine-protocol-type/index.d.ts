@@ -13,6 +13,10 @@ export type PanelRequest =
   | {
       type: "focusGate";
       layer: number;
+    }
+  | {
+      type: "qubitRangeCenter";
+      qubitRangeCenter: number;
     };
 
 export type QCViewerState = {

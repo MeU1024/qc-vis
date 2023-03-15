@@ -44,6 +44,11 @@ export class ContextDataProvider {
     const message = this._data?.setFocusLayer(focusLayer);
     this._postFocusData(message);
   }
+
+  setQubitRangeCenter(qubitRangeCenter: number) {
+    const message = this._data?.setQubitRangeCenter(qubitRangeCenter);
+    this._postData();
+  }
   private async _postFocusData(
     data:
       | {
@@ -66,6 +71,7 @@ export class ContextDataProvider {
       });
     }
   }
+
   private async _postData() {
     const contextPath = qv.semanticTreeViewer.focusPath?.reverse().join(" > ");
 
@@ -126,15 +132,15 @@ class ContextualCircuit {
     this._layerParallelism = [];
     this._subGraph = [];
     this._subGraphLayerRange = [];
-    this._subGraphQubitRange = [];
-    this._averageIdleValue = [];
+    this._subGraphQubitRange = [0, 6];
+
     this._idleQubit = [];
     this._focusQubitIndex = 0;
     this._focusLayerIndex = 0;
 
     this._originalGates = this._compnentCircuit.getOriginalGates();
     this._originalQubits = this._compnentCircuit.getOriginalQubits();
-
+    this._averageIdleValue = this._originalQubits.map((i) => 0);
     this._treeStructure = this._importStructureFromFile();
     this._updateConnectivity();
     this._focusQubitGates = this._updateQubit();
@@ -155,6 +161,10 @@ class ContextualCircuit {
       idleQubit: this._idleQubit,
       averageIdleValue: this._averageIdleValue,
     };
+  }
+  setQubitRangeCenter(qubitStart: number) {
+    this._subGraphQubitRange = [qubitStart, qubitStart + 6];
+    this._updateSubCircuit();
   }
   private _importStructureFromFile(): {
     name: string;
@@ -289,28 +299,43 @@ class ContextualCircuit {
     const layerNum = this._originalLayers.length;
     const qubitNum = this._originalQubits.length;
     let layerRange = [0, 6];
-    let qubitRange = [0, 6];
-
+    let qubitRange = this._subGraphQubitRange;
+    this._subGraph = [];
     if (this._focusLayerIndex >= layerNum - 4) {
       layerRange = [layerNum - 7, layerNum - 1];
     } else if (this._focusLayerIndex > 3) {
       layerRange = [this._focusLayerIndex - 3, this._focusLayerIndex + 3];
     }
 
-    if (this._focusQubitIndex >= qubitNum - 4) {
-      qubitRange = [qubitNum - 7, qubitNum - 1];
-    } else if (this._focusQubitIndex > 3) {
-      qubitRange = [this._focusQubitIndex - 3, this._focusQubitIndex + 3];
-    }
+    // if (this._focusQubitIndex >= qubitNum - 4) {
+    //   qubitRange = [qubitNum - 7, qubitNum - 1];
+    // } else if (this._focusQubitIndex > 3) {
+    //   qubitRange = [this._focusQubitIndex - 3, this._focusQubitIndex + 3];
+    // }
 
-    this._subGraph = this._originalLayers.slice(
+    const subGraph = this._originalLayers.slice(
       layerRange[0],
       layerRange[1] + 1
     );
-    this._subGraph = this._subGraph.map((layer) => {
-      return layer.slice(qubitRange[0], qubitRange[1] + 1);
+    subGraph.forEach((layer) => {
+      const newGates: ComponentGate[] = [];
+      layer.forEach((gate: ComponentGate) => {
+        const qubits = gate.qubits.map((qubit) => {
+          return parseInt(qubit.qubitName);
+        });
+        for (let index = 0; index < qubits.length; index++) {
+          if (
+            qubits[index] >= qubitRange[0] &&
+            qubits[index] <= qubitRange[1]
+          ) {
+            newGates.push(gate);
+            break;
+          }
+        }
+      });
+      this._subGraph.push(newGates);
     });
-    this._subGraphQubitRange = qubitRange;
+
     this._subGraphLayerRange = layerRange;
   }
 

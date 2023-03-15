@@ -27,6 +27,8 @@ export interface svgCircuitRenderProps {
   averageIdleValue: number[] | undefined;
   idleQubit: number[][] | undefined;
   focusLayer: number | undefined;
+  offsetX: number;
+  offsetY: number;
 }
 
 const colorScale = d3
@@ -43,6 +45,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     averageIdleValue,
     idleQubit,
     focusLayer,
+    offsetY,
   } = props;
 
   const wiresData = [0, 0.2, 0.6, 1, 0.4, 0, 0];
@@ -60,7 +63,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     rects
       .append("rect")
       .attr("x", (d) => focusLayer * gridSize)
-      .attr("y", (d, i) => i * gridSize)
+      .attr("y", (d, i) => i * gridSize + offsetY)
       .attr("width", gridSize)
       .attr("height", gridSize)
       .attr("fill", IDLE_FILL)
@@ -75,7 +78,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     idleBackground.each((d, index) => {
       let bg = d3.select(idleBackground.nodes()[index]).append("rect");
       bg.attr("x", d[0] * gridSize)
-        .attr("y", index * gridSize)
+        .attr("y", index * gridSize + offsetY)
         .attr("width", gridSize * d.length)
         .attr("height", gridSize)
         .attr("rx", gridSize / 20)
@@ -97,20 +100,21 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   }
 
   //wire
-  var wires = wiresLayer.selectAll("rect").data(wiresData);
-  wires
-    .enter()
-    .append("rect")
-    .attr("x", 0)
-    .attr("y", function (d, i) {
-      return i * gridSize + gridSize / 2;
-      5;
-    })
-    .attr("width", width)
-    .attr("height", 1)
-    .style("fill", (d, i) => {
-      return "url(#myWireGradient)";
-    });
+  var wires = wiresLayer.selectAll("rect").data([0, 1, 2, 3, 4, 5, 6]).enter();
+  for (let index = 0; index < 7; index++) {
+    wires
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", function (d, i) {
+        return i * gridSize + gridSize / 2;
+        5;
+      })
+      .attr("width", width)
+      .attr("height", 1)
+      .style("fill", (d, i) => {
+        return "url(#myWireGradient)";
+      });
+  }
 
   //gate
 
@@ -147,7 +151,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       shape = d3.select(gates.nodes()[index]).append("rect");
       shape
         .attr("x", x * gridSize + (gridSize / 16) * 3)
-        .attr("y", y * gridSize + (gridSize / 16) * 3)
+        .attr("y", y * gridSize + (gridSize / 16) * 3 + offsetY)
         .attr("width", (gridSize / 8) * 5)
         .attr("height", (gridSize / 8) * 5)
         .attr("rx", gridSize / 20)
@@ -159,7 +163,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       shape
         .style("font-size", (gridSize / 3).toString() + "px")
         .attr("x", x * gridSize + gridSize / 2)
-        .attr("y", y * gridSize + gridSize / 2 + gridSize / 3 / 4)
+        .attr("y", y * gridSize + gridSize / 2 + gridSize / 3 / 4 + offsetY)
         .text(gateName)
         .attr("text-anchor", "middle")
         .style("fill", colorDict[gateType]);
@@ -171,15 +175,18 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
         shape = d3.select(gates.nodes()[index]).append("line");
         shape
           .attr("x1", x * gridSize + gridSize / 2)
-          .attr("y1", control_y * gridSize + gridSize / 2)
+          .attr("y1", control_y * gridSize + gridSize / 2 + offsetY)
           .attr("x2", x * gridSize + gridSize / 2)
-          .attr("y2", y * gridSize + gridSize / 2 - (gridSize / 16) * 5 * diff)
+          .attr(
+            "y2",
+            y * gridSize + gridSize / 2 - (gridSize / 16) * 5 * diff + offsetY
+          )
           .attr("stroke", colorDict[gateType]);
 
         shape = d3.select(gates.nodes()[index]).append("circle");
         shape
           .attr("cx", x * gridSize + gridSize / 2)
-          .attr("cy", control_y * gridSize + gridSize / 2)
+          .attr("cy", control_y * gridSize + gridSize / 2 + offsetY)
           .attr("r", gridSize / 20)
           .attr("fill", colorDict[gateType]);
         break;
