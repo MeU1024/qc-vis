@@ -17,8 +17,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const { theme, highlightGate } = props;
 
   const [panelTitle, setPanelTitle] = useState("Idle Qubit | Parallelism");
-  const [idleBarwidth, setIdleBarwidth] = useState(20);
-  const [idleBarheight, setIdleBarheight] = useState(350);
+  const [idleBarwidth, setIdleBarwidth] = useState(40);
+  const [idleBarheight, setIdleBarheight] = useState(360);
   const [canvasWidth, setCanvasWidth] = useState(350);
   const [canvasHeight, setCanvasHeight] = useState(350);
   const [focusLayer, setFocusLayer] = useState<number | undefined>(undefined);
@@ -43,11 +43,14 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     [],
     [2, 3, 4],
   ]);
-  const [averageIdleValue, setAverageIdleValue] = useState<number[]>([]);
+  const [averageIdleValue, setAverageIdleValue] = useState<number[]>([
+    0, 1, 0.5, 0.2, 0.4, 0.2, 0.1, 1, 1, 1,
+  ]);
   const [curQubit, setCurQubit] = useState([]);
   const [qubitRange, setQubitRange] = useState([0, 7]);
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
+  const [graphSize, setGraphSize] = useState([10, 0]);
   const paraBarwidth = 350;
   const paraBarheight = 5;
 
@@ -78,24 +81,36 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     if (averageIdleValue.length !== 0) {
       var svg = d3.select("#idleBar");
       svg.selectAll("*").remove();
-
+      const elementHeight = idleBarheight - 10;
       var rects = svg.selectAll("rect").data(averageIdleValue);
 
       rects
         .enter()
         .append("rect")
-        .attr("x", 0) // Set the x-coordinate based on the data index
+        .attr("x", idleBarwidth / 4) // Set the x-coordinate based on the data index
         .attr("y", function (d, i) {
-          return (i * idleBarheight) / averageIdleValue.length;
+          return (i * elementHeight) / averageIdleValue.length + 5;
         })
-        .attr("width", idleBarwidth)
-        .attr("height", idleBarheight / averageIdleValue.length)
+        .attr("width", idleBarwidth / 2)
+        .attr("height", elementHeight / averageIdleValue.length)
         .attr("fill", IDLE_FILL)
         .attr("stroke", IDLE_FILL)
-        .attr("stoke-width", "3px")
+        .attr("stroke-width", "3px")
         .attr("fill-opacity", (d, i) => d.toString());
+
+      const qubitRange = [qubitRangeStart, qubitRangeStart + 7];
+      var lines = svg.selectAll("line").data(qubitRange);
+      lines
+        .enter()
+        .append("line")
+        .attr("x1", 0)
+        .attr("y1", (d) => (d * elementHeight) / averageIdleValue.length + 5)
+        .attr("x2", idleBarwidth)
+        .attr("y2", (d) => (d * elementHeight) / averageIdleValue.length + 5)
+        .attr("stroke-width", "1px")
+        .attr("stroke", "black");
     }
-  }, [averageIdleValue]);
+  }, [averageIdleValue, qubitRangeStart]);
 
   useEffect(() => {
     var svg = d3.select("#parallelismBar");
@@ -134,6 +149,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           setCircuit(message.data.subCircuit);
           setAverageIdleValue(message.data.averageIdleValue);
           setCurQubit(message.data.qubits);
+          setGraphSize(message.data.output_size);
           // console.log("circuit in msg", message.data.subCircuit);
           break;
         case "context.setTitle":
@@ -175,9 +191,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         : event.target.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    const qubitStart = Math.floor(
-      y / (idleBarheight / averageIdleValue.length)
-    );
+    let qubitStart = Math.floor(y / (idleBarheight / averageIdleValue.length));
+    qubitStart = qubitStart + 7 <= graphSize[0] ? qubitStart : graphSize[0] - 7;
     setQubitRangeStart(qubitStart);
 
     setOffsetY(-qubitStart * gridSize);
@@ -220,6 +235,9 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           width={paraBarwidth}
           height={paraBarheight}
         ></svg>
+        <div className="selectRange">
+          Qubit Range: {qubitRangeStart} to {qubitRangeStart + 6}{" "}
+        </div>
       </div>
     </div>
   );

@@ -163,7 +163,10 @@ class ContextualCircuit {
     };
   }
   setQubitRangeCenter(qubitStart: number) {
-    this._subGraphQubitRange = [qubitStart, qubitStart + 6];
+    this._subGraphQubitRange =
+      qubitStart + 7 <= this._originalQubits.length
+        ? [qubitStart, qubitStart + 6]
+        : [this._originalQubits.length - 7, this._originalQubits.length - 1];
     this._updateSubCircuit();
   }
   private _importStructureFromFile(): {
@@ -301,11 +304,11 @@ class ContextualCircuit {
     let layerRange = [0, 6];
     let qubitRange = this._subGraphQubitRange;
     this._subGraph = [];
-    if (this._focusLayerIndex >= layerNum - 4) {
-      layerRange = [layerNum - 7, layerNum - 1];
-    } else if (this._focusLayerIndex > 3) {
-      layerRange = [this._focusLayerIndex - 3, this._focusLayerIndex + 3];
-    }
+    // if (this._focusLayerIndex >= layerNum - 4) {
+    //   layerRange = [layerNum - 7, layerNum - 1];
+    // } else if (this._focusLayerIndex > 3) {
+    //   layerRange = [this._focusLayerIndex - 3, this._focusLayerIndex + 3];
+    // }
 
     // if (this._focusQubitIndex >= qubitNum - 4) {
     //   qubitRange = [qubitNum - 7, qubitNum - 1];
