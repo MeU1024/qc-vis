@@ -89,6 +89,8 @@ class ContextualCircuit {
   private _subGraph: ComponentGate[][];
   private _subGraphQubitRange: number[];
   private _subGraphLayerRange: number[];
+  private _averageIdleValue: number[];
+  private _idleQubit: number[][];
 
   constructor(_dataFile: vscode.Uri) {
     this._compnentCircuit = new ComponentCircuit(_dataFile);
@@ -102,7 +104,8 @@ class ContextualCircuit {
     this._subGraph = [];
     this._subGraphLayerRange = [];
     this._subGraphQubitRange = [];
-
+    this._averageIdleValue = [];
+    this._idleQubit = [];
     this._focusQubitIndex = 0;
     this._focusLayerIndex = 0;
 
@@ -124,6 +127,7 @@ class ContextualCircuit {
   }
   setFocusLayer(focusLayer: number) {
     this._focusLayerIndex = focusLayer;
+    this._updateIdle();
   }
   private _importStructureFromFile(): {
     name: string;
@@ -175,10 +179,11 @@ class ContextualCircuit {
   private _updateIdle() {
     const qubitsNum = this._originalQubits.length;
     const layerNum = this._originalLayers.length;
+    const idleQubit: number[][] = [];
     for (let qubitIndex = 0; qubitIndex < qubitsNum; qubitIndex++) {
       //next idle gates
-      const nextIdleGates = [];
-      for (let index = this._focusLayerIndex + 1; index < layerNum; index++) {
+      const idleLayers = [];
+      for (let index = this._focusLayerIndex; index < layerNum; index++) {
         let ifOccupied = false;
         for (
           let gateIndex = 0;
@@ -193,19 +198,62 @@ class ContextualCircuit {
               break;
             }
           }
-          if (i < qubitsArray.length) {
+          if (ifOccupied) {
             break;
           }
         }
         if (!ifOccupied) {
-          nextIdleGates.push(index);
+          idleLayers.push(index);
         } else {
           break;
         }
       }
-      const previousIdleGates = [];
-      for (let index = this._focusLayerIndex - 1; index >= 0; index--) {}
+
+      for (let index = this._focusLayerIndex - 1; index >= 0; index--) {
+        let ifOccupied = false;
+        for (
+          let gateIndex = 0;
+          gateIndex < this._originalLayers[index].length;
+          gateIndex++
+        ) {
+          const qubitsArray = this._originalLayers[index][gateIndex].qubits;
+          let i;
+          for (i = 0; i < qubitsArray.length; i++) {
+            if (parseInt(qubitsArray[i].qubitName) === qubitIndex) {
+              ifOccupied = true;
+              break;
+            }
+          }
+          if (ifOccupied) {
+            break;
+          }
+        }
+        if (!ifOccupied) {
+          idleLayers.push(index);
+        } else {
+          break;
+        }
+      }
+
+      idleQubit.push(idleLayers);
     }
+
+    //calculate average value
+
+    this._averageIdleValue = idleQubit.map((idleLayers: number[]) => {
+      let averageValue = 1;
+      if (idleLayers.length !== 0) {
+        let sum = 0;
+        idleLayers.forEach((layerIndex: number) => {
+          sum = sum + this._layerParallelism[layerIndex];
+        });
+        averageValue = sum / idleLayers.length;
+      }
+
+      return averageValue;
+    });
+
+    this._idleQubit = idleQubit;
   }
 
   private _updateSubCircuit() {
@@ -389,6 +437,8 @@ class ContextualCircuit {
       focusQubitGates: focusQubitGates,
       layerParallelism: this._layerParallelism,
       subCircuit: subCircuit,
+      idleQubit: this._idleQubit,
+      averageIdleValue: this._averageIdleValue,
     };
   }
 
