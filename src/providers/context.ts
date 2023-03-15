@@ -397,7 +397,7 @@ class ContextualCircuit {
     const outputSize = [7, 7];
 
     const qubits = this._originalQubits
-      .slice(this._subGraphQubitRange[0], this._subGraphQubitRange[1])
+      .slice(this._subGraphQubitRange[0], this._subGraphQubitRange[1] + 1)
       .map((qubit) => {
         return qubit.qubitName;
       });
@@ -441,6 +441,8 @@ class ContextualCircuit {
       qubits: qubits,
       all_gates: allGates,
       gate_format: "",
+      subGraphQubitRange: this._subGraphQubitRange,
+      subGraphLayerRange: this._subGraphLayerRange,
     };
   }
   exportJson() {

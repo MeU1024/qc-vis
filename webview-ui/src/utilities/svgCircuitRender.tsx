@@ -54,7 +54,6 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   var wiresLayer = svg.append("g");
   var gatesLayer = svg.append("g");
 
-  console.log("aver", averageIdleValue);
   if (averageIdleValue !== undefined && focusLayer !== undefined) {
     var rects = averageLayer.selectAll("rect").data(averageIdleValue).enter();
 

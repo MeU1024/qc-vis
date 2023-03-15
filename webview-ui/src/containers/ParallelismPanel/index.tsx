@@ -22,11 +22,12 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [canvasWidth, setCanvasWidth] = useState(350);
   const [canvasHeight, setCanvasHeight] = useState(350);
   const [focusLayer, setFocusLayer] = useState<number | undefined>(undefined);
+  const [qubitRangeStart, setQubitRangeStart] = useState<number>(0);
+
   const [gridSize, setGridSize] = useState(50);
+
   const [paraBarData, setParaBarData] = useState(geneParaData());
-  const [idleBarData, setIdleBarData] = useState<undefined | number[]>([
-    0, 0.2, 0.8, 1, 0.4, 0.7, 0.3,
-  ]);
+
   const [circuit, setCircuit] = useState<
     | {
         output_size: number[];
@@ -42,9 +43,9 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     [],
     [2, 3, 4],
   ]);
-  const [averageIdleValue, setAverageIdleValue] = useState<
-    number[] | undefined
-  >([0.1, 1, 0.1, 0.13, 0.15, 0.16, 0.22]);
+  const [averageIdleValue, setAverageIdleValue] = useState<number[]>([]);
+  const [curQubit, setCurQubit] = useState([]);
+  const [qubitRange, setQubitRange] = useState([0, 7]);
 
   const paraBarwidth = 350;
   const paraBarheight = 5;
@@ -71,27 +72,27 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   }, [circuit, averageIdleValue]);
 
   useEffect(() => {
-    if (idleBarData !== undefined) {
+    if (averageIdleValue.length !== 0) {
       var svg = d3.select("#idleBar");
       svg.selectAll("*").remove();
 
-      var rects = svg.selectAll("rect").data(idleBarData);
+      var rects = svg.selectAll("rect").data(averageIdleValue);
 
       rects
         .enter()
         .append("rect")
         .attr("x", 0) // Set the x-coordinate based on the data index
         .attr("y", function (d, i) {
-          return i * idleBarwidth + 20;
+          return (i * idleBarheight) / averageIdleValue.length;
         })
         .attr("width", idleBarwidth)
-        .attr("height", idleBarwidth)
+        .attr("height", idleBarheight / averageIdleValue.length)
         .attr("fill", IDLE_FILL)
         .attr("stroke", IDLE_FILL)
         .attr("stoke-width", "3px")
         .attr("fill-opacity", (d, i) => d.toString());
     }
-  }, [idleBarData]);
+  }, [averageIdleValue]);
 
   useEffect(() => {
     var svg = d3.select("#parallelismBar");
@@ -128,15 +129,16 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         case "context.setCircuit":
           setParaBarData(message.data.layerParallelism);
           setCircuit(message.data.subCircuit);
-          setIdleBarData(message.data.idleData);
-          console.log("msg", message);
-          console.log("circuit in msg", message.data.subCircuit);
+
+          setCurQubit(message.data.qubits);
+          // console.log("circuit in msg", message.data.subCircuit);
           break;
         case "context.setTitle":
           setPanelTitle(message.data.title);
           break;
         case "context.setFocusData":
           setIdleQubit(message.data.idleQubit);
+
           setAverageIdleValue(message.data.averageIdleValue);
 
           break;
@@ -162,6 +164,25 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       layer: focusGate,
     });
   }
+
+  function handleIdleBarClick(event: any) {
+    const rect =
+      event.target.farthestViewportElement !== null
+        ? event.target.farthestViewportElement.getBoundingClientRect()
+        : event.target.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const qubitStart = Math.floor(
+      y / (idleBarheight / averageIdleValue.length)
+    );
+    setQubitRangeStart(qubitStart);
+    console.log(qubitStart);
+    vscode.postMessage({
+      type: "qubitRangeCenter",
+      qubitRangeCenter: qubitStart,
+    });
+  }
+
   return (
     <div className="parallelismPanel">
       <div className="panelHeader">{panelTitle}</div>
@@ -185,6 +206,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             viewBox={"0 0 " + idleBarwidth + " " + idleBarheight}
             width={idleBarwidth}
             height={idleBarheight}
+            onClick={handleIdleBarClick}
           ></svg>
         </div>
         <svg
