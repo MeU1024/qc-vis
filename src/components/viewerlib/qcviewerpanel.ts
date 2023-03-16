@@ -62,7 +62,9 @@ export class QCViewerPanel {
   get state() {
     return this.viewerState;
   }
-
+  setMatrixComponentIndex(index: number) {
+    this._contextData?.setMatrixComponentIndex(index);
+  }
   postMessage(message: any) {
     this.webviewPanel.webview.postMessage(message);
   }

@@ -11,6 +11,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
   const { theme, highlightGate } = props;
 
   const [panelTitle, setPanelTitle] = useState("Connectivity");
+  const [componentTitle, setComponentTitle] = useState("");
   const [matrix, setMatrix] = useState(matrixData());
   // const [rectSize, setRectSize] = useState(20);
 
@@ -33,9 +34,9 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         .attr("width", rectSize)
         .attr("height", rectSize)
         .attr("fill", function (d, i) {
-          return d[index] ? MATRIX_BG : "white";
+          return d[index] ? MATRIX_BG : "none";
         })
-        .attr("stroke", "white");
+        .attr("stroke", MATRIX_STROKE);
     }
   }, [matrix]);
 
@@ -48,9 +49,14 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
           setMatrix(message.data.matrix);
 
           break;
-        case "context.setTitle":
-          setPanelTitle(message.data.title);
+        case "context.setMatrix":
+          setMatrix(message.matrix);
+          setComponentTitle(message.title);
+          console.log(message.title);
           break;
+        // case "context.setTitle":
+        //   setPanelTitle(message.data.title);
+        //   break;
       }
     };
     window.addEventListener("message", handleMessageEvent);
@@ -86,6 +92,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
           height="400"
         ></svg>
       </div>
+      <div className="componentTitle">Component: {componentTitle}</div>
     </div>
   );
 };

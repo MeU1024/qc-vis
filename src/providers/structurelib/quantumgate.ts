@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
 export enum NodeType {
   superGate = 0,
@@ -19,9 +19,13 @@ export class QuantumTreeNode extends vscode.TreeItem {
     // public readonly lineNumber: number,
     // public toLine: number,
     public treeIndex: number,
+
     public readonly description?: string,
     public readonly command?: vscode.Command
   ) {
     super(label, collapsibleState);
+
+    // super(label, collapsibleState);
   }
+  contextValue = "component";
 }

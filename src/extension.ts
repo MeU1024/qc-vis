@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { getLogger } from "./components/logger";
+import { QCViewerManagerService } from "./components/viewerlib/qcviewermanager";
 import { AbstractionDataProvider } from "./providers/abstraction";
 import { QuantumTreeNode } from "./providers/structurelib/quantumgate";
 import * as qv from "./quantivine";
@@ -32,6 +33,15 @@ function registerQuantivineCommands() {
     vscode.commands.registerCommand(
       "quantivine.editEntry",
       (node: QuantumTreeNode) => qv.commander.edit(node)
+    )
+  );
+  qv.registerDisposable(
+    vscode.commands.registerCommand(
+      "quantivine.showMatrix",
+      (node: QuantumTreeNode) => {
+        qv.commander.setMatrixComponentIndex(node.treeIndex);
+        logger.log(node.treeIndex.toString());
+      }
     )
   );
   qv.registerDisposable(

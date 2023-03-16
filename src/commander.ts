@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import * as qv from "./quantivine";
 import { getLogger } from "./components/logger";
 import { QuantumTreeNode } from "./providers/structurelib/quantumgate";
+import { QCViewerManagerService } from "./components/viewerlib/qcviewermanager";
 
 const logger = getLogger("Commander");
 
@@ -50,4 +51,11 @@ export async function edit(gate: QuantumTreeNode) {
 
 export async function themeChange(theme: vscode.ColorTheme) {
   qv.viewer.updateTheme(theme);
+}
+
+export async function setMatrixComponentIndex(index: number) {
+  const panelSet = QCViewerManagerService.getPanelSet(qv.getDefaultDataFile());
+  panelSet?.forEach((panel) => {
+    panel.setMatrixComponentIndex(index);
+  });
 }

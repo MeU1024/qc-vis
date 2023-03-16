@@ -71,7 +71,29 @@ export class ContextDataProvider {
       });
     }
   }
+  private async _postMatrixData(matrix: number[][], title: string) {
+    if (matrix !== undefined) {
+      let message = {
+        command: "context.setMatrix",
+        matrix: matrix,
+        title: title,
+      };
 
+      let panelSet = QCViewerManagerService.getPanelSet(this._dataFile);
+
+      panelSet?.forEach((panel) => {
+        panel.postMessage(message);
+        logger.log(`Sent Message: ${panel.dataFileUri}`);
+      });
+    }
+  }
+
+  setMatrixComponentIndex(index: number) {
+    const data = this._data?.setMatrixComponentIndex(index);
+    if (data !== undefined) {
+      this._postMatrixData(data.matrix, data.title);
+    }
+  }
   setLayerRangeStart(layerRangeStart: number) {
     const message = this._data?.setLayerRangeStart(layerRangeStart);
     this._postData();
@@ -152,6 +174,14 @@ class ContextualCircuit {
     this._originalLayers = this._placement();
     this._updateParallelism();
     this._updateSubCircuit();
+  }
+  setMatrixComponentIndex(index: number) {
+    this._connectivityComponentIndex = index;
+    this._updateConnectivity();
+    return {
+      matrix: this._connectivityMatrix,
+      title: this._treeStructure[index].name,
+    };
   }
 
   setFocusNode(gate: ComponentGate | undefined) {
@@ -345,7 +375,7 @@ class ContextualCircuit {
   private _updateConnectivity() {
     const originalGates = this._compnentCircuit.getOriginalGates();
     const originalQubits = this._compnentCircuit.getOriginalQubits();
-
+    this._connectivityMatrix = [];
     for (let row = 0; row < originalQubits.length; row++) {
       this._connectivityMatrix.push([]);
       for (let col = 0; col < originalQubits.length; col++) {
@@ -361,7 +391,7 @@ class ContextualCircuit {
         const qubits = gate.qubits.map((qubit: Qubit) => {
           return parseInt(qubit.qubitName);
         });
-        //TODO:directed?
+        //TODO:directed?multiple?
         if (qubits.length >= 2) {
           for (let start = 0; start < qubits.length; start++) {
             for (let end = start + 1; end < qubits.length; end++) {
@@ -371,6 +401,8 @@ class ContextualCircuit {
               }
             }
           }
+        } else {
+          this._connectivityMatrix[qubits[0]][qubits[0]] = 1;
         }
       }
     });

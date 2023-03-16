@@ -144,6 +144,7 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
         collapsibleState,
         parent.depth + 1,
         node.index,
+
         description
       );
 

@@ -1,15 +1,15 @@
-import * as vscode from 'vscode';
-import {NodeType, QuantumTreeNode} from './structurelib/quantumgate';
-import * as qv from '../quantivine';
+import * as vscode from "vscode";
+import { NodeType, QuantumTreeNode } from "./structurelib/quantumgate";
+import * as qv from "../quantivine";
 
-import {getLogger} from '../components/logger';
+import { getLogger } from "../components/logger";
 import {
   SourceFileChanged,
   StructureUpdated as StructureUpdated,
-} from '../components/eventBus';
-import {QcStructure} from './structurelib/qcmodel';
+} from "../components/eventBus";
+import { QcStructure } from "./structurelib/qcmodel";
 
-const logger = getLogger('DataProvider', 'Structure');
+const logger = getLogger("DataProvider", "Structure");
 
 export class GateNodeProvider
   implements vscode.TreeDataProvider<QuantumTreeNode>
@@ -49,14 +49,14 @@ export class GateNodeProvider
       this.ds = this.cachedGates;
       this.ds.forEach((gate) => this._updateTreeMap(gate));
       logger.log(
-        `Structure ${force ? 'force ' : ''}updated with ${this.ds.length} for ${
+        `Structure ${force ? "force " : ""}updated with ${this.ds.length} for ${
           qv.manager.sourceFile
         } .`
       );
     } else {
       this.ds = [];
       this._clearTreeMap();
-      logger.log('Structure cleared on undefined source file.');
+      logger.log("Structure cleared on undefined source file.");
     }
     return this.ds;
   }
@@ -97,7 +97,7 @@ export class GateNodeProvider
       this._focusNode = node;
       this._focusPath = this._getPath(node);
     } else {
-      throw new Error('Method not implemented.');
+      throw new Error("Method not implemented.");
     }
   }
   private _getPath(node: QuantumTreeNode | undefined): string[] | undefined {
@@ -129,6 +129,7 @@ export class GateNodeProvider
     if (element.type === NodeType.repetition) {
       treeItem.description = element.description;
     }
+    treeItem.contextValue = element.type === 0 ? "component" : "";
 
     return treeItem;
   }
@@ -158,7 +159,7 @@ export class GateNodeProvider
     let node = this._nodeMap.get(treeIndex);
 
     if (node === undefined) {
-      throw new Error('Gate not found');
+      throw new Error("Gate not found");
     }
 
     while (node.parent) {
@@ -205,7 +206,7 @@ export class SemanticTreeViewer {
 
   constructor() {
     this._treeDataProvider = new GateNodeProvider();
-    this._viewer = vscode.window.createTreeView('quantivine-treeview', {
+    this._viewer = vscode.window.createTreeView("quantivine-treeview", {
       treeDataProvider: this._treeDataProvider,
       showCollapseAll: true,
     });
