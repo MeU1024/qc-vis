@@ -42,13 +42,17 @@ main {
         border: solid;
         border-width: 0.5px;
         margin-top: 15px;
+        // border-right: 15px;
         // margin-bottom: 5px;
-        padding: 15px;
+        padding: {
+          left: 15px;
+          right: 15px;
+        }
         // height: 250px;
         display: grid;
         grid-template-columns: 25px auto;
         overflow: scroll;
-        scrollbar-width: thin;
+        // scrollbar-width: thin;
       }
     }
     #connectivityPanel {
@@ -64,3 +68,21 @@ main {
 // main > * {
 //   margin: 1rem 0;
 // }
+::-webkit-scrollbar {
+  width: 18px;
+  height: 18px;
+
+  background-color: none;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #d6dee1;
+  border-radius: 15px;
+  border: 6px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #a8bbbf;
+}

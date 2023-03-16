@@ -73,7 +73,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
 
     rects
       .append("rect")
-      .attr("x", (d) => focusIndex * gridSize + offsetX)
+      .attr("x", (d) => layerPosition[focusIndex] * gridSize + offsetX)
       .attr("y", (d, i) => i * gridSize)
       .attr("width", gridSize)
       .attr("height", gridSize)
@@ -233,7 +233,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       .selectAll("rect")
       .data([layerPosition[focusIndex]])
       .enter();
-    console.log(frame);
+
     frame
       .append("rect")
       .attr("x", (d) => d * gridSize + offsetX)
@@ -246,3 +246,17 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       .attr("stroke-dasharray", "5,5");
   }
 };
+export interface svgCircuitBackgroundRenderProps {
+  id: string;
+  width: number;
+  height: number;
+  gridSize: number;
+  averageIdleValue: number[];
+  idleQubit: number[][];
+  focusIndex: number | undefined;
+  offsetX: number;
+  offsetY: number;
+  layerRangeStart: number;
+  layerPosition: number[];
+}
+export const svgCircuitBackgroundRender = () => {};

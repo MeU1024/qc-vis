@@ -29,7 +29,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [focusIndex, setFocusIndex] = useState<number | undefined>(undefined);
   const [qubitRangeStart, setQubitRangeStart] = useState<number>(0);
   const [layerRangeStart, setLayerRangeStart] = useState<number>(0);
-  const [subQubit, setSubQubit] = useState([0, 1, 2, 3, 4, 5, 6]);
+  const [subLayer, setSubLayer] = useState([0, 6]);
   const [layerPosition, setLayerPosition] = useState([0, 1, 2, 3, 4, 5, 6]);
   const [gridSize, setGridSize] = useState(50);
 
@@ -63,6 +63,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
   useEffect(() => {
     if (circuit !== undefined) {
+      removeCircuitOverlap(circuit);
       svgCircuitRender({
         id: "#parallelismSVG",
         width: canvasWidth,
@@ -173,13 +174,13 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           setAverageIdleValue(message.data.averageIdleValue);
           // setCurQubit(message.data.qubits);
           setGraphSize(message.data.originalCircuitSize);
-          setSubQubit(message.data.subCircuit.subGraphQubitRange);
-          if (circuit !== undefined) {
-            removeCircuitOverlap(circuit);
-          }
+          // setSubQubit(message.data.subCircuit.subGraphQubitRange);
 
-          // setSubLayer(message.data.subCircuit.subGraphLayerRange);
-          // console.log("circuit in msg", message.data.subCircuit);
+          setSubLayer(message.data.subCircuit.subGraphLayerRange);
+          console.log(
+            "circuit in msg",
+            message.data.subCircuit.subGraphLayerRange
+          );
           break;
         case "context.setTitle":
           // setPanelTitle(message.data.title);
@@ -205,7 +206,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     const focusIndex = Math.floor(x / gridSize);
-    setFocusIndex(layerPosition[focusIndex]);
+    setFocusIndex(focusIndex);
     vscode.postMessage({
       type: "focusGate",
       layer: layerPosition[focusIndex],
@@ -262,8 +263,12 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     all_gates: ((number | number[])[] | (number | number[])[])[];
   }) => {
     const layerPosition: number[] = [];
-    circuit.qubits.forEach((qubit) => [layerPosition.push(parseInt(qubit))]);
+    for (let index = subLayer[0]; index <= subLayer[1]; index++) {
+      layerPosition.push(index);
+    }
+
     setLayerPosition(layerPosition);
+    console.log("layer pos", layerPosition);
     return;
   };
 

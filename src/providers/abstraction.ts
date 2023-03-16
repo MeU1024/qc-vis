@@ -235,8 +235,9 @@ class AbstractedCircuit {
       }
       layerMap.set(layer, newLayers.length - 1);
     });
-
-    this._drawableCircuit.loadFromLayers(newLayers, newQubits, qubitMap);
+    const pushedNewLayers = this._checkOverlap(newLayers, qubitMap);
+    this._drawableCircuit.loadFromLayers(pushedNewLayers, newQubits, qubitMap);
+    // this._drawableCircuit.loadFromLayers(newLayers, newQubits, qubitMap);
 
     this._cached = false;
   }
@@ -281,7 +282,68 @@ class AbstractedCircuit {
 
     return ret;
   }
-
+  private _checkOverlap(
+    componentLayers: Layer[],
+    qubitMap: Map<Qubit, number>
+  ) {
+    const newLayers: Layer[] = [];
+    const layerMap: Map<number, number[]> = new Map<number, number[]>();
+    for (
+      let layerIndex = 0;
+      layerIndex < componentLayers.length;
+      layerIndex++
+    ) {
+      const layer = componentLayers[layerIndex];
+      let qubitsPlacement = new Array(this._qubits.length).fill(0);
+      let newLayer: ComponentGate[] = [];
+      const layerMapValue: number[] = [];
+      layer.gates.forEach((gate: ComponentGate, index) => {
+        let minQubit = qubitMap.get(gate.qubits[0]);
+        let maxQubit = qubitMap.get(gate.qubits[gate.qubits.length - 1]);
+        if (minQubit !== undefined && maxQubit !== undefined) {
+          if (minQubit > maxQubit) {
+            const temp = maxQubit;
+            maxQubit = minQubit;
+            minQubit = temp;
+          }
+          let ifOverlap = false;
+          for (let index = minQubit; index <= maxQubit; index++) {
+            if (qubitsPlacement[index] === 1) {
+              ifOverlap = true;
+              break;
+            }
+          }
+          if (ifOverlap) {
+            layerMapValue.push(newLayers.length);
+            newLayers.push(new Layer(newLayer));
+            for (let index = 0; index <= this._qubits.length; index++) {
+              qubitsPlacement[index] = 0;
+            }
+            for (let index = minQubit; index <= maxQubit; index++) {
+              qubitsPlacement[index] = 1;
+            }
+            newLayer = [];
+            newLayer.push(gate);
+          } else {
+            newLayer.push(gate);
+            for (let index = minQubit; index <= maxQubit; index++) {
+              qubitsPlacement[index] = 1;
+            }
+          }
+        }
+      });
+      if (newLayer.length !== 0) {
+        newLayers.push(new Layer(newLayer));
+        newLayer = [];
+        for (let index = 0; index <= this._qubits.length; index++) {
+          qubitsPlacement[index] = 0;
+        }
+      }
+      layerMap.set(layerIndex, layerMapValue);
+    }
+    // this._layerMap = layerMap;
+    return newLayers;
+  }
   exportJson(): any {
     return this._drawableCircuit.exportJson();
   }
