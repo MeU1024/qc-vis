@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import "./index.scss";
 import * as d3 from "d3";
-import { IDLE_FILL, PARA_HIGH_FILL, PARA_LOW_FILL } from "../../const";
+import {
+  IDLE_FILL,
+  IDLE_STOKRE,
+  PARA_HIGH_FILL,
+  PARA_LOW_FILL,
+} from "../../const";
 import overviewData_abs from "../../../data/vqc-10-detail-abstract.json";
 import Circuit2GridData from "../../utilities/Circuit2GridData";
 import { svgCircuitRender } from "../../utilities/svgCircuitRender";
@@ -23,6 +28,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [canvasHeight, setCanvasHeight] = useState(350);
   const [focusLayer, setFocusLayer] = useState<number | undefined>(undefined);
   const [qubitRangeStart, setQubitRangeStart] = useState<number>(0);
+  const [layerRangeStart, setLayerRangeStart] = useState<number>(0);
 
   const [gridSize, setGridSize] = useState(50);
 
@@ -50,9 +56,9 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [qubitRange, setQubitRange] = useState([0, 7]);
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
-  const [graphSize, setGraphSize] = useState([10, 0]);
-  const paraBarwidth = 350;
-  const paraBarheight = 5;
+  const [graphSize, setGraphSize] = useState([10, 10]);
+  const paraBarwidth = 360;
+  const paraBarheight = 10;
 
   const colorScale = d3
     .scaleLinear<string>()
@@ -60,7 +66,6 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     .range([PARA_LOW_FILL, PARA_HIGH_FILL]);
 
   useEffect(() => {
-    console.log("circuit", circuit);
     if (circuit !== undefined && averageIdleValue !== undefined) {
       svgCircuitRender({
         id: "#parallelismSVG",
@@ -96,8 +101,9 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         .attr("fill", IDLE_FILL)
         .attr("stroke", IDLE_FILL)
         .attr("stroke-width", "3px")
-        .attr("fill-opacity", (d, i) => d.toString());
+        .attr("fill-opacity", (d, i) => (d / 1.2).toString());
 
+      //lines for range vis
       const qubitRange = [qubitRangeStart, qubitRangeStart + 7];
       var lines = svg.selectAll("line").data(qubitRange);
       lines
@@ -115,8 +121,10 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   useEffect(() => {
     var svg = d3.select("#parallelismBar");
     svg.selectAll("*").remove();
-    const rectNumber = paraBarData.length;
+    const rectNumber = graphSize[1];
+    const elementWidth = paraBarwidth - 10;
     const rectWidth = paraBarwidth / rectNumber;
+
     var gradient = svg
       .append("defs")
       .append("linearGradient")
@@ -131,13 +139,27 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
     svg
       .append("rect")
-      .attr("x", 0)
-      .attr("y", 0)
-      .attr("width", paraBarwidth)
-      .attr("height", paraBarheight)
+      .attr("x", 5)
+      .attr("y", paraBarheight / 4)
+      .attr("width", elementWidth)
+      .attr("height", paraBarheight / 2)
       .style("stroke-width", 0)
       .style("fill", "url(#myGradient)");
-  }, [paraBarData]);
+
+    //lines for range vis
+
+    const layerRange = [layerRangeStart, layerRangeStart + 7];
+    var lines = svg.selectAll("line").data(layerRange);
+    lines
+      .enter()
+      .append("line")
+      .attr("x1", (d) => (d * elementWidth) / graphSize[1] + 5)
+      .attr("y1", 0)
+      .attr("x2", (d) => (d * elementWidth) / graphSize[1] + 5)
+      .attr("y2", paraBarheight)
+      .attr("stroke-width", "1px")
+      .attr("stroke", "black");
+  }, [paraBarData, layerRangeStart]);
 
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
@@ -149,7 +171,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           setCircuit(message.data.subCircuit);
           setAverageIdleValue(message.data.averageIdleValue);
           setCurQubit(message.data.qubits);
-          setGraphSize(message.data.output_size);
+          setGraphSize(message.data.originalCircuitSize);
           // console.log("circuit in msg", message.data.subCircuit);
           break;
         case "context.setTitle":
@@ -191,8 +213,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         : event.target.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    let qubitStart = Math.floor(y / (idleBarheight / averageIdleValue.length));
+    let qubitStart = Math.floor(
+      (y - 5) / ((idleBarheight - 10) / graphSize[0])
+    );
     qubitStart = qubitStart + 7 <= graphSize[0] ? qubitStart : graphSize[0] - 7;
+    qubitStart = qubitStart < 0 ? 0 : qubitStart;
     setQubitRangeStart(qubitStart);
 
     setOffsetY(-qubitStart * gridSize);
@@ -200,6 +225,26 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     vscode.postMessage({
       type: "qubitRangeCenter",
       qubitRangeCenter: qubitStart,
+    });
+  }
+
+  function handleParaBarClick(event: any) {
+    const rect =
+      event.target.farthestViewportElement !== null
+        ? event.target.farthestViewportElement.getBoundingClientRect()
+        : event.target.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+
+    let layerStart = Math.floor((x - 5) / ((paraBarwidth - 10) / graphSize[1]));
+    layerStart = layerStart + 7 <= graphSize[1] ? layerStart : graphSize[1] - 7;
+    layerStart = layerStart < 0 ? 0 : layerStart;
+    setLayerRangeStart(layerStart);
+
+    setOffsetX(-layerStart * gridSize);
+    console.log(layerStart);
+    vscode.postMessage({
+      type: "layerRangeStart",
+      layerRangeStart: layerStart,
     });
   }
 
@@ -217,9 +262,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             viewBox={"0 0 " + canvasWidth + " " + canvasHeight}
             width={canvasWidth}
             height={canvasHeight}
-            onClick={(event) => {
-              handleClick(event);
-            }}
+            onClick={handleClick}
           ></svg>
           <svg
             id="idleBar"
@@ -234,9 +277,13 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           viewBox={"0 0 " + paraBarwidth + " " + paraBarheight}
           width={paraBarwidth}
           height={paraBarheight}
+          onClick={handleParaBarClick}
         ></svg>
         <div className="selectRange">
           Qubit Range: {qubitRangeStart} to {qubitRangeStart + 6}{" "}
+        </div>
+        <div className="selectRange">
+          Layer Range: {layerRangeStart} to {layerRangeStart + 6}{" "}
         </div>
       </div>
     </div>

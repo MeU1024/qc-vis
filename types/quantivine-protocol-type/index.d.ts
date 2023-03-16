@@ -15,8 +15,12 @@ export type PanelRequest =
       layer: number;
     }
   | {
-      type: "qubitRangeCenter";
-      qubitRangeCenter: number;
+      type: "qubitRangeStart";
+      qubitRangeStart: number;
+    }
+  | {
+      type: "layerRangeStart";
+      layerRangeStart: number;
     };
 
 export type QCViewerState = {

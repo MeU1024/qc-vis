@@ -40,10 +40,16 @@ export class QCViewerPanel {
             logger.log(msg.layer.toString());
           }
           break;
-        case "qubitRangeCenter":
+        case "qubitRangeStart":
           {
-            this._contextData?.setQubitRangeCenter(msg.qubitRangeCenter);
-            logger.log(msg.qubitRangeCenter.toString());
+            this._contextData?.setQubitRangeStart(msg.qubitRangeStart);
+            logger.log(msg.qubitRangeStart.toString());
+          }
+          break;
+        case "layerRangeStart":
+          {
+            this._contextData?.setLayerRangeStart(msg.layerRangeStart);
+            logger.log(msg.layerRangeStart.toString());
           }
           break;
         default: {

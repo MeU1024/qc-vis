@@ -67,7 +67,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       .attr("width", gridSize)
       .attr("height", gridSize)
       .attr("fill", IDLE_FILL)
-      .attr("fill-opacity", (d) => d);
+      .attr("fill-opacity", (d) => d / 1.2);
   }
   if (idleQubit !== undefined && focusLayer !== undefined) {
     const idleBackground = averageLayer
