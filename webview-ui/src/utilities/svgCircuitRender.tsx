@@ -4,6 +4,7 @@ import {
   GATE_FILL,
   GATE_FILL_OPACITY,
   IDLE_FILL,
+  IDLE_STROKE,
   MATRIX_BG,
   opTypeDict,
   PARA_HIGH_FILL,
@@ -45,6 +46,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     averageIdleValue,
     idleQubit,
     focusLayer,
+    offsetX,
     offsetY,
   } = props;
 
@@ -56,9 +58,14 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   var averageLayer = svg.append("g");
   var wiresLayer = svg.append("g");
   var gatesLayer = svg.append("g");
+  var focusFrameLayer = svg.append("g");
 
   if (averageIdleValue !== undefined && focusLayer !== undefined) {
-    var rects = averageLayer.selectAll("rect").data(averageIdleValue).enter();
+    const slicedAverageIdleValue = averageIdleValue.slice(0, 7);
+    var rects = averageLayer
+      .selectAll("rect")
+      .data(slicedAverageIdleValue)
+      .enter();
 
     rects
       .append("rect")
@@ -117,7 +124,6 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   }
 
   //gate
-
   const allGates = circuit.all_gates;
   const opMap = circuit.op_map;
 
@@ -146,7 +152,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     if (
       gateType === "single" ||
       gateType === "customized" ||
-      gateType === "multi"
+      (gateType === "multi" && op !== "cz")
     ) {
       shape = d3.select(gates.nodes()[index]).append("rect");
       shape
@@ -191,9 +197,46 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
           .attr("fill", colorDict[gateType]);
         break;
       case "cz":
+        shape = d3.select(gates.nodes()[index]).append("line");
+        shape
+          .attr("x1", x * gridSize + gridSize / 2)
+          .attr("y1", control_y * gridSize + gridSize / 2 + offsetY)
+          .attr("x2", x * gridSize + gridSize / 2)
+          .attr("y2", y * gridSize + gridSize / 2 + offsetY)
+          .attr("stroke", colorDict[gateType]);
+
+        shape = d3.select(gates.nodes()[index]).append("circle");
+        shape
+          .attr("cx", x * gridSize + gridSize / 2)
+          .attr("cy", control_y * gridSize + gridSize / 2 + offsetY)
+          .attr("r", gridSize / 20)
+          .attr("fill", colorDict[gateType]);
+
+        shape = d3.select(gates.nodes()[index]).append("circle");
+        shape
+          .attr("cx", x * gridSize + gridSize / 2)
+          .attr("cy", y * gridSize + gridSize / 2 + offsetY)
+          .attr("r", gridSize / 20)
+          .attr("fill", colorDict[gateType]);
         break;
       default:
         break;
     }
   });
+
+  //focusLayer frame
+  if (focusLayer !== undefined) {
+    var frame = focusFrameLayer.selectAll("rect").data([focusLayer]).enter();
+    console.log(frame);
+    frame
+      .append("rect")
+      .attr("x", (d) => d * gridSize + offsetX)
+      .attr("y", 0)
+      .attr("width", gridSize)
+      .attr("height", height)
+      .attr("stroke", IDLE_STROKE)
+      .attr("stroke-width", 2)
+      .attr("fill", "none")
+      .attr("stroke-dasharray", "5,5");
+  }
 };

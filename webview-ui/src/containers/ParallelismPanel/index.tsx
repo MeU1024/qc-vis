@@ -3,7 +3,7 @@ import "./index.scss";
 import * as d3 from "d3";
 import {
   IDLE_FILL,
-  IDLE_STOKRE,
+  IDLE_STROKE,
   PARA_HIGH_FILL,
   PARA_LOW_FILL,
 } from "../../const";
@@ -26,7 +26,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [idleBarheight, setIdleBarheight] = useState(360);
   const [canvasWidth, setCanvasWidth] = useState(350);
   const [canvasHeight, setCanvasHeight] = useState(350);
-  const [focusLayer, setFocusLayer] = useState<number | undefined>(undefined);
+  const [focusLayer, setFocusLayer] = useState<number | undefined>(3);
   const [qubitRangeStart, setQubitRangeStart] = useState<number>(0);
   const [layerRangeStart, setLayerRangeStart] = useState<number>(0);
 
@@ -179,7 +179,6 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           break;
         case "context.setFocusData":
           setIdleQubit(message.data.idleQubit);
-
           setAverageIdleValue(message.data.averageIdleValue);
 
           break;
@@ -223,8 +222,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     setOffsetY(-qubitStart * gridSize);
     console.log(qubitStart);
     vscode.postMessage({
-      type: "qubitRangeCenter",
-      qubitRangeCenter: qubitStart,
+      type: "qubitRangeStart",
+      qubitRangeStart: qubitStart,
     });
   }
 
