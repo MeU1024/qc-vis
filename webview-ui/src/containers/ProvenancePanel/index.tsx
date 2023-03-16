@@ -187,7 +187,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
           console.log(message);
           break;
         case "context.setTitle":
-          setPanelTitle(message.data.title);
+          // setPanelTitle(message.data.title);
           break;
       }
     };

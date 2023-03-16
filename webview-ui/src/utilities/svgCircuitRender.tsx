@@ -25,11 +25,13 @@ export interface svgCircuitRenderProps {
     gate_format: string;
     all_gates: ((number | number[])[] | (number | number[])[][])[];
   };
-  averageIdleValue: number[] | undefined;
-  idleQubit: number[][] | undefined;
-  focusLayer: number | undefined;
+  averageIdleValue: number[];
+  idleQubit: number[][];
+  focusIndex: number | undefined;
   offsetX: number;
   offsetY: number;
+  layerRangeStart: number;
+  layerPosition: number[];
 }
 
 const colorScale = d3
@@ -45,9 +47,11 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     gridSize,
     averageIdleValue,
     idleQubit,
-    focusLayer,
+    focusIndex,
     offsetX,
     offsetY,
+    layerRangeStart,
+    layerPosition,
   } = props;
 
   const wiresData = [0, 0.2, 0.6, 1, 0.4, 0, 0];
@@ -60,7 +64,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   var gatesLayer = svg.append("g");
   var focusFrameLayer = svg.append("g");
 
-  if (averageIdleValue !== undefined && focusLayer !== undefined) {
+  if (averageIdleValue.length !== 0 && focusIndex !== undefined) {
     const slicedAverageIdleValue = averageIdleValue.slice(0, 7);
     var rects = averageLayer
       .selectAll("rect")
@@ -69,14 +73,14 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
 
     rects
       .append("rect")
-      .attr("x", (d) => focusLayer * gridSize)
-      .attr("y", (d, i) => i * gridSize + offsetY)
+      .attr("x", (d) => focusIndex * gridSize + offsetX)
+      .attr("y", (d, i) => i * gridSize)
       .attr("width", gridSize)
       .attr("height", gridSize)
       .attr("fill", IDLE_FILL)
       .attr("fill-opacity", (d) => d / 1.2);
   }
-  if (idleQubit !== undefined && focusLayer !== undefined) {
+  if (idleQubit.length !== 0 && focusIndex !== undefined) {
     const idleBackground = averageLayer
       .selectAll("g")
       .data(idleQubit)
@@ -84,8 +88,8 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       .append("g");
     idleBackground.each((d, index) => {
       let bg = d3.select(idleBackground.nodes()[index]).append("rect");
-      bg.attr("x", d[0] * gridSize)
-        .attr("y", index * gridSize + offsetY)
+      bg.attr("x", d[0] * gridSize + offsetX)
+        .attr("y", index * gridSize)
         .attr("width", gridSize * d.length)
         .attr("height", gridSize)
         .attr("rx", gridSize / 20)
@@ -114,7 +118,6 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       .attr("x", 0)
       .attr("y", function (d, i) {
         return i * gridSize + gridSize / 2;
-        5;
       })
       .attr("width", width)
       .attr("height", 1)
@@ -225,8 +228,11 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   });
 
   //focusLayer frame
-  if (focusLayer !== undefined) {
-    var frame = focusFrameLayer.selectAll("rect").data([focusLayer]).enter();
+  if (focusIndex !== undefined) {
+    var frame = focusFrameLayer
+      .selectAll("rect")
+      .data([layerPosition[focusIndex]])
+      .enter();
     console.log(frame);
     frame
       .append("rect")

@@ -26,10 +26,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [idleBarheight, setIdleBarheight] = useState(360);
   const [canvasWidth, setCanvasWidth] = useState(350);
   const [canvasHeight, setCanvasHeight] = useState(350);
-  const [focusLayer, setFocusLayer] = useState<number | undefined>(3);
+  const [focusIndex, setFocusIndex] = useState<number | undefined>(undefined);
   const [qubitRangeStart, setQubitRangeStart] = useState<number>(0);
   const [layerRangeStart, setLayerRangeStart] = useState<number>(0);
-
+  const [subQubit, setSubQubit] = useState([0, 1, 2, 3, 4, 5, 6]);
+  const [layerPosition, setLayerPosition] = useState([0, 1, 2, 3, 4, 5, 6]);
   const [gridSize, setGridSize] = useState(50);
 
   const [paraBarData, setParaBarData] = useState(geneParaData());
@@ -44,16 +45,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       }
     | undefined
   >(generateCircuit());
-  const [idleQubit, setIdleQubit] = useState<number[][] | undefined>([
-    [3],
-    [],
-    [2, 3, 4],
-  ]);
+  const [idleQubit, setIdleQubit] = useState<number[][]>([[3], [], [2, 3, 4]]);
   const [averageIdleValue, setAverageIdleValue] = useState<number[]>([
     0, 1, 0.5, 0.2, 0.4, 0.2, 0.1, 1, 1, 1,
   ]);
-  const [curQubit, setCurQubit] = useState([]);
-  const [qubitRange, setQubitRange] = useState([0, 7]);
+
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
   const [graphSize, setGraphSize] = useState([10, 10]);
@@ -66,21 +62,26 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     .range([PARA_LOW_FILL, PARA_HIGH_FILL]);
 
   useEffect(() => {
-    if (circuit !== undefined && averageIdleValue !== undefined) {
+    if (circuit !== undefined) {
       svgCircuitRender({
         id: "#parallelismSVG",
         width: canvasWidth,
         height: canvasHeight,
         gridSize: 50,
         circuit: circuit,
-        averageIdleValue: averageIdleValue,
-        idleQubit: idleQubit,
-        focusLayer: focusLayer,
+        averageIdleValue: averageIdleValue.slice(
+          qubitRangeStart,
+          qubitRangeStart + 7
+        ),
+        idleQubit: idleQubit.slice(qubitRangeStart, qubitRangeStart + 7),
+        focusIndex: focusIndex,
         offsetX: offsetX,
         offsetY: offsetY,
+        layerRangeStart: layerRangeStart,
+        layerPosition: layerPosition,
       });
     }
-  }, [circuit, averageIdleValue]);
+  }, [circuit, averageIdleValue, qubitRangeStart, layerRangeStart]);
 
   useEffect(() => {
     if (averageIdleValue.length !== 0) {
@@ -170,12 +171,18 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           setParaBarData(message.data.layerParallelism);
           setCircuit(message.data.subCircuit);
           setAverageIdleValue(message.data.averageIdleValue);
-          setCurQubit(message.data.qubits);
+          // setCurQubit(message.data.qubits);
           setGraphSize(message.data.originalCircuitSize);
+          setSubQubit(message.data.subCircuit.subGraphQubitRange);
+          if (circuit !== undefined) {
+            removeCircuitOverlap(circuit);
+          }
+
+          // setSubLayer(message.data.subCircuit.subGraphLayerRange);
           // console.log("circuit in msg", message.data.subCircuit);
           break;
         case "context.setTitle":
-          setPanelTitle(message.data.title);
+          // setPanelTitle(message.data.title);
           break;
         case "context.setFocusData":
           setIdleQubit(message.data.idleQubit);
@@ -197,11 +204,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         : event.target.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    const focusGate = Math.floor(x / gridSize);
-    setFocusLayer(focusGate);
+    const focusIndex = Math.floor(x / gridSize);
+    setFocusIndex(layerPosition[focusIndex]);
     vscode.postMessage({
       type: "focusGate",
-      layer: focusGate,
+      layer: layerPosition[focusIndex],
     });
   }
 
@@ -240,12 +247,25 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     setLayerRangeStart(layerStart);
 
     setOffsetX(-layerStart * gridSize);
-    console.log(layerStart);
+
     vscode.postMessage({
       type: "layerRangeStart",
       layerRangeStart: layerStart,
     });
   }
+
+  const removeCircuitOverlap = (circuit: {
+    output_size: number[];
+    op_map: {};
+    qubits: string[];
+    gate_format: string;
+    all_gates: ((number | number[])[] | (number | number[])[])[];
+  }) => {
+    const layerPosition: number[] = [];
+    circuit.qubits.forEach((qubit) => [layerPosition.push(parseInt(qubit))]);
+    setLayerPosition(layerPosition);
+    return;
+  };
 
   return (
     <div className="parallelismPanel">
