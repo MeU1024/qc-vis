@@ -102,7 +102,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         .attr("height", elementHeight / averageIdleValue.length)
         .attr("fill", IDLE_FILL)
         .attr("stroke", IDLE_FILL)
-        .attr("stroke-width", "3px")
+        .attr("stroke-width", "1px")
         .attr("fill-opacity", (d, i) => (d / 1.2).toString());
 
       //lines for range vis

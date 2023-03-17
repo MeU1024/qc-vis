@@ -218,7 +218,7 @@ class ContextualCircuit {
   }[] {
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      "/resources/data/vqc-structure.json"
+      "/resources/data/qaoa-structure.json"
     ).fsPath;
     let data = require(dataSource);
     let treeStructure = data.map((tree: any) => {
@@ -396,7 +396,7 @@ class ContextualCircuit {
           for (let start = 0; start < qubits.length; start++) {
             for (let end = start + 1; end < qubits.length; end++) {
               this._connectivityMatrix[qubits[start]][qubits[end]] = 1;
-              if (gate.gateName === "cz") {
+              if (gate.gateName === "cz" || gate.gateName === "cp") {
                 this._connectivityMatrix[qubits[end]][qubits[start]] = 1;
               }
             }

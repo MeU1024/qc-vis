@@ -47,6 +47,8 @@ export const opTypeDict: { [key: string]: string } = {
   ry: "single",
   rz: "single",
   h: "single",
+  p: "single",
+  cp: "multi",
   cx: "multi",
   cy: "multi",
   cz: "multi",

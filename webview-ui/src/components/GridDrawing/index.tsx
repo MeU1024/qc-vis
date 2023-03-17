@@ -371,6 +371,7 @@ const GridDrawing = (props: GridDrawingProps) => {
     case "custom_gate":
       ctx.beginPath();
       //lines
+      ctx.strokeStyle = WIRE_STROKE;
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width / 4, yCoord + height / 2);
 

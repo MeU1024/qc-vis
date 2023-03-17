@@ -35,10 +35,16 @@ const GridText = (props: GridTextProps) => {
     content == "rz" ||
     content == "rx" ||
     content == "ry" ||
-    content == "h"
+    content == "h" ||
+    content == "p"
   ) {
     ctx.fillStyle = SINGLE_GATE_STROKE;
-  } else if (content == "cz" || content == "cx" || content == "cy") {
+  } else if (
+    content == "cz" ||
+    content == "cx" ||
+    content == "cy" ||
+    content == "cp"
+  ) {
     ctx.fillStyle = MULTI_GATE_STROKE;
   }
   ctx.textBaseline = "middle";

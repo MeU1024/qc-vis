@@ -155,7 +155,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     if (
       gateType === "single" ||
       gateType === "customized" ||
-      (gateType === "multi" && op !== "cz")
+      (gateType === "multi" && op !== "cz" && op !== "cp")
     ) {
       shape = d3.select(gates.nodes()[index]).append("rect");
       shape
@@ -200,6 +200,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
           .attr("fill", colorDict[gateType]);
         break;
       case "cz":
+      case "cp":
         shape = d3.select(gates.nodes()[index]).append("line");
         shape
           .attr("x1", x * gridSize + gridSize / 2)

@@ -50,8 +50,11 @@ const Circuit2GridData = (circuitData: {
     if (item.length == 4) {
       gateRole = item[3];
     }
+    var ctrl_bit = yRange[0];
+    var target_bit = yRange[yRange.length - 1];
     switch (op) {
       case "h":
+      case "p":
       case "ry":
       case "rz":
       case "rx":
@@ -59,11 +62,17 @@ const Circuit2GridData = (circuitData: {
         graphText.push({ x: xRange, y: yRange, content: op });
         break;
       case "cz":
+      case "cp":
         for (let index = start; index < end; index++) {
           graph[xRange[0]][index] = opDict["vertical_line"];
         }
-        graph[xRange[0]][yRange[0]] = opDict["ctrl_up"];
-        graph[xRange[0]][yRange[yRange.length - 1]] = opDict["ctrl_down"];
+        if (ctrl_bit < target_bit) {
+          graph[xRange[0]][ctrl_bit] = opDict["ctrl_up"];
+          graph[xRange[0]][target_bit] = opDict["ctrl_down"];
+        } else {
+          graph[xRange[0]][ctrl_bit] = opDict["ctrl_down"];
+          graph[xRange[0]][target_bit] = opDict["ctrl_up"];
+        }
 
         break;
       case "cx":
@@ -71,8 +80,7 @@ const Circuit2GridData = (circuitData: {
         for (let index = start; index < end; index++) {
           graph[xRange[0]][index] = opDict["vertical_line"];
         }
-        const ctrl_bit = yRange[0];
-        const target_bit = yRange[yRange.length - 1];
+
         if (ctrl_bit < target_bit) {
           graph[xRange[0]][ctrl_bit] = opDict["ctrl_up"];
           graph[xRange[0]][target_bit] = opDict["cy_down"];
@@ -122,7 +130,7 @@ const Circuit2GridData = (circuitData: {
           graph[col][row] = opDict["empty"];
         }
       }
-      if (op == "cx" || op == "cy" || op == "cz") {
+      if (op == "cx" || op == "cy" || op == "cz" || op == "cp") {
         if (xRange[xRange.length - 1] > lastCtrl[yRange[0]]) {
           lastCtrl[yRange[0]] = xRange[xRange.length - 1];
         }

@@ -1,0 +1,18 @@
+[
+  { "name": "QAOA", "parentIndex": 0, "index": 0, "type": "fun" },
+  { "name": "_H", "parentIndex": 0, "index": 1, "type": "fun" },
+  { "name": "[CH-MH]", "parentIndex": 0, "index": 2, "type": "rep" },
+
+  { "name": "_CH", "parentIndex": 2, "index": 3, "type": "fun" },
+  { "name": "_MH", "parentIndex": 2, "index": 4, "type": "fun" },
+
+  { "name": "[h]", "parentIndex": 1, "index": 5, "type": "rep" },
+  { "name": "[cp-p-p]", "parentIndex": 3, "index": 6, "type": "rep" },
+  { "name": "[rx]", "parentIndex": 4, "index": 7, "type": "rep" },
+
+  { "name": "h", "parentIndex": 5, "index": 8, "type": "rep_item" },
+  { "name": "cp", "parentIndex": 6, "index": 9, "type": "rep_item" },
+  { "name": "p", "parentIndex": 6, "index": 10, "type": "rep_item" },
+  { "name": "p", "parentIndex": 6, "index": 11, "type": "rep_item" },
+  { "name": "rx", "parentIndex": 7, "index": 12, "type": "rep_item" }
+]

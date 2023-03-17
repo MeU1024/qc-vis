@@ -28,21 +28,30 @@ const OverviewPanel = (props: OverviewPanelProps) => {
     qubits: string[];
     gate_format: string;
     all_gates: (number | number[])[][];
+    originalQubitLength?: number;
+    originalGateLength?: number;
   }>(overviewData_abs);
 
   useEffect(() => {
-    var gridSize =
-      canvasWidth / circuit.output_size[1] <
-      canvasHeight / circuit.output_size[0]
-        ? canvasWidth / circuit.output_size[1]
-        : canvasHeight / circuit.output_size[0];
-    gridSize = gridSize < 25 ? 25 : gridSize;
+    // var gridSize =
+    //   canvasWidth / circuit.output_size[1] <
+    //   canvasHeight / circuit.output_size[0]
+    //     ? canvasWidth / circuit.output_size[1]
+    //     : canvasHeight / circuit.output_size[0];
+    var gridSize = canvasHeight / circuit.output_size[0];
+    gridSize = gridSize < 20 ? 20 : gridSize;
 
     setGridWidth(gridSize);
     setGridHeight(gridSize);
-    if (gridSize * circuit.output_size[0] < canvasWidth) {
-      setGridHeight(canvasHeight / circuit.output_size[0]);
-    }
+    setCanvasHeight(gridSize * circuit.output_size[0]);
+    setCanvasWidth(
+      gridSize * circuit.output_size[1] < 3000
+        ? gridSize * circuit.output_size[1]
+        : 3000
+    );
+    // if (gridSize * circuit.output_size[0] < canvasWidth) {
+    //   setGridHeight(canvasHeight / circuit.output_size[0]);
+    // }
     setQbitLength(circuit.qubits);
   }, [circuit]);
 
@@ -97,17 +106,21 @@ const OverviewPanel = (props: OverviewPanelProps) => {
   }, []);
 
   return (
-    <div className="panel">
-      <div
-        className="panelHeader"
-        onClick={() => {
-          setCircuit(circuit == overviewData ? generateData() : overviewData);
-        }}
-      >
-        {" "}
-        Overview {highlightGate}
+    <div className="panel" id="overviewPanel">
+      <div className="panelHeader">
+        <span
+          className="panelTitle"
+          onClick={() => {
+            setCircuit(circuit == overviewData ? generateData() : overviewData);
+          }}
+        >
+          Quantum Circuit Diagram
+        </span>
+        <span className="info">
+          #Qubits{circuit.originalQubitLength} #Gates
+          {circuit.originalQubitLength} #Layer{circuit.output_size[1]}
+        </span>
       </div>
-
       <div
         className="circuit"
         style={{

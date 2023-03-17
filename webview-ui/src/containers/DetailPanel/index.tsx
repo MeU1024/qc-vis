@@ -30,19 +30,21 @@ const DetailPanel = (props: DetailPanelProps) => {
 
   //fetch data and modify canvas size
   useEffect(() => {
-    var gridSize =
-      canvasWidth / circuit.output_size[1] <
-      canvasHeight / circuit.output_size[0]
-        ? canvasWidth / circuit.output_size[1]
-        : canvasHeight / circuit.output_size[0];
-
+    // var gridSize =
+    //   canvasWidth / circuit.output_size[1] <
+    //   canvasHeight / circuit.output_size[0]
+    //     ? canvasWidth / circuit.output_size[1]
+    //     : canvasHeight / circuit.output_size[0];
+    var gridSize = canvasHeight / circuit.output_size[0];
     gridSize = gridSize < 25 ? 25 : gridSize;
 
     setGridWidth(gridSize);
     setGridHeight(gridSize);
-    if (gridSize * circuit.output_size[0] < canvasWidth) {
-      setGridHeight(canvasHeight / circuit.output_size[0]);
-    }
+    setCanvasWidth(gridSize * circuit.output_size[1]);
+    setCanvasHeight(gridSize * circuit.output_size[0]);
+    // if (gridSize * circuit.output_size[0] < canvasWidth) {
+    //   setGridHeight(canvasHeight / circuit.output_size[0]);
+    // }
     setQbitLength(circuit.qubits);
   }, [circuit]);
 
@@ -107,7 +109,11 @@ const DetailPanel = (props: DetailPanelProps) => {
           alignment={"sub"}
           gridHeight={gridHeight}
         />
-        <canvas id="detailCanvas" width="650" height="350"></canvas>
+        <canvas
+          id="detailCanvas"
+          width={canvasWidth}
+          height={canvasHeight}
+        ></canvas>
       </div>
     </div>
   );
