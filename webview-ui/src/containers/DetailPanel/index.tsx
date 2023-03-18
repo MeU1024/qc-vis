@@ -69,7 +69,7 @@ const DetailPanel = (props: DetailPanelProps) => {
         }
       }
     }
-  }, [gridWidth, theme, circuit]);
+  }, [gridWidth, theme, circuit, canvasHeight, canvasWidth]);
 
   useEffect(() => {
     const handleMessageEvent = (event: any) => {

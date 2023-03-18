@@ -135,6 +135,54 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
 
       break;
+    case "ryy_gate_up":
+      ctx.strokeStyle = WIRE_STROKE;
+      ctx.beginPath();
+      //lines
+      ctx.moveTo(xCoord, yCoord + height / 2);
+      ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
+
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width / 8) * 7, yCoord + height / 2);
+      ctx.lineTo(xCoord + width, yCoord + height / 2);
+
+      ctx.stroke();
+      // square
+      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 8, yCoord + height);
+      ctx.lineTo(xCoord + width / 8, yCoord + height / 8);
+      ctx.lineTo(xCoord + (width / 8) * 7, yCoord + height / 8);
+      ctx.lineTo(xCoord + (width / 8) * 7, yCoord + height);
+
+      ctx.stroke();
+
+      break;
+    case "ryy_gate_bottom":
+      ctx.strokeStyle = WIRE_STROKE;
+      ctx.beginPath();
+      //lines
+      ctx.moveTo(xCoord, yCoord + height / 2);
+      ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
+
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width / 8) * 7, yCoord + height / 2);
+      ctx.lineTo(xCoord + width, yCoord + height / 2);
+
+      ctx.stroke();
+      // square
+      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 8, yCoord);
+      ctx.lineTo(xCoord + width / 8, yCoord + (height / 8) * 7);
+      ctx.lineTo(xCoord + (width / 8) * 7, yCoord + (height / 8) * 7);
+      ctx.lineTo(xCoord + (width / 8) * 7, yCoord);
+      // ctx.closePath();
+      ctx.stroke();
+
+      break;
     case "empty":
       break;
     case "dots":
@@ -439,6 +487,75 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.moveTo(xCoord + width / 2, yCoord);
       ctx.lineTo(xCoord + width / 2, yCoord + height / 8);
 
+      ctx.stroke();
+      break;
+    case "swap_middle":
+      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord);
+      ctx.lineTo(xCoord + width / 2, yCoord + height);
+      ctx.stroke();
+
+      //swap
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width / 8) * 3, yCoord + (height / 8) * 3);
+      ctx.lineTo(xCoord + (width / 8) * 5, yCoord + (height / 8) * 5);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width / 8) * 5, yCoord + (height / 8) * 3);
+      ctx.lineTo(xCoord + (width / 8) * 3, yCoord + (height / 8) * 5);
+      ctx.stroke();
+
+      ctx.strokeStyle = WIRE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord, yCoord + height / 2);
+      ctx.lineTo(xCoord + width, yCoord + height / 2);
+      ctx.stroke();
+      break;
+    case "swap_up":
+      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord + height / 2);
+      ctx.lineTo(xCoord + width / 2, yCoord + height);
+      //swap
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width / 8) * 3, yCoord + (height / 8) * 3);
+      ctx.lineTo(xCoord + (width / 8) * 5, yCoord + (height / 8) * 5);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width / 8) * 5, yCoord + (height / 8) * 3);
+      ctx.lineTo(xCoord + (width / 8) * 3, yCoord + (height / 8) * 5);
+      ctx.stroke();
+
+      ctx.strokeStyle = WIRE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord, yCoord + height / 2);
+      ctx.lineTo(xCoord + width, yCoord + height / 2);
+      ctx.stroke();
+      break;
+    case "swap_down":
+      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord);
+      ctx.lineTo(xCoord + width / 2, yCoord + height / 2);
+      ctx.stroke();
+      //swap
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width / 8) * 3, yCoord + (height / 8) * 3);
+      ctx.lineTo(xCoord + (width / 8) * 5, yCoord + (height / 8) * 5);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width / 8) * 5, yCoord + (height / 8) * 3);
+      ctx.lineTo(xCoord + (width / 8) * 3, yCoord + (height / 8) * 5);
+      ctx.stroke();
+
+      ctx.strokeStyle = WIRE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord, yCoord + height / 2);
+      ctx.lineTo(xCoord + width, yCoord + height / 2);
       ctx.stroke();
       break;
     default:

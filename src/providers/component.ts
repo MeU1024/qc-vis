@@ -125,7 +125,7 @@ export class ComponentCircuit {
         getExtensionUri(),
         // "/resources/data/default-data-source.json"
         // "/resources/data/qugan-json-data.json"
-        "/resources/data/qaoa-json-data.json"
+        "/resources/data/qugan-json-data.json"
       ).fsPath
     );
     // if (jsonData === undefined) {
@@ -217,7 +217,7 @@ export class ComponentCircuit {
   }[] {
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      "/resources/data/qaoa-structure.json"
+      "/resources/data/qugan-structure.json"
     ).fsPath;
     let data = require(dataSource);
     // if (file) {

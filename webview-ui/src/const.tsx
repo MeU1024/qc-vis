@@ -25,6 +25,11 @@ export const opDict = {
   custom_gate: 20,
   cy_down: 21,
   cy_up: 22,
+  ryy_gate_up: 23,
+  ryy_gate_bottom: 24,
+  swap_middle: 25,
+  swap_up: 26,
+  swap_down: 27,
 };
 
 // export const
@@ -52,6 +57,9 @@ export const opTypeDict: { [key: string]: string } = {
   cx: "multi",
   cy: "multi",
   cz: "multi",
+  cry: "multi",
+  ryy: "double",
+  csw: "triple",
 };
 export const colorDict: { [key: string]: string } = {
   single: SINGLE_GATE_STROKE,
@@ -59,4 +67,6 @@ export const colorDict: { [key: string]: string } = {
   target: MULTI_GATE_STROKE,
   control: MULTI_GATE_STROKE,
   multi: MULTI_GATE_STROKE,
+  double: MULTI_GATE_STROKE,
+  triple: MULTI_GATE_STROKE,
 };

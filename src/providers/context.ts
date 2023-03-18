@@ -218,7 +218,7 @@ class ContextualCircuit {
   }[] {
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      "/resources/data/qaoa-structure.json"
+      "/resources/data/qugan-structure.json"
     ).fsPath;
     let data = require(dataSource);
     let treeStructure = data.map((tree: any) => {
