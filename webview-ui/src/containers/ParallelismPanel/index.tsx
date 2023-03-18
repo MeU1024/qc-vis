@@ -174,13 +174,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           setAverageIdleValue(message.data.averageIdleValue);
           // setCurQubit(message.data.qubits);
           setGraphSize(message.data.originalCircuitSize);
-          // setSubQubit(message.data.subCircuit.subGraphQubitRange);
-
           setSubLayer(message.data.subCircuit.subGraphLayerRange);
-          console.log(
-            "circuit in msg",
-            message.data.subCircuit.subGraphLayerRange
-          );
+
           break;
         case "context.setTitle":
           // setPanelTitle(message.data.title);

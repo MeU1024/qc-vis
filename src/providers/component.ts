@@ -94,6 +94,7 @@ export class ComponentCircuit {
   private _pushLayers: Layer[];
   private _gateLayerMap: Map<ComponentGate, number>;
   private _treeMap: Map<number, number>;
+  private _groupInfoMap: Map<number, { gatesIndex: number[] }>;
   private _superQubitMap: Map<Qubit, number>;
   private _layerMap: Map<number, number[]>;
   private _drawableCircuit: DrawableCircuit;
@@ -118,6 +119,7 @@ export class ComponentCircuit {
     this._gateLayerMap = new Map<ComponentGate, number>();
     this._treeMap = new Map<number, number>();
     this._layerMap = new Map<number, number[]>();
+    this._groupInfoMap = new Map<number, { gatesIndex: number[] }>();
     this._drawableCircuit = new DrawableCircuit();
 
     const file = vscode.Uri.file(
@@ -235,18 +237,6 @@ export class ComponentCircuit {
   }
 
   private _updateTreeMap() {
-    // const repMap = new Map<number, number[]>();
-    // this._treeStructure.forEach((item) => {
-    //   if (item.type === "rep_item") {
-    //     const list = repMap.get(item.parentIndex);
-    //     if (list !== undefined) {
-    //       const newList = [...list, item.index];
-    //       repMap.set(item.parentIndex, newList);
-    //     } else {
-    //       repMap.set(item.parentIndex, [item.index]);
-    //     }
-    //   }
-    // });
     this._treeStructure.forEach(
       (item: {
         name: string;
@@ -257,38 +247,44 @@ export class ComponentCircuit {
         let parentIndex = item.parentIndex;
         let treeIndex = item.index;
 
-        while (
-          (!qv.semanticTreeViewer.isVisible(treeIndex) &&
-            !qv.semanticTreeViewer.isVisible(parentIndex)) ||
-          (this._treeStructure[treeIndex].type !== "fun" &&
-            this._treeStructure[treeIndex].type !== "rep_item")
-          // qv.semanticTreeViewer.isExpanded(parentIndex)
-        ) {
-          parentIndex = this._treeStructure[parentIndex].parentIndex;
-          treeIndex = this._treeStructure[treeIndex].parentIndex;
-          // if(qv.semanticTreeViewer.isVisible(treeIndex))
+        while (1) {
+          const treeVisible = qv.semanticTreeViewer.isVisible(treeIndex);
+          const parentVisible = qv.semanticTreeViewer.isVisible(parentIndex);
+          if (treeVisible) {
+            if (this._treeStructure[treeIndex].type === "rep") {
+              treeIndex = item.index;
+            }
+            break;
+          } else {
+            parentIndex = this._treeStructure[parentIndex].parentIndex;
+            treeIndex = this._treeStructure[treeIndex].parentIndex;
+          }
         }
-        // if (
-        //   this._treeStructure[treeIndex].type === "rep" &&
-        //   qv.semanticTreeViewer.isVisible(treeIndex)
-        // ) {
-        //   treeIndex = item.index;
-        // }
+        if (
+          this._treeStructure[treeIndex].type === "rep" &&
+          qv.semanticTreeViewer.isVisible(treeIndex)
+        ) {
+          treeIndex = item.index;
+        }
+
         this._treeMap.set(item.index, treeIndex);
+        // this._funcNodeMap.set();
       }
     );
   }
   private _build() {
     // Build component circuit
 
-    const gatesInfo = this._grouping();
+    const { gatesInfo, treeMap } = this._grouping();
     const { edgeMap, qubitMap } = this._bundling(gatesInfo);
-    const layers = this._placement(gatesInfo, edgeMap);
+    // const layers = this._placement(gatesInfo, edgeMap);
+    const layers = this._semBasedPlacement(gatesInfo, edgeMap, treeMap);
     this._generateLayout(layers, gatesInfo, qubitMap);
   }
 
   private _grouping() {
     let treeMap = new Map<number, number[]>();
+
     this._treeStructure.forEach(
       (item: {
         name: string;
@@ -357,7 +353,11 @@ export class ComponentCircuit {
               range: timeRange,
               treeIndex: treeIndex,
             });
+            this._groupInfoMap.set(treeIndex, {
+              gatesIndex: [gatesInfo.length - 1],
+            });
             break;
+
           case "rep_item":
             gates.forEach((gateIndex: number) => {
               gatesInfo.push({
@@ -367,7 +367,18 @@ export class ComponentCircuit {
                 range: this._originalGates[gateIndex].range,
                 treeIndex: treeIndex,
               });
+              const gates = this._groupInfoMap.get(treeIndex);
+              if (gates !== undefined) {
+                this._groupInfoMap.set(treeIndex, {
+                  gatesIndex: [...gates.gatesIndex, gatesInfo.length - 1],
+                });
+              } else {
+                this._groupInfoMap.set(treeIndex, {
+                  gatesIndex: [gatesInfo.length - 1],
+                });
+              }
             });
+
             break;
           default:
             break;
@@ -376,22 +387,22 @@ export class ComponentCircuit {
     });
 
     //sort new gates according to time range
-    gatesInfo.sort(
-      (
-        a,
-        b: {
-          gates: number[];
-          name: string;
-          qubits: Qubit[];
-          range: number[];
-          treeIndex: number;
-        }
-      ) => {
-        return a.range[0] - b.range[0];
-      }
-    );
+    // gatesInfo.sort(
+    //   (
+    //     a,
+    //     b: {
+    //       gates: number[];
+    //       name: string;
+    //       qubits: Qubit[];
+    //       range: number[];
+    //       treeIndex: number;
+    //     }
+    //   ) => {
+    //     return a.range[0] - b.range[0];
+    //   }
+    // );
 
-    return gatesInfo;
+    return { gatesInfo, treeMap };
   }
 
   private _bundling(
@@ -524,6 +535,68 @@ export class ComponentCircuit {
           qubitsPlacement[qubitIndex] = layerIndex + 1;
         }
       });
+    });
+
+    return layers;
+  }
+
+  private _semBasedPlacement(
+    gatesInfo: {
+      gates: number[];
+      name: string;
+      qubits: Qubit[];
+      range: number[];
+      treeIndex: number;
+    }[],
+    edgeMap: number[],
+    treeMap: Map<number, number[]>
+  ) {
+    //gate placement
+    let qubitsPlacement = this._qubits.map((bit: Qubit) => {
+      return 0;
+    });
+    let layers: number[][] = [];
+
+    this._groupInfoMap.forEach((value, treeIndex) => {
+      let functionPlacement = 0;
+      let qSet = new Set<number>();
+      value.gatesIndex.forEach((gateIndex: number, index) => {
+        let layerIndex = 0;
+        gatesInfo[gateIndex].qubits.forEach((qubit: Qubit) => {
+          const qubitIndex = edgeMap[parseInt(qubit.qubitName)];
+          if (qubitIndex !== undefined) {
+            if (qubitsPlacement[qubitIndex] > layerIndex) {
+              layerIndex = qubitsPlacement[qubitIndex];
+            }
+          }
+          qSet.add(qubitIndex);
+        });
+
+        if (layers.length < layerIndex + 1) {
+          layers.push([gateIndex]);
+        } else {
+          layers[layerIndex].push(gateIndex);
+        }
+
+        if (functionPlacement < layerIndex + 1) {
+          functionPlacement = layerIndex + 1;
+        }
+
+        gatesInfo[gateIndex].qubits.forEach((qubit: Qubit) => {
+          const qubitIndex = edgeMap[parseInt(qubit.qubitName)];
+          if (qubitIndex !== undefined) {
+            qubitsPlacement[qubitIndex] = layerIndex + 1;
+          }
+        });
+      });
+
+      const qRange = Array.from(qSet).sort((a: number, b: number) => {
+        return a - b;
+      });
+
+      for (let index = qRange[0]; index <= qRange[qRange.length - 1]; index++) {
+        qubitsPlacement[index] = functionPlacement;
+      }
     });
 
     return layers;

@@ -184,7 +184,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
       switch (message.command) {
         case "context.setCircuit":
           setQubitData(message.data.focusQubitGates);
-          console.log(message);
+
           break;
         case "context.setTitle":
           // setPanelTitle(message.data.title);
