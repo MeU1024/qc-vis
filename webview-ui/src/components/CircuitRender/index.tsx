@@ -13,7 +13,7 @@ export const CircuitRender = (props: CircuitRenderProp) => {
   const rows = graph[0].length;
   var style = getComputedStyle(document.getElementsByClassName("panel")[0]);
   const color = style.getPropertyValue("--stroke-style");
-  //console.log(color);
+  // console.log('Render', ctx, cols, rows);
   for (let col = 0; col < cols; col++) {
     for (let row = 0; row < rows; row++) {
       GridDrawing({

@@ -31,16 +31,16 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    window.addEventListener("message", handleMessage);
-    return () => {
-      window.removeEventListener("message", handleMessage);
-    };
-  }, []);
+  // useEffect(() => {
+  //   window.addEventListener("message", handleMessage);
+  //   return () => {
+  //     window.removeEventListener("message", handleMessage);
+  //   };
+  // }, []);
   return (
     <main>
       <div className="MainContent">
-        {/* <OverviewPanel highlightGate={highlightGate} theme={theme} /> */}
+        <OverviewPanel highlightGate={highlightGate} theme={theme} />
         <div className="BottomContent">
           <div className="BottomLeft">
             <DetailPanel highlightGate={highlightGate} theme={theme} />

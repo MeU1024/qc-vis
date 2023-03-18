@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
-import BitsName from "../../components/BitsName";
-import { CircuitAnnotator } from "../../components/CircuitAnnotator";
-import { CircuitRender } from "../../components/CircuitRender";
-import "./index.scss";
-import overviewData from "../../../data/vqc-10-overview.json";
-import overviewData_abs from "../../../data/vqc-10-detail-abstract.json";
-import Circuit2GridData from "../../utilities/Circuit2GridData";
+import {useEffect, useState} from 'react';
+import BitsName from '../../components/BitsName';
+import {CircuitAnnotator} from '../../components/CircuitAnnotator';
+import {CircuitRender} from '../../components/CircuitRender';
+import './index.scss';
+import overviewData from '../../../data/vqc-10-overview.json';
+import overviewData_abs from '../../../data/vqc-10-detail-abstract.json';
+import Circuit2GridData from '../../utilities/Circuit2GridData';
 
 export interface OverviewPanelProps {
   // gridWidth: number;
@@ -14,7 +14,7 @@ export interface OverviewPanelProps {
   highlightGate: string | null;
 }
 const OverviewPanel = (props: OverviewPanelProps) => {
-  const { theme, highlightGate } = props;
+  const {theme, highlightGate} = props;
 
   const [gridWidth, setGridWidth] = useState<number>(25);
   const [gridHeight, setGridHeight] = useState<number>(25);
@@ -57,29 +57,30 @@ const OverviewPanel = (props: OverviewPanelProps) => {
 
   useEffect(() => {
     if (gridHeight !== null && gridWidth !== null) {
-      const { graph, graphText } = Circuit2GridData(circuit);
+      const {graph, graphText} = Circuit2GridData(circuit);
+      const canvas = document.getElementById('overviewCanvas');
 
-      const canvas = document.getElementById("overviewCanvas");
       if (canvas) {
-        const ctx = (canvas as HTMLCanvasElement).getContext("2d");
+        const ctx = (canvas as HTMLCanvasElement).getContext('2d');
         if (ctx) {
-          ctx.fillStyle = "#ffffff";
+          
+          ctx.fillStyle = '#ffffff';
           ctx.clearRect(
             0,
             0,
             (canvas as HTMLCanvasElement).width,
             (canvas as HTMLCanvasElement).height
           );
-          CircuitRender({ graph, ctx, gridWidth, gridHeight });
-          console.log("graph", graph);
-          CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
+          CircuitRender({graph, ctx, gridWidth, gridHeight});
+          // console.log('graph', graph);
+          CircuitAnnotator({graphText, ctx, gridWidth, gridHeight});
         }
       }
     }
-  }, [circuit, gridWidth, theme]);
+  }, [circuit, canvasHeight, canvasWidth, gridHeight, gridWidth]);
 
   useEffect(() => {
-    if (highlightGate == "PA") {
+    if (highlightGate == 'PA') {
       setCircuit(generateData());
     } else {
       setCircuit(generateData());
@@ -91,55 +92,51 @@ const OverviewPanel = (props: OverviewPanelProps) => {
       const message = event.data;
       // console.log(message);
       switch (message.command) {
-        case "component.setCircuit":
+        case 'component.setCircuit':
           setCircuit(message.data);
-          console.log("overview", message.data);
+          console.log('overview', message.data);
           break;
-        case "abstraction.setCanvasSize":
+        case 'component.setCanvasSize':
           setCanvasWidth(message.data.width);
           setCanvasHeight(message.data.height);
           break;
       }
     };
-    window.addEventListener("message", handleMessageEvent);
+    window.addEventListener('message', handleMessageEvent);
     return () => {
-      window.removeEventListener("message", handleMessageEvent);
+      window.removeEventListener('message', handleMessageEvent);
     };
   }, []);
 
   return (
-    <div className="panel" id="overviewPanel">
-      <div className="panelHeader">
+    <div className='panel' id='overviewPanel'>
+      <div className='panelHeader'>
         <span
-          className="panelTitle"
+          className='panelTitle'
           onClick={() => {
             setCircuit(circuit == overviewData ? generateData() : overviewData);
           }}
         >
           Quantum Circuit Diagram
         </span>
-        <span className="info">
+        <span className='info'>
           #Qubits{circuit.originalQubitLength} #Gates
           {circuit.originalQubitLength} #Layer{circuit.output_size[1]}
         </span>
       </div>
       <div
-        className="circuit"
+        className='circuit'
         style={{
           gridTemplateColumns:
-            ((gridHeight < 50 ? gridHeight : 50) * 0.6).toString() + "px auto",
+            ((gridHeight < 50 ? gridHeight : 50) * 0.6).toString() + 'px auto',
         }}
       >
         <BitsName
           qbitLengths={qbitLengths}
-          alignment={"sub"}
+          alignment={'sub'}
           gridHeight={gridHeight}
         />
-        <canvas
-          id="overviewCanvas"
-          width={canvasWidth}
-          height={canvasHeight}
-        ></canvas>
+        <canvas id='overviewCanvas' width={canvasWidth} height={canvasHeight}></canvas>
       </div>
     </div>
   );
@@ -150,9 +147,9 @@ export default OverviewPanel;
 const generateData = () => {
   var data = {
     output_size: [10, 30],
-    op_map: { _h: 0, _PA: 1, _Ent: 2, rz: 3, cx: 4 },
-    qubits: ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
-    gate_format: "[op_idx, num_qubits, x_range, y_range]",
+    op_map: {_h: 0, _PA: 1, _Ent: 2, rz: 3, cx: 4},
+    qubits: ['1', '1', '1', '1', '1', '1', '1', '1', '1', '1'],
+    gate_format: '[op_idx, num_qubits, x_range, y_range]',
     all_gates: [[0, [0], [0, 9]]],
   };
   for (let index = 0; index < 10; index++) {
