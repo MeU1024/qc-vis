@@ -43,7 +43,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
       const message = event.data;
-      console.log(message);
+
       switch (message.command) {
         case "context.setCircuit":
           setMatrix(message.data.matrix);
@@ -52,7 +52,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         case "context.setMatrix":
           setMatrix(message.matrix);
           setComponentTitle(message.title);
-          console.log(message.title);
+
           break;
         // case "context.setTitle":
         //   setPanelTitle(message.data.title);

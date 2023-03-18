@@ -93,7 +93,7 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
   if (!file) {
     let path = vscode.Uri.joinPath(
       qv.getExtensionUri(),
-      "/resources/data/vqc-structure.json"
+      "/resources/data/qaoa-structure.json"
     ).fsPath;
     file = vscode.Uri.file(path);
   }

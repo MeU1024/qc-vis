@@ -64,6 +64,7 @@ const DetailPanel = (props: DetailPanelProps) => {
             (canvas as HTMLCanvasElement).height
           );
           CircuitRender({ graph, ctx, gridWidth, gridHeight });
+          console.log("abs", graph);
           CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
         }
       }
@@ -77,7 +78,7 @@ const DetailPanel = (props: DetailPanelProps) => {
       switch (message.command) {
         case "abstraction.setCircuit":
           setCircuit(message.data);
-          console.log(message.data);
+
           break;
         case "abstraction.setCanvasSize":
           setCanvasWidth(message.data.width);

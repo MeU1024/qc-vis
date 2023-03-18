@@ -1,13 +1,13 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
-import {EventBus} from './components/eventBus';
-import {getLogger} from './components/logger';
-import {Manager} from './components/manager';
-import {Viewer} from './components/viewer';
-import {QuantivineFileSystem} from './components/qvfs';
-import {SemanticTreeViewer} from './providers/structure';
+import * as vscode from "vscode";
+import * as path from "path";
+import { EventBus } from "./components/eventBus";
+import { getLogger } from "./components/logger";
+import { Manager } from "./components/manager";
+import { Viewer } from "./components/viewer";
+import { QuantivineFileSystem } from "./components/qvfs";
+import { SemanticTreeViewer } from "./providers/structure";
 
-let disposables: {dispose(): any}[] = [];
+let disposables: { dispose(): any }[] = [];
 let context: vscode.ExtensionContext;
 
 export function registerDisposable(...items: vscode.Disposable[]) {
@@ -19,7 +19,7 @@ export function registerDisposable(...items: vscode.Disposable[]) {
   }
 }
 
-export * as commander from './commander';
+export * as commander from "./commander";
 
 export const extensionRoot = path.resolve(`${__dirname}/../../`);
 export const eventBus = new EventBus();
@@ -28,14 +28,14 @@ export const qvfs = new QuantivineFileSystem();
 export const viewer = new Viewer();
 export const semanticTreeViewer = new SemanticTreeViewer();
 
-const logger = getLogger('Extension');
+const logger = getLogger("Extension");
 
 export function init(extensionContext: vscode.ExtensionContext) {
   context = extensionContext;
   registerDisposable();
   addLogFundamentals();
   logger.initializeStatusBarItem();
-  logger.log('Quantivine initialized.');
+  logger.log("Quantivine initialized.");
 
   const qvDisposable = {
     dispose: () => {
@@ -49,7 +49,7 @@ export function init(extensionContext: vscode.ExtensionContext) {
 }
 
 export function addLogFundamentals() {
-  logger.log('Initializing Quantivine.');
+  logger.log("Initializing Quantivine.");
   logger.log(`Extension root: ${getExtensionUri()}`);
   logger.log(`$PATH: ${process.env.PATH}`);
   logger.log(`$SHELL: ${process.env.SHELL}`);
@@ -71,9 +71,7 @@ export function getExtensionUri() {
 
 export function getDefaultDataFile() {
   return vscode.Uri.file(
-    vscode.Uri.joinPath(
-      getExtensionUri(),
-      '/resources/data/default-data-source.json'
-    ).fsPath
+    vscode.Uri.joinPath(getExtensionUri(), "/resources/data/vqc_data_50.json")
+      .fsPath
   );
 }

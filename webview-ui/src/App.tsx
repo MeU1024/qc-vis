@@ -40,7 +40,7 @@ function App() {
   return (
     <main>
       <div className="MainContent">
-        <OverviewPanel highlightGate={highlightGate} theme={theme} />
+        {/* <OverviewPanel highlightGate={highlightGate} theme={theme} /> */}
         <div className="BottomContent">
           <div className="BottomLeft">
             <DetailPanel highlightGate={highlightGate} theme={theme} />

@@ -123,7 +123,9 @@ export class ComponentCircuit {
     const file = vscode.Uri.file(
       vscode.Uri.joinPath(
         getExtensionUri(),
-        "/resources/data/default-data-source.json"
+        // "/resources/data/default-data-source.json"
+        // "/resources/data/qugan-json-data.json"
+        "/resources/data/qaoa-json-data.json"
       ).fsPath
     );
     // if (jsonData === undefined) {
@@ -146,7 +148,7 @@ export class ComponentCircuit {
     // }
 
     this._importGatesFromFile(file);
-    this._treeStructure = this._importStructureFromFile();
+    this._treeStructure = this._importStructureFromFile(file);
     this._updateTreeMap();
     this._build();
   }
@@ -207,7 +209,7 @@ export class ComponentCircuit {
     });
   }
 
-  private _importStructureFromFile(): {
+  private _importStructureFromFile(file?: vscode.Uri): {
     name: string;
     parentIndex: number;
     index: number;
@@ -215,9 +217,12 @@ export class ComponentCircuit {
   }[] {
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      "/resources/data/vqc-structure.json"
+      "/resources/data/qaoa-structure.json"
     ).fsPath;
     let data = require(dataSource);
+    // if (file) {
+    //   data = require(file.fsPath);
+    // }
     let treeStructure = data.map((tree: any) => {
       return {
         name: tree.name,
@@ -230,6 +235,18 @@ export class ComponentCircuit {
   }
 
   private _updateTreeMap() {
+    // const repMap = new Map<number, number[]>();
+    // this._treeStructure.forEach((item) => {
+    //   if (item.type === "rep_item") {
+    //     const list = repMap.get(item.parentIndex);
+    //     if (list !== undefined) {
+    //       const newList = [...list, item.index];
+    //       repMap.set(item.parentIndex, newList);
+    //     } else {
+    //       repMap.set(item.parentIndex, [item.index]);
+    //     }
+    //   }
+    // });
     this._treeStructure.forEach(
       (item: {
         name: string;
@@ -239,13 +256,24 @@ export class ComponentCircuit {
       }) => {
         let parentIndex = item.parentIndex;
         let treeIndex = item.index;
-        while (!qv.semanticTreeViewer.isExpanded(parentIndex)) {
+
+        while (
+          (!qv.semanticTreeViewer.isVisible(treeIndex) &&
+            !qv.semanticTreeViewer.isVisible(parentIndex)) ||
+          (this._treeStructure[treeIndex].type !== "fun" &&
+            this._treeStructure[treeIndex].type !== "rep_item")
+          // qv.semanticTreeViewer.isExpanded(parentIndex)
+        ) {
           parentIndex = this._treeStructure[parentIndex].parentIndex;
           treeIndex = this._treeStructure[treeIndex].parentIndex;
+          // if(qv.semanticTreeViewer.isVisible(treeIndex))
         }
-        if (this._treeStructure[treeIndex].type === "rep") {
-          treeIndex = item.index;
-        }
+        // if (
+        //   this._treeStructure[treeIndex].type === "rep" &&
+        //   qv.semanticTreeViewer.isVisible(treeIndex)
+        // ) {
+        //   treeIndex = item.index;
+        // }
         this._treeMap.set(item.index, treeIndex);
       }
     );
@@ -323,7 +351,9 @@ export class ComponentCircuit {
             gatesInfo.push({
               gates: gates,
               name: treeNodeName,
-              qubits: Array.from(bits),
+              qubits: Array.from(bits).sort((a, b) => {
+                return parseInt(a.qubitName) - parseInt(b.qubitName);
+              }),
               range: timeRange,
               treeIndex: treeIndex,
             });
@@ -638,6 +668,10 @@ export class ComponentCircuit {
   }
 
   exportJson(): any {
-    return this._drawableCircuit.exportJson();
+    const data = this._drawableCircuit.exportJson();
+    data["originalQubitLength"] = this._originalQubits.length;
+    data["originalGateLength"] = this._originalGates.length;
+
+    return data;
   }
 }

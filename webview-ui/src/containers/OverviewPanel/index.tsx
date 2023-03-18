@@ -71,6 +71,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
             (canvas as HTMLCanvasElement).height
           );
           CircuitRender({ graph, ctx, gridWidth, gridHeight });
+          console.log("graph", graph);
           CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
         }
       }
@@ -92,6 +93,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
       switch (message.command) {
         case "component.setCircuit":
           setCircuit(message.data);
+          console.log("overview", message.data);
           break;
         case "abstraction.setCanvasSize":
           setCanvasWidth(message.data.width);
