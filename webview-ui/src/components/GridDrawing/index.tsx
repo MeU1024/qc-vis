@@ -40,25 +40,26 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
       break;
     case "single_gate":
+      let maxWidth = width < 160 / 3 ? (width / 4) * 3 : 40;
       ctx.beginPath();
       //lines
       ctx.strokeStyle = WIRE_STROKE;
       ctx.moveTo(xCoord, yCoord + height / 2);
-      ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
+      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height / 2);
 
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(xCoord + (width / 8) * 7, yCoord + height / 2);
+      ctx.moveTo(xCoord + width - (width - maxWidth) / 2, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
 
       ctx.stroke();
       //square
       ctx.strokeStyle = SINGLE_GATE_STROKE;
       ctx.strokeRect(
-        xCoord + width / 8,
-        yCoord + height / 8,
-        (width / 4) * 3,
-        (height / 4) * 3
+        xCoord + (width - maxWidth) / 2,
+        yCoord + (width - maxWidth) / 2,
+        maxWidth,
+        maxWidth
       );
       break;
     case "single_gate_middle":
@@ -430,7 +431,7 @@ const GridDrawing = (props: GridDrawingProps) => {
 
       ctx.stroke();
       //square
-
+      ctx.strokeStyle = CUSTOM_GATE_STROKE;
       ctx.strokeRect(
         xCoord + width / 4,
         yCoord + height / 8,

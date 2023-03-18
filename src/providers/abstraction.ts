@@ -17,6 +17,7 @@ import {
 import * as qv from "../quantivine";
 import { QCViewerManagerService } from "../components/viewerlib/qcviewermanager";
 import { ComponentCircuit } from "./component";
+import { getExtensionUri } from "../quantivine";
 
 const logger = getLogger("DataProvider", "Abstraction");
 
@@ -118,7 +119,11 @@ class AbstractedCircuit {
 
   private _importSemanticsFromFile(dataFile: vscode.Uri): Semantics[] {
     logger.log("Load semantics data from: " + dataFile.fsPath);
-    let data = require(dataFile.fsPath);
+    let dataSource = vscode.Uri.joinPath(
+      getExtensionUri(),
+      "/resources/data/qugan-json-data.json"
+    ).fsPath;
+    let data = require(dataSource);
     let semantics = data.semantics.map((sem: any) => {
       let semType = sem.type;
       let semRange = sem.range;

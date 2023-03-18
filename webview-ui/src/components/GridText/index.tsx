@@ -26,7 +26,7 @@ const GridText = (props: GridTextProps) => {
     y.reduce((sum, value) => {
       return sum + value;
     }, 0) / y.length;
-  ctx.font = (width * 0.4 < 28 ? width * 0.4 : 28).toString() + "px serif";
+  ctx.font = (width * 0.4 < 20 ? width * 0.4 : 20).toString() + "px serif";
   ctx.fillStyle = fillStyle.length == 0 ? FILL_STYLE : fillStyle;
   if (content[0] == "_") {
     ctx.fillStyle = CUSTOM_GATE_STROKE;
