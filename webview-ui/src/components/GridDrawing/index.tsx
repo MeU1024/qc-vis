@@ -199,7 +199,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.arc(
         xCoord + width / 2,
         yCoord + height / 2,
-        width / 15,
+        width / 15 < 5 ? width / 15 : 5,
         0,
         2 * Math.PI
       );
@@ -209,6 +209,28 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 2, yCoord + height / 2);
       ctx.lineTo(xCoord + width / 2, yCoord + height);
+      ctx.stroke();
+      break;
+    case "custom_ctrl_up":
+      ctx.strokeStyle = WIRE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord, yCoord + height / 2);
+      ctx.lineTo(xCoord + width, yCoord + height / 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = CUSTOM_GATE_STROKE;
+      ctx.arc(
+        xCoord + width / 2,
+        yCoord + height / 2,
+        width / 15 < 4 ? width / 15 : 4,
+        0,
+        2 * Math.PI
+      );
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord + height / 2);
+      ctx.lineTo(xCoord + width / 2, yCoord + (height / 8) * 9);
       ctx.stroke();
       break;
     case "ctrl_down":

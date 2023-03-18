@@ -134,13 +134,25 @@ const Circuit2GridData = (circuitData: {
               graph[xRange[0]][start] = opDict["single_gate_up"];
               graph[xRange[0]][yRange[yRange.length - 1]] =
                 opDict["single_gate_bottom"];
+              if (op[1] == "C") {
+                graph[xRange[0]][start] = opDict["custom_ctrl_up"];
+                graph[xRange[0]][start + 1] = opDict["single_gate_up"];
+              }
               break;
           }
-          graphText.push({
-            x: xRange,
-            y: yRange,
-            content: op,
-          });
+          if (op[1] == "C") {
+            graphText.push({
+              x: xRange,
+              y: yRange.slice(1),
+              content: op,
+            });
+          } else {
+            graphText.push({
+              x: xRange,
+              y: yRange,
+              content: op,
+            });
+          }
         }
         break;
     }

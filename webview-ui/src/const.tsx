@@ -30,6 +30,7 @@ export const opDict = {
   swap_middle: 25,
   swap_up: 26,
   swap_down: 27,
+  custom_ctrl_up: 28,
 };
 
 // export const
