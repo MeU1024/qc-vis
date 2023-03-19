@@ -1,25 +1,26 @@
-import * as vscode from "vscode";
+import * as vscode from 'vscode';
 
-import { getLogger } from "../components/logger";
+import {getLogger} from '../components/logger';
 import {
   Abstraction,
   AbstractionRule,
+  AbstractionType,
   Semantics,
-} from "./abstractionlib/abstractionrule";
+} from './abstractionlib/abstractionrule';
 import {
   ComponentGate,
   DrawableCircuit,
   Layer,
   Qubit,
   SuperQubit,
-} from "./structurelib/qcmodel";
+} from './structurelib/qcmodel';
 
-import * as qv from "../quantivine";
-import { QCViewerManagerService } from "../components/viewerlib/qcviewermanager";
-import { ComponentCircuit } from "./component";
-import { getExtensionUri } from "../quantivine";
+import * as qv from '../quantivine';
+import {QCViewerManagerService} from '../components/viewerlib/qcviewermanager';
+import {ComponentCircuit} from './component';
+import {getExtensionUri} from '../quantivine';
 
-const logger = getLogger("DataProvider", "Abstraction");
+const logger = getLogger('DataProvider', 'Abstraction');
 
 export class AbstractionDataProvider {
   private _data: AbstractedCircuit | undefined;
@@ -58,12 +59,12 @@ export class AbstractionDataProvider {
     }
 
     let message1 = {
-      command: "abstraction.setTitle",
-      data: { title: "Abstraction View" },
+      command: 'abstraction.setTitle',
+      data: {title: 'Abstraction View'},
     };
 
     let message2 = {
-      command: "abstraction.setCircuit",
+      command: 'abstraction.setCircuit',
       data: this._data.exportJson(),
     };
 
@@ -112,16 +113,16 @@ class AbstractedCircuit {
   }
 
   private _importCircuitFromFile(dataFile: vscode.Uri): ComponentCircuit {
-    logger.log("Load component data from: " + dataFile.fsPath);
+    logger.log('Load component data from: ' + dataFile.fsPath);
     let data = require(dataFile.fsPath);
     return new ComponentCircuit(data.circuit);
   }
 
   private _importSemanticsFromFile(dataFile: vscode.Uri): Semantics[] {
-    logger.log("Load semantics data from: " + dataFile.fsPath);
+    logger.log('Load semantics data from: ' + dataFile.fsPath);
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      "/resources/data/qugan-json-data.json"
+      '/resources/data/qugan-json-data.json'
     ).fsPath;
     let data = require(dataSource);
     let semantics = data.semantics.map((sem: any) => {
@@ -211,7 +212,7 @@ class AbstractedCircuit {
           index === this._qubits.length - 1 ||
           !this._isIdleQubit[index - 1]
         ) {
-          newQubits.push(new SuperQubit("...", [qubit]));
+          newQubits.push(new SuperQubit('...', [qubit]));
         } else {
           let superQubit = newQubits[newQubits.length - 1] as SuperQubit;
           superQubit.qubits.push(qubit);
@@ -240,11 +241,80 @@ class AbstractedCircuit {
       }
       layerMap.set(layer, newLayers.length - 1);
     });
+    newLayers = this._markAbstraction(newQubits, newLayers, qubitMap, layerMap);
     const pushedNewLayers = this._checkOverlap(newLayers, qubitMap);
     this._drawableCircuit.loadFromLayers(pushedNewLayers, newQubits, qubitMap);
     // this._drawableCircuit.loadFromLayers(newLayers, newQubits, qubitMap);
 
     this._cached = false;
+  }
+
+  private _markAbstraction(
+    newQubits: Qubit[],
+    newLayers: Layer[],
+    qubitMap: Map<Qubit, number>,
+    layerMap: Map<Layer, number>
+  ): Layer[] {
+    let n = qubitMap.size;
+    let m = layerMap.size;
+    let ret = newLayers;
+
+    const checkInAbstraction = (
+      i: number,
+      j: number,
+      absType: AbstractionType
+    ): boolean => {
+      let ret = false;
+      this._abstractions
+        .filter((abstraction) => abstraction.type === absType)
+        .forEach((abstraction) => {
+          let start = abstraction.start[0];
+          let end = abstraction.end[0];
+          let startQubitIndex = qubitMap.get(start.qubits[0])!;
+          let startLayerIndex = layerMap.get(
+            this._componentCircuit.layers[
+              this._componentCircuit.getGateLayer(start)!
+            ]
+          )!;
+          let endQubitIndex = qubitMap.get(end.qubits[0])!;
+          let endLayerIndex = layerMap.get(
+            this._componentCircuit.layers[
+              this._componentCircuit.getGateLayer(end)!
+            ]
+          )!;
+
+          ret ||=
+            i >= startQubitIndex &&
+            i <= endQubitIndex &&
+            j >= startLayerIndex &&
+            j <= endLayerIndex;
+        });
+      return ret;
+    };
+
+    for (let i = 0; i < n; ++i) {
+      for (let j = 0; j < m; ++j) {
+        if (!this._isIdleQubit[i] && !this._isIdleLayer[j]) {
+          continue;
+        }
+        if (this._isIdleQubit[i] && this._isIdleLayer[j]) {
+          if (checkInAbstraction(i, j, 'diagonal')) {
+            ret[j].gates.push(new ComponentGate('...', [newQubits[i]], [], 0));
+          }
+        }
+        if (this._isIdleQubit[i]) {
+          if (checkInAbstraction(i, j, 'vertical')) {
+            ret[j].gates.push(new ComponentGate('...', [newQubits[i]], [], 0));
+          }
+        } else {
+          if (checkInAbstraction(i, j, 'horizontal')) {
+            ret[j].gates.push(new ComponentGate('...', [newQubits[i]], [], 0));
+          }
+        }
+      }
+    }
+
+    return ret;
   }
 
   private _isVisibleGate(gate: ComponentGate): boolean {
