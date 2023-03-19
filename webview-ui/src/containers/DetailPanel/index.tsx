@@ -76,7 +76,7 @@ const DetailPanel = (props: DetailPanelProps) => {
       switch (message.command) {
         case "abstraction.setCircuit":
           setCircuit(message.data);
-
+          console.log("abs", message.data);
           break;
         case "abstraction.setCanvasSize":
           setCanvasWidth(message.data.width);
@@ -100,7 +100,7 @@ const DetailPanel = (props: DetailPanelProps) => {
         className="circuit"
         style={{
           gridTemplateColumns:
-            ((gridHeight < 50 ? gridHeight : 50) * 0.6).toString() + "px auto",
+            ((gridHeight < 50 ? gridHeight : 50) * 2.25).toString() + "px auto",
         }}
       >
         <BitsName

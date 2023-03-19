@@ -1,6 +1,7 @@
 export const STROKE_STYLE = "#a4a4a4";
 export const FILL_STYLE = "#a4a4a4";
 export const LINE_WIDTH = 1;
+export const BOLD_LINE_WIDTH = 1.5;
 export const opDict = {
   horizon_line: 0,
   single_gate: 1,
@@ -31,6 +32,7 @@ export const opDict = {
   swap_up: 26,
   swap_down: 27,
   custom_ctrl_up: 28,
+  vertical_line_empty_bg: 29,
 };
 
 // export const
@@ -38,7 +40,7 @@ export const opList = Object.keys(opDict);
 export const WIRE_STROKE = "#6FD7F3";
 export const SINGLE_GATE_STROKE = "#4886E4";
 export const MULTI_GATE_STROKE = "#E44898";
-export const CUSTOM_GATE_STROKE = "#BDCCD4";
+export const CUSTOM_GATE_STROKE = "#9FA3A5";
 export const SELECTION_BG = "#CCCCCC";
 export const MATRIX_BG = "#6FD7F3";
 export const MATRIX_STROKE = "#EBF1F4";

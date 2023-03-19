@@ -1,5 +1,6 @@
 // import { ThemeColor } from "vscode";
 import {
+  BOLD_LINE_WIDTH,
   CUSTOM_GATE_STROKE,
   FILL_STYLE,
   LINE_WIDTH,
@@ -29,7 +30,7 @@ const GridDrawing = (props: GridDrawingProps) => {
 
   // ctx.strokeStyle = strokeStyle;
   ctx.fillStyle = fillStyle.length == 0 ? FILL_STYLE : fillStyle;
-  ctx.lineWidth = LINE_WIDTH;
+  ctx.lineWidth = width < 50 ? LINE_WIDTH : BOLD_LINE_WIDTH;
   let maxWidth = width < 160 / 3 ? (width / 4) * 3 : 40;
   switch (opList[op]) {
     case "horizon_line":
@@ -77,6 +78,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
       // square
       ctx.strokeStyle = CUSTOM_GATE_STROKE;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(xCoord + (width - maxWidth) / 2, yCoord);
       ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height);
@@ -104,6 +106,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
       // square
       ctx.strokeStyle = CUSTOM_GATE_STROKE;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(xCoord + (width - maxWidth) / 2, yCoord + height);
       ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height / 8);
@@ -129,6 +132,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
       // square
       ctx.strokeStyle = CUSTOM_GATE_STROKE;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(xCoord + (width - maxWidth) / 2, yCoord);
       ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + (width / 8) * 7);
@@ -218,6 +222,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       break;
     case "custom_ctrl_up":
       ctx.strokeStyle = WIRE_STROKE;
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
@@ -273,6 +278,14 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
       ctx.stroke();
+      break;
+    case "vertical_line_empty_bg":
+      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord);
+      ctx.lineTo(xCoord + width / 2, yCoord + height);
+      ctx.stroke();
+
       break;
     case "cx_up":
       //gate
@@ -449,22 +462,24 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.beginPath();
       //lines
       ctx.strokeStyle = WIRE_STROKE;
+
       ctx.moveTo(xCoord, yCoord + height / 2);
-      ctx.lineTo(xCoord + width / 4, yCoord + height / 2);
+      ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
 
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(xCoord + (width / 4) * 3, yCoord + height / 2);
+      ctx.moveTo(xCoord + (width / 8) * 7, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
 
       ctx.stroke();
       //square
       ctx.strokeStyle = CUSTOM_GATE_STROKE;
+      ctx.lineWidth = 1.5;
       ctx.strokeRect(
-        xCoord + width / 4,
-        yCoord + height / 8,
-        width / 2,
-        (height / 4) * 3
+        xCoord + width / 8,
+        yCoord + height / 4,
+        (width / 4) * 3,
+        height / 2
       );
 
       break;

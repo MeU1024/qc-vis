@@ -10,61 +10,17 @@ export interface BitsNameProps {
 const BitsName = (props: BitsNameProps) => {
   const { qbitLengths, alignment, gridHeight } = props;
   const height = gridHeight.toString();
-  const width = gridHeight < 60 ? gridHeight : 60;
-  var fontSize = gridHeight / 2.5 <= 24 ? gridHeight / 2.5 : 24;
+  const width = gridHeight < 40 ? gridHeight : 40;
+  var fontSize = gridHeight / 2.5 <= 16 ? gridHeight / 2.5 : 16;
   return (
     <div
       className="bitsName"
-      style={{ width: (width * 0.6).toString() + "px" }}
+      style={{ width: (width * 2.25).toString() + "px" }}
     >
-      {/* {qbitLengths.map((item) => {
-        switch (item) {
-          case "···":
-            return (
-              <div className="qbitTitle">
-                <span
-                  className="title-q"
-                  style={{
-                    height: height + "px",
-                    lineHeight: height + "px",
-                    fontSize: fontSize.toString() + "px",
-                  }}
-                >
-                  ···
-                </span>
-              </div>
-            );
-          case "":
-            return <div className="qbitTitle"></div>;
-          default:
-            return (
-              <div className="qbitTitle" style={{ height: height + "px" }}>
-                <span
-                  className="title-q"
-                  style={{
-                    height: height + "px",
-                    lineHeight: height + "px",
-                    fontSize: fontSize.toString() + "px",
-                  }}
-                >
-                  q
-                </span>
-                <span
-                  className="title-num"
-                  style={{
-                    verticalAlign: alignment,
-                    fontSize: (fontSize / 2).toString() + "px",
-                  }}
-                >
-                  {item}
-                </span>
-              </div>
-            );
-        }
-      })} */}
       {qbitLengths.map((item) => {
         switch (item) {
           case "···":
+            // case "...":
             return (
               <div className="qbitTitle" style={{ height: height + "px" }}>
                 <span
@@ -73,6 +29,7 @@ const BitsName = (props: BitsNameProps) => {
                     height: height + "px",
                     lineHeight: height + "px",
                     fontSize: fontSize.toString() + "px",
+                    textAlign: "center",
                   }}
                 >
                   ···
@@ -95,9 +52,10 @@ const BitsName = (props: BitsNameProps) => {
                     height: height + "px",
                     lineHeight: height + "px",
                     fontSize: fontSize.toString() + "px",
+                    textAlign: "center",
                   }}
                 >
-                  q
+                  {"Qubit " + (item == "..." ? "···" : item)}
                 </span>
                 <span
                   className="title-num"
@@ -106,7 +64,7 @@ const BitsName = (props: BitsNameProps) => {
                     fontSize: (fontSize / 2).toString() + "px",
                   }}
                 >
-                  {item}
+                  {/* {" " + item} */}
                 </span>
               </div>
             );
