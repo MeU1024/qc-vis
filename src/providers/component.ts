@@ -127,7 +127,7 @@ export class ComponentCircuit {
         getExtensionUri(),
         // "/resources/data/default-data-source.json"
         // "/resources/data/qugan-json-data.json"
-        "/resources/data/qugan-json-data.json"
+        "/resources/data/qugan-json-data-50.json"
       ).fsPath
     );
     // if (jsonData === undefined) {

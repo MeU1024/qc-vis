@@ -122,7 +122,7 @@ class AbstractedCircuit {
     logger.log('Load semantics data from: ' + dataFile.fsPath);
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      '/resources/data/qugan-json-data.json'
+      '/resources/data/qugan-json-data-50.json'
     ).fsPath;
     let data = require(dataSource);
     let semantics = data.semantics.map((sem: any) => {
@@ -255,9 +255,12 @@ class AbstractedCircuit {
     qubitMap: Map<Qubit, number>,
     layerMap: Map<Layer, number>
   ): Layer[] {
-    let n = qubitMap.size;
-    let m = layerMap.size;
+    let n = newQubits.length;
+    let m = newLayers.length;
     let ret = newLayers;
+
+    let isIdelNewQubit = newQubits.map((qubit) => qubit.qubitName === '...');
+    let isIdelNewLayer = newLayers.map((layer) => layer.gates.length === 0);
 
     const checkInAbstraction = (
       i: number,
@@ -294,19 +297,19 @@ class AbstractedCircuit {
 
     for (let i = 0; i < n; ++i) {
       for (let j = 0; j < m; ++j) {
-        if (!this._isIdleQubit[i] && !this._isIdleLayer[j]) {
+        if (!isIdelNewQubit[i] || !isIdelNewLayer[j]) {
           continue;
         }
-        if (this._isIdleQubit[i] && this._isIdleLayer[j]) {
+        if (isIdelNewQubit[i] && isIdelNewLayer[j]) {
           if (checkInAbstraction(i, j, 'diagonal')) {
             ret[j].gates.push(new ComponentGate('...', [newQubits[i]], [], 0));
           }
         }
-        if (this._isIdleQubit[i]) {
+        if (isIdelNewQubit[i]) {
           if (checkInAbstraction(i, j, 'vertical')) {
             ret[j].gates.push(new ComponentGate('...', [newQubits[i]], [], 0));
           }
-        } else {
+        } else if (isIdelNewLayer[j]) {
           if (checkInAbstraction(i, j, 'horizontal')) {
             ret[j].gates.push(new ComponentGate('...', [newQubits[i]], [], 0));
           }
