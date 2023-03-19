@@ -30,7 +30,7 @@ const GridDrawing = (props: GridDrawingProps) => {
   // ctx.strokeStyle = strokeStyle;
   ctx.fillStyle = fillStyle.length == 0 ? FILL_STYLE : fillStyle;
   ctx.lineWidth = LINE_WIDTH;
-
+  let maxWidth = width < 160 / 3 ? (width / 4) * 3 : 40;
   switch (opList[op]) {
     case "horizon_line":
       ctx.strokeStyle = WIRE_STROKE;
@@ -40,7 +40,6 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
       break;
     case "single_gate":
-      let maxWidth = width < 160 / 3 ? (width / 4) * 3 : 40;
       ctx.beginPath();
       //lines
       ctx.strokeStyle = WIRE_STROKE;
@@ -63,75 +62,81 @@ const GridDrawing = (props: GridDrawingProps) => {
       );
       break;
     case "single_gate_middle":
+      maxWidth = width < 80 ? (width / 4) * 3 : 60;
       ctx.beginPath();
       //lines
       ctx.strokeStyle = WIRE_STROKE;
       ctx.moveTo(xCoord, yCoord + height / 2);
-      ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
+      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height / 2);
 
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(xCoord + (width / 8) * 7, yCoord + height / 2);
+      ctx.moveTo(xCoord + width - (width - maxWidth) / 2, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
 
       ctx.stroke();
       // square
       ctx.strokeStyle = CUSTOM_GATE_STROKE;
       ctx.beginPath();
-      ctx.moveTo(xCoord + width / 8, yCoord);
-      ctx.lineTo(xCoord + width / 8, yCoord + height);
+      ctx.moveTo(xCoord + (width - maxWidth) / 2, yCoord);
+      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height);
 
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(xCoord + (width / 8) * 7, yCoord);
-      ctx.lineTo(xCoord + (width / 8) * 7, yCoord + height);
+      ctx.moveTo(xCoord + width - (width - maxWidth) / 2, yCoord);
+      ctx.lineTo(xCoord + width - (width - maxWidth) / 2, yCoord + height);
 
       ctx.stroke();
       break;
     case "single_gate_up":
+      maxWidth = width < 80 ? (width / 4) * 3 : 60;
       ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
       //lines
       ctx.moveTo(xCoord, yCoord + height / 2);
-      ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
+      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height / 2);
 
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(xCoord + (width / 8) * 7, yCoord + height / 2);
+      ctx.moveTo(xCoord + width - (width - maxWidth) / 2, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
 
       ctx.stroke();
       // square
       ctx.strokeStyle = CUSTOM_GATE_STROKE;
       ctx.beginPath();
-      ctx.moveTo(xCoord + width / 8, yCoord + height);
-      ctx.lineTo(xCoord + width / 8, yCoord + height / 8);
-      ctx.lineTo(xCoord + (width / 8) * 7, yCoord + height / 8);
-      ctx.lineTo(xCoord + (width / 8) * 7, yCoord + height);
+      ctx.moveTo(xCoord + (width - maxWidth) / 2, yCoord + height);
+      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height / 8);
+      ctx.lineTo(xCoord + width - (width - maxWidth) / 2, yCoord + height / 8);
+      ctx.lineTo(xCoord + width - (width - maxWidth) / 2, yCoord + height);
 
       ctx.stroke();
 
       break;
     case "single_gate_bottom":
+      maxWidth = width < 80 ? (width / 4) * 3 : 60;
       ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
       //lines
       ctx.moveTo(xCoord, yCoord + height / 2);
-      ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
+      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height / 2);
 
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(xCoord + (width / 8) * 7, yCoord + height / 2);
+      ctx.moveTo(xCoord + width - (width - maxWidth) / 2, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
 
       ctx.stroke();
       // square
       ctx.strokeStyle = CUSTOM_GATE_STROKE;
       ctx.beginPath();
-      ctx.moveTo(xCoord + width / 8, yCoord);
-      ctx.lineTo(xCoord + width / 8, yCoord + (height / 8) * 7);
-      ctx.lineTo(xCoord + (width / 8) * 7, yCoord + (height / 8) * 7);
-      ctx.lineTo(xCoord + (width / 8) * 7, yCoord);
+      ctx.moveTo(xCoord + (width - maxWidth) / 2, yCoord);
+      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + (width / 8) * 7);
+      ctx.lineTo(
+        xCoord + width - (width - maxWidth) / 2,
+        yCoord + (width / 8) * 7
+      );
+      ctx.lineTo(xCoord + width - (width - maxWidth) / 2, yCoord);
       // ctx.closePath();
       ctx.stroke();
 
@@ -199,7 +204,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.arc(
         xCoord + width / 2,
         yCoord + height / 2,
-        width / 15 < 5 ? width / 15 : 5,
+        width / 15 < 4 ? width / 15 : 4,
         0,
         2 * Math.PI
       );
@@ -219,6 +224,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
 
       ctx.strokeStyle = CUSTOM_GATE_STROKE;
+      ctx.fillStyle = CUSTOM_GATE_STROKE;
       ctx.arc(
         xCoord + width / 2,
         yCoord + height / 2,
