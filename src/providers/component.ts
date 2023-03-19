@@ -461,6 +461,9 @@ export class ComponentCircuit {
       newEdges.push(mergableEdges);
     }
 
+    newEdges.sort((a: number[], b: number[]) => {
+      return a[0] - b[0];
+    });
     let superQubitMap = new Map<Qubit, number>();
     let qubitMap = new Map<Qubit, SuperQubit>();
 
