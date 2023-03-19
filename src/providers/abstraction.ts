@@ -267,6 +267,7 @@ class AbstractedCircuit {
       j: number,
       absType: AbstractionType
     ): boolean => {
+      // Check if the grid(i, j) is in abstraction
       let ret = false;
       this._abstractions
         .filter((abstraction) => abstraction.type === absType)
@@ -297,21 +298,29 @@ class AbstractedCircuit {
 
     for (let i = 0; i < n; ++i) {
       for (let j = 0; j < m; ++j) {
-        if (!isIdelNewQubit[i] || !isIdelNewLayer[j]) {
+        if (!isIdelNewQubit[i] && !isIdelNewLayer[j]) {
           continue;
         }
+        let curQubit = newQubits[i];
+        if (curQubit instanceof SuperQubit) {
+          curQubit = curQubit.qubits[0];
+        }
+
         if (isIdelNewQubit[i] && isIdelNewLayer[j]) {
-          if (checkInAbstraction(i, j, 'diagonal')) {
-            ret[j].gates.push(new ComponentGate('...', [newQubits[i]], [], 0));
+          const checkIn = checkInAbstraction(i, j, 'diagonal');
+          if (checkIn) {
+            ret[j].gates.push(new ComponentGate('...', [curQubit], [], 0));
           }
         }
         if (isIdelNewQubit[i]) {
-          if (checkInAbstraction(i, j, 'vertical')) {
-            ret[j].gates.push(new ComponentGate('...', [newQubits[i]], [], 0));
+          const checkIn = checkInAbstraction(i, j, 'vertical');
+          if (checkIn) {
+            ret[j].gates.push(new ComponentGate('...', [curQubit], [], 0));
           }
         } else if (isIdelNewLayer[j]) {
-          if (checkInAbstraction(i, j, 'horizontal')) {
-            ret[j].gates.push(new ComponentGate('...', [newQubits[i]], [], 0));
+          const checkIn = checkInAbstraction(i, j, 'horizontal');
+          if (checkIn) {
+            ret[j].gates.push(new ComponentGate('...', [curQubit], [], 0));
           }
         }
       }
