@@ -32,37 +32,37 @@
     {
       "type": "vertical",
       "range": [1, 4, 1],
-      "treeIndex": 9
+      "treeIndex": 4
     },
     {
       "type": "diagonal",
       "range": [5, 8, 1],
-      "treeIndex": 10
+      "treeIndex": 6
     },
     {
       "type": "diagonal",
       "range": [9, 12, 1],
-      "treeIndex": 11
+      "treeIndex": 9
     },
     {
       "type": "vertical",
       "range": [11, 14, 1],
-      "treeIndex": 12
-    },
-    {
-      "type": "diagonal",
-      "range": [15, 18, 1],
       "treeIndex": 13
     },
     {
       "type": "diagonal",
+      "range": [15, 18, 1],
+      "treeIndex": 15
+    },
+    {
+      "type": "diagonal",
       "range": [19, 22, 1],
-      "treeIndex": 14
+      "treeIndex": 18
     },
     {
       "type": "horizontal",
       "range": [21, 24, 1],
-      "treeIndex": 8
+      "treeIndex": 21
     }
   ]
 }
