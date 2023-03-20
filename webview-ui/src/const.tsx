@@ -52,6 +52,8 @@ export const IDLE_FILL = "#BDCCD4";
 export const IDLE_STROKE = "#D4D4D4";
 export const GATE_FILL_OPACITY = "80%";
 export const opTypeDict: { [key: string]: string } = {
+  x: "single",
+
   rx: "single",
   ry: "single",
   rz: "single",
@@ -62,6 +64,8 @@ export const opTypeDict: { [key: string]: string } = {
   cy: "multi",
   cz: "multi",
   cry: "multi",
+  ccx: "triple",
+
   ryy: "double",
   csw: "triple",
 };

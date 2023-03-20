@@ -32,6 +32,7 @@ export interface svgCircuitRenderProps {
   offsetY: number;
   layerRangeStart: number;
   layerPosition: number[];
+  wiresData: number[];
 }
 
 const colorScale = d3
@@ -52,9 +53,10 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     offsetY,
     layerRangeStart,
     layerPosition,
+    wiresData,
   } = props;
 
-  const wiresData = [0, 0.2, 0.6, 1, 0.4, 0, 0];
+  // const wiresData = [0, 0.2, 0.6, 1, 0.4, 0, 0];
 
   var svg = d3.select(props.id);
   svg.selectAll("*").remove();
@@ -147,6 +149,9 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     if (op[0] == "_") {
       gateType = "customized";
       gateName = gateName.slice(1);
+    } else if (op == "ccx") {
+      gateName = "cx";
+      gateType = opTypeDict[op];
     } else {
       gateType = opTypeDict[op];
     }
@@ -155,11 +160,12 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     if (
       gateType === "single" ||
       gateType === "customized" ||
-      (gateType === "multi" && op !== "cz" && op !== "cp")
+      (gateType === "multi" && op !== "cz" && op !== "cp") ||
+      op == "ccx"
     ) {
       shape = d3.select(gates.nodes()[index]).append("rect");
       shape
-        .attr("x", x * gridSize + (gridSize / 16) * 3)
+        .attr("x", x * gridSize + (gridSize / 16) * 3 + offsetX)
         .attr("y", y * gridSize + (gridSize / 16) * 3 + offsetY)
         .attr("width", (gridSize / 8) * 5)
         .attr("height", (gridSize / 8) * 5)
@@ -171,7 +177,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       shape = d3.select(gates.nodes()[index]).append("text");
       shape
         .style("font-size", (gridSize / 3).toString() + "px")
-        .attr("x", x * gridSize + gridSize / 2)
+        .attr("x", x * gridSize + gridSize / 2 + offsetX)
         .attr("y", y * gridSize + gridSize / 2 + gridSize / 3 / 4 + offsetY)
         .text(gateName)
         .attr("text-anchor", "middle")
@@ -183,9 +189,9 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       case "cy":
         shape = d3.select(gates.nodes()[index]).append("line");
         shape
-          .attr("x1", x * gridSize + gridSize / 2)
+          .attr("x1", x * gridSize + gridSize / 2 + offsetX)
           .attr("y1", control_y * gridSize + gridSize / 2 + offsetY)
-          .attr("x2", x * gridSize + gridSize / 2)
+          .attr("x2", x * gridSize + gridSize / 2 + offsetX)
           .attr(
             "y2",
             y * gridSize + gridSize / 2 - (gridSize / 16) * 5 * diff + offsetY
@@ -194,7 +200,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
 
         shape = d3.select(gates.nodes()[index]).append("circle");
         shape
-          .attr("cx", x * gridSize + gridSize / 2)
+          .attr("cx", x * gridSize + gridSize / 2 + offsetX)
           .attr("cy", control_y * gridSize + gridSize / 2 + offsetY)
           .attr("r", gridSize / 20)
           .attr("fill", colorDict[gateType]);
@@ -203,26 +209,51 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       case "cp":
         shape = d3.select(gates.nodes()[index]).append("line");
         shape
-          .attr("x1", x * gridSize + gridSize / 2)
+          .attr("x1", x * gridSize + gridSize / 2 + offsetX)
           .attr("y1", control_y * gridSize + gridSize / 2 + offsetY)
-          .attr("x2", x * gridSize + gridSize / 2)
+          .attr("x2", x * gridSize + gridSize / 2 + offsetX)
           .attr("y2", y * gridSize + gridSize / 2 + offsetY)
           .attr("stroke", colorDict[gateType]);
 
         shape = d3.select(gates.nodes()[index]).append("circle");
         shape
-          .attr("cx", x * gridSize + gridSize / 2)
+          .attr("cx", x * gridSize + gridSize / 2 + offsetX)
           .attr("cy", control_y * gridSize + gridSize / 2 + offsetY)
           .attr("r", gridSize / 20)
           .attr("fill", colorDict[gateType]);
 
         shape = d3.select(gates.nodes()[index]).append("circle");
         shape
-          .attr("cx", x * gridSize + gridSize / 2)
+          .attr("cx", x * gridSize + gridSize / 2 + offsetX)
           .attr("cy", y * gridSize + gridSize / 2 + offsetY)
           .attr("r", gridSize / 20)
           .attr("fill", colorDict[gateType]);
         break;
+      case "ccx":
+        shape = d3.select(gates.nodes()[index]).append("line");
+        shape
+          .attr("x1", x * gridSize + gridSize / 2 + offsetX)
+          .attr("y1", control_y * gridSize + gridSize / 2 + offsetY)
+          .attr("x2", x * gridSize + gridSize / 2 + offsetX)
+          .attr(
+            "y2",
+            y * gridSize + gridSize / 2 - (gridSize / 16) * 5 * diff + offsetY
+          )
+          .attr("stroke", colorDict[gateType]);
+
+        shape = d3.select(gates.nodes()[index]).append("circle");
+        shape
+          .attr("cx", x * gridSize + gridSize / 2 + offsetX)
+          .attr("cy", qubits[0] * gridSize + gridSize / 2 + offsetY)
+          .attr("r", gridSize / 20)
+          .attr("fill", colorDict[gateType]);
+
+        shape = d3.select(gates.nodes()[index]).append("circle");
+        shape
+          .attr("cx", x * gridSize + gridSize / 2 + offsetX)
+          .attr("cy", qubits[1] * gridSize + gridSize / 2 + offsetY)
+          .attr("r", gridSize / 20)
+          .attr("fill", colorDict[gateType]);
       default:
         break;
     }

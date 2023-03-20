@@ -456,6 +456,57 @@ class ContextualCircuit {
 
     return layers;
   }
+  private _originalLayers2Json() {
+    const outputSize = [
+      this._originalQubits.length,
+      this._originalLayers.length,
+    ];
+
+    const qubits = this._originalQubits.map((qubit) => {
+      return qubit.qubitName;
+    });
+
+    // build opMap
+    const opMap = new Map<string, number>();
+    opMap.set("...", 0);
+    let opCount = 1;
+    this._originalLayers.forEach((layer) => {
+      layer.forEach((gate) => {
+        let opName = gate.gateName;
+        if (!opMap.has(opName)) {
+          opMap.set(opName, opCount++);
+        }
+      });
+    });
+    let ret: any = {};
+    opMap.forEach((value, key) => {
+      ret[key] = value;
+    });
+
+    let allGates: any[] = [];
+    this._originalLayers.forEach((layer, layerIndex) => {
+      let layerInfo: any[] = [];
+      layer.forEach((gate) => {
+        let gateInfo: any[] = [];
+        const opNameIndex = opMap.get(gate.gateName);
+        const qubitsIndex = gate.qubits.map((qubit) =>
+          parseInt(qubit.qubitName)
+        );
+        gateInfo.push(opNameIndex);
+        gateInfo.push([layerIndex]);
+        gateInfo.push(qubitsIndex);
+        layerInfo.push(gateInfo);
+      });
+      allGates.push(...layerInfo);
+    });
+    return {
+      output_size: outputSize,
+      op_map: ret,
+      qubits: qubits,
+      all_gates: allGates,
+      gate_format: "",
+    };
+  }
   private _subCircuit2Json() {
     const outputSize = [7, 7];
 
@@ -527,6 +578,7 @@ class ContextualCircuit {
     });
 
     let subCircuit = this._subCircuit2Json();
+    let originalCircuit = this._originalLayers2Json();
     return {
       ...this._compnentCircuit.exportJson(),
       highlights: highlights,
@@ -535,6 +587,7 @@ class ContextualCircuit {
       layerParallelism: this._layerParallelism,
       subCircuit: subCircuit,
       idleQubit: this._idlePosition,
+      originalCircuit: originalCircuit,
       averageIdleValue: this._averageIdleValue,
       originalCircuitSize: [
         this._originalQubits.length,
