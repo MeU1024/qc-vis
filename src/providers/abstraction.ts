@@ -122,7 +122,9 @@ class AbstractedCircuit {
     logger.log("Load semantics data from: " + dataFile.fsPath);
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      "/resources/data/qugan-json-data-50.json"
+      // "/resources/data/qugan-json-data-50.json"
+      // "/resources/data/qugan-json-data-50.json"
+      "/resources/data/mul-json-data.json"
     ).fsPath;
     let data = require(dataSource);
     let semantics = data.semantics.map((sem: any) => {

@@ -10,15 +10,15 @@
 
   { "name": "_Multiplier", "parentIndex": 0, "index": 7, "type": "fun" },
   {
-    "name": "[[ccx]-Adder-[[ccx]]]",
+    "name": "[[ccx-Adder]-[ccx]]",
     "parentIndex": 7,
     "index": 8,
     "type": "rep"
   },
-  { "name": "[ccx]", "parentIndex": 8, "index": 9, "type": "rep" },
+  { "name": "[ccx-Adder]", "parentIndex": 8, "index": 9, "type": "rep" },
   { "name": "ccx", "parentIndex": 9, "index": 10, "type": "rep_item" },
 
-  { "name": "_Adder", "parentIndex": 8, "index": 11, "type": "fun" },
+  { "name": "_Adder", "parentIndex": 9, "index": 11, "type": "fun" },
   { "name": "[carry]", "parentIndex": 11, "index": 12, "type": "rep" },
   { "name": "_Carry", "parentIndex": 12, "index": 13, "type": "fun" },
   { "name": "ccx", "parentIndex": 13, "index": 14, "type": "rep_item" },

@@ -146,7 +146,7 @@ class ContextualCircuit {
   private _subGraphQubitRange: number[];
   private _subGraphLayerRange: number[];
   private _averageIdleValue: number[];
-  private _idleQubit: number[][];
+  private _idlePosition: number[][];
 
   constructor(_dataFile: vscode.Uri) {
     this._compnentCircuit = new ComponentCircuit(_dataFile);
@@ -161,7 +161,7 @@ class ContextualCircuit {
     this._subGraphLayerRange = [0, 6];
     this._subGraphQubitRange = [0, 6];
 
-    this._idleQubit = [];
+    this._idlePosition = [];
     this._focusQubitIndex = 0;
     this._focusLayerIndex = 0;
 
@@ -174,6 +174,7 @@ class ContextualCircuit {
     this._originalLayers = this._placement();
     this._updateParallelism();
     this._updateSubCircuit();
+    this._updateIdle();
   }
   setMatrixComponentIndex(index: number) {
     this._connectivityComponentIndex = index;
@@ -191,9 +192,9 @@ class ContextualCircuit {
   }
   setFocusLayer(focusLayer: number) {
     this._focusLayerIndex = focusLayer;
-    this._updateIdle();
+    // this._updateIdle();
     return {
-      idleQubit: this._idleQubit,
+      idleQubit: this._idlePosition,
       averageIdleValue: this._averageIdleValue,
     };
   }
@@ -218,7 +219,8 @@ class ContextualCircuit {
   }[] {
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      "/resources/data/qugan-structure.json"
+      // "/resources/data/qugan-structure.json"
+      "/resources/data/mul-structure.json"
     ).fsPath;
     let data = require(dataSource);
     let treeStructure = data.map((tree: any) => {
@@ -257,10 +259,12 @@ class ContextualCircuit {
     });
     this._layerParallelism = layerPara;
   }
+
+  //TODO:update averageIdleValue & _idleQubit
   private _updateIdle() {
     const qubitsNum = this._originalQubits.length;
     const layerNum = this._originalLayers.length;
-    const idleQubit: number[][] = [];
+    const idlePosition: number[][] = [];
     for (let qubitIndex = 0; qubitIndex < qubitsNum; qubitIndex++) {
       //next idle gates
       const idleLayers = [];
@@ -318,12 +322,11 @@ class ContextualCircuit {
       idleLayers.sort((a, b) => {
         return a - b;
       });
-      idleQubit.push(idleLayers);
+      idlePosition.push(idleLayers);
     }
 
     //calculate average value
-
-    this._averageIdleValue = idleQubit.map((idleLayers: number[]) => {
+    this._averageIdleValue = idlePosition.map((idleLayers: number[]) => {
       let averageValue = 1;
       if (idleLayers.length !== 0) {
         let sum = 0;
@@ -336,7 +339,7 @@ class ContextualCircuit {
       return averageValue;
     });
 
-    this._idleQubit = idleQubit;
+    this._idlePosition = idlePosition;
   }
 
   private _updateSubCircuit() {
@@ -531,7 +534,7 @@ class ContextualCircuit {
       focusQubitGates: focusQubitGates,
       layerParallelism: this._layerParallelism,
       subCircuit: subCircuit,
-      idleQubit: this._idleQubit,
+      idleQubit: this._idlePosition,
       averageIdleValue: this._averageIdleValue,
       originalCircuitSize: [
         this._originalQubits.length,

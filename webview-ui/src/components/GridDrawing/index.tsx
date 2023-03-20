@@ -197,6 +197,29 @@ const GridDrawing = (props: GridDrawingProps) => {
       break;
     case "dots":
       break;
+    case "ctrl_middle":
+      ctx.strokeStyle = WIRE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord, yCoord + height / 2);
+      ctx.lineTo(xCoord + width, yCoord + height / 2);
+      ctx.stroke();
+
+      ctx.fillStyle = MULTI_GATE_STROKE;
+      ctx.arc(
+        xCoord + width / 2,
+        yCoord + height / 2,
+        width / 15 < 4 ? width / 15 : 4,
+        0,
+        2 * Math.PI
+      );
+      ctx.fill();
+
+      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord);
+      ctx.lineTo(xCoord + width / 2, yCoord + height);
+      ctx.stroke();
+      break;
     case "ctrl_up":
       ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
@@ -504,8 +527,11 @@ const GridDrawing = (props: GridDrawingProps) => {
         (width / 4) * 3,
         (height / 4) * 3
       );
-      ctx.moveTo(xCoord + width / 2, yCoord);
-      ctx.lineTo(xCoord + width / 2, yCoord + height / 8);
+
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord + (height / 8) * 7);
+      ctx.lineTo(xCoord + width / 2, yCoord + height);
+      ctx.stroke();
       break;
     case "cy_down":
       ctx.strokeStyle = WIRE_STROKE;

@@ -54,6 +54,7 @@ const Circuit2GridData = (circuitData: {
     var target_bit = yRange[yRange.length - 1];
     switch (op) {
       case "h":
+      case "x":
       case "p":
       case "ry":
       case "rz":
@@ -131,6 +132,34 @@ const Circuit2GridData = (circuitData: {
         graph[xRange[0]][yRange[0]] = opDict["ctrl_up"];
         graph[xRange[0]][yRange[1]] = opDict["swap_middle"];
         graph[xRange[0]][yRange[2]] = opDict["swap_down"];
+        break;
+      case "ccx":
+        let ctrl_bit_small = yRange[0];
+        let ctrl_bit_big = yRange[1];
+        const target = yRange[2];
+        if (ctrl_bit_small > ctrl_bit_big) {
+          ctrl_bit_small = yRange[1];
+          ctrl_bit_big = yRange[0];
+        }
+        if (target < ctrl_bit_small && target < ctrl_bit_big) {
+          graph[xRange[0]][yRange[2]] = opDict["cy_up"];
+
+          for (let index = target + 1; index <= ctrl_bit_big; index++) {
+            graph[xRange[0]][index] = opDict["vertical_line"];
+          }
+          graph[xRange[0]][ctrl_bit_small] = opDict["ctrl_middle"];
+          graph[xRange[0]][ctrl_bit_big] = opDict["ctrl_down"];
+        } else {
+          graph[xRange[0]][yRange[2]] = opDict["cy_down"];
+          for (let index = ctrl_bit_small; index < target; index++) {
+            graph[xRange[0]][index] = opDict["vertical_line"];
+          }
+
+          graph[xRange[0]][ctrl_bit_small] = opDict["ctrl_up"];
+          graph[xRange[0]][ctrl_bit_big] = opDict["ctrl_middle"];
+        }
+
+        graphText.push({ x: xRange, y: [target], content: op });
         break;
       default:
         if (op[0] == "_") {
