@@ -52,8 +52,8 @@ export class ContextDataProvider {
   private async _postFocusData(
     data:
       | {
-          idleQubit: number[][];
-          averageIdleValue: number[];
+          idlePosition: number[][][];
+          averageIdleValue: number[][];
         }
       | undefined
   ) {
@@ -145,8 +145,8 @@ class ContextualCircuit {
   private _subGraph: ComponentGate[][];
   private _subGraphQubitRange: number[];
   private _subGraphLayerRange: number[];
-  private _averageIdleValue: number[];
-  private _idlePosition: number[][];
+  private _averageIdleValue: number[][];
+  private _idlePosition: number[][][];
 
   constructor(_dataFile: vscode.Uri) {
     this._compnentCircuit = new ComponentCircuit(_dataFile);
@@ -167,7 +167,7 @@ class ContextualCircuit {
 
     this._originalGates = this._compnentCircuit.getOriginalGates();
     this._originalQubits = this._compnentCircuit.getOriginalQubits();
-    this._averageIdleValue = this._originalQubits.map((i) => 0);
+    this._averageIdleValue = [];
     this._treeStructure = this._importStructureFromFile();
     this._updateConnectivity();
     this._focusQubitGates = this._updateQubit();
@@ -192,9 +192,9 @@ class ContextualCircuit {
   }
   setFocusLayer(focusLayer: number) {
     this._focusLayerIndex = focusLayer;
-    // this._updateIdle();
+    this._updateIdle();
     return {
-      idleQubit: this._idlePosition,
+      idlePosition: this._idlePosition,
       averageIdleValue: this._averageIdleValue,
     };
   }
@@ -264,7 +264,7 @@ class ContextualCircuit {
   private _updateIdle() {
     const qubitsNum = this._originalQubits.length;
     const layerNum = this._originalLayers.length;
-    const idlePosition: number[][] = [];
+    const idlePosition: number[][][] = [];
     for (let qubitIndex = 0; qubitIndex < qubitsNum; qubitIndex++) {
       //next idle gates
       const idleLayers = [];
@@ -322,24 +322,42 @@ class ContextualCircuit {
       idleLayers.sort((a, b) => {
         return a - b;
       });
-      idlePosition.push(idleLayers);
+      // idlePosition.push(idleLayers);
     }
 
-    //calculate average value
-    this._averageIdleValue = idlePosition.map((idleLayers: number[]) => {
-      let averageValue = 1;
-      if (idleLayers.length !== 0) {
-        let sum = 0;
-        idleLayers.forEach((layerIndex: number) => {
-          sum = sum + this._layerParallelism[layerIndex];
-        });
-        averageValue = sum / idleLayers.length;
+    // calculate average value
+    // this._averageIdleValue = idlePosition.map((idleLayers: number[]) => {
+    //   let averageValue = 1;
+    //   if (idleLayers.length !== 0) {
+    //     let sum = 0;
+    //     idleLayers.forEach((layerIndex: number) => {
+    //       sum = sum + this._layerParallelism[layerIndex];
+    //     });
+    //     averageValue = sum / idleLayers.length;
+    //   }
+
+    //   return averageValue;
+    // });
+
+    for (let index = 0; index < 28; index++) {
+      if (index === 0) {
+        this._averageIdleValue.push([0, 1, 0.5, 0.2, 0.4, 0.2, 0.1, 1, 1, 1]);
+        const qubitPos = [];
+        for (let index = 0; index < 10; index++) {
+          qubitPos.push([index]);
+        }
+        this._idlePosition.push(qubitPos);
+      } else {
       }
+      this._averageIdleValue.push([1, 1, 1, 1, 1, 0.2, 0.1, 1, 1, 1]);
+      const qubitPos = [];
+      for (let index = 0; index < 10; index++) {
+        qubitPos.push([index + 1]);
+      }
+      this._idlePosition.push(qubitPos);
+    }
 
-      return averageValue;
-    });
-
-    this._idlePosition = idlePosition;
+    // this._idlePosition = idlePosition;
   }
 
   private _updateSubCircuit() {
@@ -586,7 +604,7 @@ class ContextualCircuit {
       focusQubitGates: focusQubitGates,
       layerParallelism: this._layerParallelism,
       subCircuit: subCircuit,
-      idleQubit: this._idlePosition,
+      idlePosition: this._idlePosition,
       originalCircuit: originalCircuit,
       averageIdleValue: this._averageIdleValue,
       originalCircuitSize: [

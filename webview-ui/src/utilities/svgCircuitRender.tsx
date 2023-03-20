@@ -25,12 +25,13 @@ export interface svgCircuitRenderProps {
     gate_format: string;
     all_gates: ((number | number[])[] | (number | number[])[][])[];
   };
-  averageIdleValue: number[];
-  idleQubit: number[][];
+  averageIdleValue: number[][];
+  idlePosition: number[][][];
   focusIndex: number | undefined;
   offsetX: number;
   offsetY: number;
   layerRangeStart: number;
+  qubitRangeStart: number;
   layerPosition: number[];
   wiresData: number[];
 }
@@ -47,11 +48,12 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     height,
     gridSize,
     averageIdleValue,
-    idleQubit,
+    idlePosition,
     focusIndex,
     offsetX,
     offsetY,
     layerRangeStart,
+    qubitRangeStart,
     layerPosition,
     wiresData,
   } = props;
@@ -65,39 +67,44 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   var wiresLayer = svg.append("g");
   var gatesLayer = svg.append("g");
   var focusFrameLayer = svg.append("g");
+  if (focusIndex !== undefined) {
+    if (averageIdleValue.length !== 0) {
+      const slicedAverageIdleValue = averageIdleValue[
+        layerPosition[focusIndex]
+      ].slice(qubitRangeStart, qubitRangeStart + 7);
+      var rects = averageLayer
+        .selectAll("rect")
+        .data(slicedAverageIdleValue)
+        .enter();
 
-  if (averageIdleValue.length !== 0 && focusIndex !== undefined) {
-    const slicedAverageIdleValue = averageIdleValue.slice(0, 7);
-    var rects = averageLayer
-      .selectAll("rect")
-      .data(slicedAverageIdleValue)
-      .enter();
-
-    rects
-      .append("rect")
-      .attr("x", (d) => layerPosition[focusIndex] * gridSize + offsetX)
-      .attr("y", (d, i) => i * gridSize)
-      .attr("width", gridSize)
-      .attr("height", gridSize)
-      .attr("fill", IDLE_FILL)
-      .attr("fill-opacity", (d) => d / 1.2);
-  }
-  if (idleQubit.length !== 0 && focusIndex !== undefined) {
-    const idleBackground = averageLayer
-      .selectAll("g")
-      .data(idleQubit)
-      .enter()
-      .append("g");
-    idleBackground.each((d, index) => {
-      let bg = d3.select(idleBackground.nodes()[index]).append("rect");
-      bg.attr("x", d[0] * gridSize + offsetX)
-        .attr("y", index * gridSize)
-        .attr("width", gridSize * d.length)
+      rects
+        .append("rect")
+        .attr("x", (d) => layerPosition[focusIndex] * gridSize + offsetX)
+        .attr("y", (d, i) => i * gridSize)
+        .attr("width", gridSize)
         .attr("height", gridSize)
-        .attr("rx", gridSize / 20)
         .attr("fill", IDLE_FILL)
-        .attr("fill-opacity", 0.1);
-    });
+        .attr("fill-opacity", (d) => d / 1.2);
+    }
+    if (idlePosition[layerPosition[focusIndex]].length !== 0) {
+      console.log(idlePosition[layerPosition[focusIndex]]);
+      const slicedIdlePosition = idlePosition[layerPosition[focusIndex]];
+      const idleBackground = averageLayer
+        .selectAll("g")
+        .data(slicedIdlePosition)
+        .enter()
+        .append("g");
+      idleBackground.each((d, index) => {
+        let bg = d3.select(idleBackground.nodes()[index]).append("rect");
+        bg.attr("x", d[0] * gridSize + offsetX)
+          .attr("y", index * gridSize)
+          .attr("width", gridSize * d.length)
+          .attr("height", gridSize)
+          .attr("rx", gridSize / 20)
+          .attr("fill", IDLE_FILL)
+          .attr("fill-opacity", 0.1);
+      });
+    }
   }
 
   var gradient = svg

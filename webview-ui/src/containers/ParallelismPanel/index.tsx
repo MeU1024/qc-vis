@@ -65,9 +65,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       }
     | undefined
   >(generateCircuit());
-  const [idleQubit, setIdleQubit] = useState<number[][]>([[3], [], [2, 3, 4]]);
-  const [averageIdleValue, setAverageIdleValue] = useState<number[]>([
-    0, 1, 0.5, 0.2, 0.4, 0.2, 0.1, 1, 1, 1,
+  const [idlePosition, setIdlePosition] = useState<number[][][]>([
+    [[3], [], [2, 3, 4]],
+  ]);
+  const [averageIdleValue, setAverageIdleValue] = useState<number[][]>([
+    [0, 1, 0.5, 0.2, 0.4, 0.2, 0.1, 1, 1, 1],
   ]);
 
   const [graphSize, setGraphSize] = useState([10, 10]);
@@ -141,22 +143,21 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   useEffect(() => {
     if (subCircuit !== undefined) {
       // removeCircuitOverlap(circuit);
-
+      console.log("idlePosition", idlePosition);
+      console.log("averageIdleValue", averageIdleValue);
       svgCircuitRender({
         id: "#parallelismSVG",
         width: canvasWidth,
         height: canvasHeight,
         gridSize: 50,
         circuit: subCircuit,
-        averageIdleValue: averageIdleValue.slice(
-          qubitRangeStart,
-          qubitRangeStart + 7
-        ),
-        idleQubit: idleQubit.slice(qubitRangeStart, qubitRangeStart + 7),
+        averageIdleValue: averageIdleValue,
+        idlePosition: idlePosition,
         focusIndex: focusIndex,
         offsetX: -layerRangeStart * gridSize,
         offsetY: -qubitRangeStart * gridSize,
         layerRangeStart: layerRangeStart,
+        qubitRangeStart: qubitRangeStart,
         layerPosition: layerPosition,
         wiresData: paraBarData.slice(
           layerRangeStart,
@@ -170,24 +171,26 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     layerRangeStart,
     qubitRangeStart,
     paraBarData,
+    focusIndex,
   ]);
 
   useEffect(() => {
-    if (averageIdleValue.length !== 0) {
+    if (averageIdleValue.length !== 0 && focusIndex !== undefined) {
+      const layerIdleValue = averageIdleValue[layerPosition[focusIndex]];
       var svg = d3.select("#idleBar");
       svg.selectAll("*").remove();
       const elementHeight = idleBarheight - 10;
-      var rects = svg.selectAll("rect").data(averageIdleValue);
+      var rects = svg.selectAll("rect").data(layerIdleValue);
 
       rects
         .enter()
         .append("rect")
         .attr("x", idleBarwidth / 4) // Set the x-coordinate based on the data index
         .attr("y", function (d, i) {
-          return (i * elementHeight) / averageIdleValue.length + 5;
+          return (i * elementHeight) / layerIdleValue.length + 5;
         })
         .attr("width", idleBarwidth / 2)
-        .attr("height", elementHeight / averageIdleValue.length)
+        .attr("height", elementHeight / layerIdleValue.length)
         .attr("fill", IDLE_FILL)
         .attr("stroke", IDLE_FILL)
         .attr("stroke-width", "1px")
@@ -200,13 +203,13 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         .enter()
         .append("line")
         .attr("x1", 0)
-        .attr("y1", (d) => (d * elementHeight) / averageIdleValue.length + 5)
+        .attr("y1", (d) => (d * elementHeight) / layerIdleValue.length + 5)
         .attr("x2", idleBarwidth)
-        .attr("y2", (d) => (d * elementHeight) / averageIdleValue.length + 5)
+        .attr("y2", (d) => (d * elementHeight) / layerIdleValue.length + 5)
         .attr("stroke-width", "1px")
         .attr("stroke", "black");
     }
-  }, [averageIdleValue, qubitRangeStart]);
+  }, [averageIdleValue, qubitRangeStart, focusIndex, layerPosition]);
 
   useEffect(() => {
     var svg = d3.select("#parallelismBar");
@@ -271,7 +274,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           // setPanelTitle(message.data.title);
           break;
         case "context.setFocusData":
-          setIdleQubit(message.data.idleQubit);
+          setIdlePosition(message.data.idlePosition);
           setAverageIdleValue(message.data.averageIdleValue);
 
           break;
