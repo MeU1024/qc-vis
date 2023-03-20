@@ -1,0 +1,49 @@
+[
+  { "name": "Multiplier", "parentIndex": 0, "index": 0, "type": "fun" },
+  { "name": "_Init", "parentIndex": 0, "index": 1, "type": "fun" },
+  { "name": "[x]", "parentIndex": 1, "index": 2, "type": "rep" },
+  { "name": "x", "parentIndex": 2, "index": 3, "type": "rep_item" },
+
+  { "name": "_Init", "parentIndex": 0, "index": 4, "type": "fun" },
+  { "name": "[x]", "parentIndex": 4, "index": 5, "type": "rep" },
+  { "name": "x", "parentIndex": 5, "index": 6, "type": "rep_item" },
+
+  { "name": "_Multiplier", "parentIndex": 0, "index": 7, "type": "fun" },
+  {
+    "name": "[[ccx]-Adder-[[ccx]]]",
+    "parentIndex": 7,
+    "index": 8,
+    "type": "rep"
+  },
+  { "name": "[ccx]", "parentIndex": 8, "index": 9, "type": "rep" },
+  { "name": "ccx", "parentIndex": 9, "index": 10, "type": "rep_item" },
+
+  { "name": "_Adder", "parentIndex": 8, "index": 11, "type": "fun" },
+  { "name": "[carry]", "parentIndex": 11, "index": 12, "type": "rep" },
+  { "name": "_Carry", "parentIndex": 12, "index": 13, "type": "fun" },
+  { "name": "ccx", "parentIndex": 13, "index": 14, "type": "rep_item" },
+  { "name": "cx", "parentIndex": 13, "index": 15, "type": "rep_item" },
+  { "name": "ccx", "parentIndex": 13, "index": 16, "type": "rep_item" },
+
+  { "name": "_Carry Sum", "parentIndex": 11, "index": 17, "type": "fun" },
+  { "name": "cx", "parentIndex": 17, "index": 18, "type": "rep_item" },
+  { "name": "cx", "parentIndex": 17, "index": 19, "type": "rep_item" },
+
+  {
+    "name": "[uncarry-carrysum]",
+    "parentIndex": 11,
+    "index": 20,
+    "type": "rep"
+  },
+  { "name": "_Uncarry", "parentIndex": 20, "index": 21, "type": "fun" },
+  { "name": "ccx", "parentIndex": 21, "index": 22, "type": "rep_item" },
+  { "name": "cx", "parentIndex": 21, "index": 23, "type": "rep_item" },
+  { "name": "ccx", "parentIndex": 21, "index": 24, "type": "rep_item" },
+
+  { "name": "_Carry Sum", "parentIndex": 20, "index": 25, "type": "fun" },
+  { "name": "cx", "parentIndex": 25, "index": 26, "type": "rep_item" },
+  { "name": "cx", "parentIndex": 25, "index": 27, "type": "rep_item" },
+
+  { "name": "[ccx]", "parentIndex": 8, "index": 28, "type": "rep" },
+  { "name": "ccx", "parentIndex": 28, "index": 29, "type": "rep_item" }
+]

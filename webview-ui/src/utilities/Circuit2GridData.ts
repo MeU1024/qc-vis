@@ -107,9 +107,9 @@ const Circuit2GridData = (circuitData: {
           // graph[xRange[0]][index] = opDict["horizon_line"];
           // graph[xRange[0]][index] = opDict["empty"];
         }
-        const midRowIndex = Math.floor(rows / 2);
-        graph[xRange[0]][midRowIndex] = opDict["empty"];
-        graphText.push({ x: xRange, y: [midRowIndex], content: "···" });
+        // const midRowIndex = Math.floor(rows / 2);
+        graph[xRange[0]][yRange[0]] = opDict["empty"];
+        graphText.push({ x: xRange, y: yRange, content: "···" });
         break;
       case "ryy":
         graph[xRange[0]][yRange[0]] = opDict["ryy_gate_up"];
@@ -151,13 +151,13 @@ const Circuit2GridData = (circuitData: {
               graph[xRange[0]][start] = opDict["single_gate_up"];
               graph[xRange[0]][yRange[yRange.length - 1]] =
                 opDict["single_gate_bottom"];
-              if (op[1] == "C") {
+              if (op[1] == "c") {
                 graph[xRange[0]][start] = opDict["custom_ctrl_up"];
                 graph[xRange[0]][start + 1] = opDict["single_gate_up"];
               }
               break;
           }
-          if (op[1] == "C") {
+          if (op[1] == "c") {
             graphText.push({
               x: xRange,
               y: yRange.slice(1),

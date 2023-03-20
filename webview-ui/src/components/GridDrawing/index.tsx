@@ -222,7 +222,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       break;
     case "custom_ctrl_up":
       ctx.strokeStyle = WIRE_STROKE;
-      ctx.lineWidth = 1.5;
+
       ctx.beginPath();
       ctx.moveTo(xCoord, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);

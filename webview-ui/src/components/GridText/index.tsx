@@ -32,6 +32,9 @@ const GridText = (props: GridTextProps) => {
   if (content[0] == "_") {
     ctx.fillStyle = CUSTOM_GATE_STROKE;
     content = content.substring(1);
+    if (content[0] == "c") {
+      content = content.substring(1);
+    }
   } else if (
     content == "rz" ||
     content == "rx" ||
@@ -51,12 +54,27 @@ const GridText = (props: GridTextProps) => {
   } else if (content == "cry") {
     ctx.fillStyle = MULTI_GATE_STROKE;
     content = "ry";
+  } else if (content == "···" || content == "...") {
+    ctx.fillStyle = "black";
   }
   ctx.textBaseline = "middle";
-  const text = ctx.measureText(content);
-  const xCoord = xPos * width + width / 2 - text.width / 2;
-  const yCoord = yPos * height + height / 2;
-  ctx.fillText(content, xCoord, yCoord);
+
+  var lines = content.split(" ");
+  var lineheight = 25;
+
+  for (var i = 0; i < lines.length; i++) {
+    let text = ctx.measureText(lines[i]);
+    if (text.width > (width / 4) * 3) {
+      ctx.font =
+        ((width * 0.4 < 20 ? width * 0.4 : 20) * 0.8).toString() + "px serif ";
+      text = ctx.measureText(lines[i]);
+    }
+    const xCoord = xPos * width + width / 2 - text.width / 2;
+    const yCoord =
+      yPos * height + height / 2 - ((lines.length - 1) * lineheight) / 2;
+    ctx.fillText(lines[i], xCoord, yCoord + i * lineheight);
+  }
+
   return null;
 };
 

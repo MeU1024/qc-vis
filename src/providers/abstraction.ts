@@ -313,7 +313,7 @@ class AbstractedCircuit {
           continue;
         }
         let curQubit = newQubits[i];
-        if (curQubit instanceof SuperQubit) {
+        if (curQubit instanceof SuperQubit && curQubit.qubitName === "...") {
           curQubit = curQubit.qubits[0];
         }
 
@@ -331,10 +331,10 @@ class AbstractedCircuit {
         } else if (isIdelNewLayer[j]) {
           const checkIn = checkInAbstraction(i, j, "horizontal");
           if (checkIn) {
-            let curQubit = newQubits[Math.floor(newQubits.length / 2)];
-            if (curQubit instanceof SuperQubit) {
-              //curQubit = curQubit.qubits[0];
-            }
+            // let curQubit = newQubits[Math.floor(newQubits.length / 2)];
+            // if (curQubit instanceof SuperQubit) {
+            //   //curQubit = curQubit.qubits[0];
+            // }
 
             ret[j].gates.push(new ComponentGate("colDots", [curQubit], [], 0));
           }

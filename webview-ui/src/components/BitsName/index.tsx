@@ -15,7 +15,7 @@ const BitsName = (props: BitsNameProps) => {
   return (
     <div
       className="bitsName"
-      style={{ width: (width * 2.25).toString() + "px" }}
+      style={{ width: (width * 1.2).toString() + "px" }}
     >
       {qbitLengths.map((item) => {
         switch (item) {
@@ -55,7 +55,7 @@ const BitsName = (props: BitsNameProps) => {
                     textAlign: "center",
                   }}
                 >
-                  {"Qubit " + (item == "..." ? "···" : item)}
+                  {/* {"Qubit " + (item == "..." ? "···" : item)} */}q
                 </span>
                 <span
                   className="title-num"
@@ -64,7 +64,7 @@ const BitsName = (props: BitsNameProps) => {
                     fontSize: (fontSize / 2).toString() + "px",
                   }}
                 >
-                  {/* {" " + item} */}
+                  {" " + item}
                 </span>
               </div>
             );

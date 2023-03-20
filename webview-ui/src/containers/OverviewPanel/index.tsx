@@ -124,7 +124,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
         className="circuit"
         style={{
           gridTemplateColumns:
-            ((gridHeight < 50 ? gridHeight : 50) * 2.25).toString() + "px auto",
+            ((gridHeight < 50 ? gridHeight : 50) * 1.2).toString() + "px auto",
         }}
       >
         <BitsName
