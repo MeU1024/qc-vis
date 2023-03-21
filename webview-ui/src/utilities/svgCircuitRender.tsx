@@ -28,6 +28,7 @@ export interface svgCircuitRenderProps {
   averageIdleValue: number[][];
   idlePosition: number[][][];
   focusIndex: number | undefined;
+  focusLayer: number | undefined;
   offsetX: number;
   offsetY: number;
   layerRangeStart: number;
@@ -56,6 +57,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     qubitRangeStart,
     layerPosition,
     wiresData,
+    focusLayer,
   } = props;
 
   // const wiresData = [0, 0.2, 0.6, 1, 0.4, 0, 0];
@@ -67,11 +69,12 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   var wiresLayer = svg.append("g");
   var gatesLayer = svg.append("g");
   var focusFrameLayer = svg.append("g");
-  if (focusIndex !== undefined) {
+  if (focusLayer !== undefined && focusIndex !== undefined) {
     if (averageIdleValue.length !== 0) {
-      const slicedAverageIdleValue = averageIdleValue[
-        layerPosition[focusIndex]
-      ].slice(qubitRangeStart, qubitRangeStart + 7);
+      const slicedAverageIdleValue = averageIdleValue[focusLayer].slice(
+        qubitRangeStart,
+        qubitRangeStart + 7
+      );
       var rects = averageLayer
         .selectAll("rect")
         .data(slicedAverageIdleValue)
@@ -79,7 +82,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
 
       rects
         .append("rect")
-        .attr("x", (d) => layerPosition[focusIndex] * gridSize + offsetX)
+        .attr("x", (d) => focusLayer * gridSize + offsetX)
         .attr("y", (d, i) => i * gridSize)
         .attr("width", gridSize)
         .attr("height", gridSize)
@@ -88,7 +91,10 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     }
     if (idlePosition[layerPosition[focusIndex]].length !== 0) {
       console.log(idlePosition[layerPosition[focusIndex]]);
-      const slicedIdlePosition = idlePosition[layerPosition[focusIndex]];
+      const slicedIdlePosition = idlePosition[focusLayer].slice(
+        qubitRangeStart,
+        qubitRangeStart + 7
+      );
       const idleBackground = averageLayer
         .selectAll("g")
         .data(slicedIdlePosition)
@@ -267,11 +273,8 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   });
 
   //focusLayer frame
-  if (focusIndex !== undefined) {
-    var frame = focusFrameLayer
-      .selectAll("rect")
-      .data([layerPosition[focusIndex]])
-      .enter();
+  if (focusLayer !== undefined) {
+    var frame = focusFrameLayer.selectAll("rect").data([focusLayer]).enter();
 
     frame
       .append("rect")
