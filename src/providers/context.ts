@@ -339,25 +339,136 @@ class ContextualCircuit {
     //   return averageValue;
     // });
 
-    for (let index = 0; index < 28; index++) {
-      if (index === 0) {
-        this._averageIdleValue.push([0, 1, 0.5, 0.2, 0.4, 0.2, 0.1, 1, 1, 1]);
-        const qubitPos = [];
-        for (let index = 0; index < 10; index++) {
-          qubitPos.push([index]);
-        }
-        this._idlePosition.push(qubitPos);
-      } else {
+    let pre: number[][] = []; // pre[row][col] : at row, the last qubit position before col 
+    let suf: number[][] = []; 
+
+    for (let row = 0; row < qubitsNum; ++row) {
+      pre[row] = [];
+      suf[row] = [];
+      for (let col = 0; col < layerNum; ++col) {
+        pre[row][col] = -1;
+        suf[row][col] = layerNum + 1;
       }
-      this._averageIdleValue.push([1, 1, 1, 1, 1, 0.2, 0.1, 1, 1, 1]);
-      const qubitPos = [];
-      for (let index = 0; index < 10; index++) {
-        qubitPos.push([index + 1]);
-      }
-      this._idlePosition.push(qubitPos);
     }
 
-    // this._idlePosition = idlePosition;
+    // update pre
+    for(let col = 0; col < this._originalLayers.length; ++ col) { // 第一维是不是一定是定长的，指如果这一层没有qubit也会有这一位
+      if(col != 0) {
+        for(let row = 0; row < qubitsNum; ++ row) { 
+          pre[row][col] = Math.max(pre[row][col], pre[row][col - 1]);
+        }
+      } 
+      if(col === this._originalLayers.length - 1){
+      }
+      else {
+        let layerGate = this._originalLayers[col];
+        layerGate.forEach((gate: ComponentGate) => {
+            if(gate.qubits.length === 1) { // one
+              let row = parseInt(gate.qubits[0].qubitName);
+              pre[row][col + 1] = Math.max(pre[row][col + 1], col)
+            }else { // two // control gate
+              let mx = -1;
+              for(let idx = 0; idx < gate.qubits.length; ++idx) {
+                let row =  parseInt(gate.qubits[idx].qubitName);
+                pre[row][col + 1] = Math.max(pre[row][col + 1], col); 
+                mx = Math.max(mx, pre[row][col + 1]);
+              }
+              for(let idx = 0; idx < gate.qubits.length; ++idx) {
+                let row =  parseInt(gate.qubits[idx].qubitName);
+                pre[row][col + 1] = Math.max(pre[row][col + 1], mx); 
+              }
+            }
+        });
+      }
+    }
+
+    // update suf
+    for(let col = this._originalLayers.length - 1; col >= 0; -- col) { 
+      if(col != this._originalLayers.length -1) {
+        for(let row = 0; row < qubitsNum; ++ row) { 
+          suf[row][col] = Math.min(suf[row][col], suf[row][col + 1]);
+        }
+      } 
+      if(col === 0){ 
+      }
+      else {
+        let layerGate = this._originalLayers[col];
+        layerGate.forEach((gate: ComponentGate) => {
+            if(gate.qubits.length === 1) {
+              let row = parseInt(gate.qubits[0].qubitName);
+              suf[row][col - 1] = Math.min(suf[row][col - 1], col)
+            }else { 
+              let mn = layerNum + 1;
+              for(let idx = 0; idx < gate.qubits.length; ++idx) {
+                let row =  parseInt(gate.qubits[idx].qubitName);
+                suf[row][col - 1] = Math.min(suf[row][col - 1], col); 
+                mn = Math.min(mn, suf[row][col - 1]);
+              }
+              for(let idx = 0; idx < gate.qubits.length; ++idx) {
+                let row =  parseInt(gate.qubits[idx].qubitName);
+                suf[row][col - 1] = Math.min(suf[row][col - 1], mn); 
+              }
+            }
+        });
+      }
+    }
+
+    // averageIdleValue
+    let averageIdleValue: number[][] = [];
+    for (let col = 0; col < layerNum; ++col) {
+      averageIdleValue[col] = [];
+      for (let row = 0; row < qubitsNum; ++row) { 
+        averageIdleValue[col][row] = 0;
+      }
+    }
+
+    for(let row = 0; row < qubitsNum ; ++ row) {
+      for(let col = 0; col < layerNum; ++ col) {
+        let sum = 0.0;
+        for(let colidx = pre[row][col] + 1; colidx < suf[row][col]; ++ colidx) {
+           sum += this._layerParallelism[colidx];
+        }
+        averageIdleValue[col][row] = sum / (suf[row][col] - pre[row][col] - 1); // double？
+      }
+    }
+
+    this._averageIdleValue = averageIdleValue;
+
+    // idlePosition 
+    for (let col = 0; col < layerNum; ++col) {
+      idlePosition[col] = [];
+      for (let row = 0; row < qubitsNum; ++row) {
+        idlePosition[col][row] = [];
+      }
+    }
+    for(let row = 0; row < qubitsNum ; ++ row) {
+      for(let col = 0; col < layerNum; ++ col) {
+        for(let colidx = pre[row][col] + 1; colidx < suf[row][col]; ++ colidx) {
+          idlePosition[col][row].push(colidx);
+        } 
+      }
+    }
+
+    // for (let index = 0; index < 28; index++) {
+    //   if (index === 0) {
+    //     this._averageIdleValue.push([0, 1, 0.5, 0.2, 0.4, 0.2, 0.1, 1, 1, 1]);
+    //     const qubitPos = [];
+    //     for (let index = 0; index < 10; index++) {
+    //       // qubitPos.push([index]);
+          
+    //     }
+    //     this._idlePosition.push(qubitPos);
+    //   } else {
+    //   }
+    //   this._averageIdleValue.push([1, 1, 1, 1, 1, 0.2, 0.1, 1, 1, 1]);
+    //   const qubitPos = [];
+    //   for (let index = 0; index < 10; index++) {
+    //     qubitPos.push([index + 1]);
+    //   }
+    //   this._idlePosition.push(qubitPos);
+    // }
+
+    this._idlePosition = idlePosition;
   }
 
   private _updateSubCircuit() {
