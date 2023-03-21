@@ -1,22 +1,22 @@
 [
   { "name": "Qugan", "parentIndex": 0, "index": 0, "type": "fun" },
-  { "name": "h", "parentIndex": 0, "index": 1, "type": "rep_item" },
 
-  { "name": "_Discriminator", "parentIndex": 0, "index": 2, "type": "fun" },
+  { "name": "_Discriminator", "parentIndex": 0, "index": 1, "type": "fun" },
 
-  { "name": "_Data Encoding", "parentIndex": 2, "index": 3, "type": "fun" },
-  { "name": "[ry]", "parentIndex": 3, "index": 4, "type": "rep" },
-  { "name": "ry", "parentIndex": 4, "index": 5, "type": "rep_item" },
-  { "name": "[ryy]", "parentIndex": 3, "index": 6, "type": "rep" },
-  { "name": "ryy", "parentIndex": 6, "index": 7, "type": "rep_item" },
+  { "name": "_Unitary", "parentIndex": 1, "index": 2, "type": "fun" },
+  { "name": "[ry]", "parentIndex": 2, "index": 3, "type": "rep" },
+  { "name": "ry", "parentIndex": 3, "index": 4, "type": "rep_item" },
+  { "name": "[ryy]", "parentIndex": 2, "index": 5, "type": "rep" },
+  { "name": "ryy", "parentIndex": 5, "index": 6, "type": "rep_item" },
 
-  { "name": "_Entanglement", "parentIndex": 2, "index": 8, "type": "fun" },
-  { "name": "[cry]", "parentIndex": 8, "index": 9, "type": "rep" },
-  { "name": "cry", "parentIndex": 9, "index": 10, "type": "rep_item" },
+  { "name": "_Entanglement", "parentIndex": 1, "index": 7, "type": "fun" },
+  { "name": "[cry]", "parentIndex": 7, "index": 8, "type": "rep" },
+  { "name": "cry", "parentIndex": 8, "index": 9, "type": "rep_item" },
+  { "name": "cry", "parentIndex": 7, "index": 10, "type": "rep_item" },
 
   { "name": "_Generator", "parentIndex": 0, "index": 11, "type": "fun" },
 
-  { "name": "_Data Encoding", "parentIndex": 11, "index": 12, "type": "fun" },
+  { "name": "_Unitary", "parentIndex": 11, "index": 12, "type": "fun" },
   { "name": "[ry]", "parentIndex": 12, "index": 13, "type": "rep" },
   { "name": "ry", "parentIndex": 13, "index": 14, "type": "rep_item" },
   { "name": "[ryy]", "parentIndex": 12, "index": 15, "type": "rep" },
@@ -25,10 +25,12 @@
   { "name": "_Entanglement", "parentIndex": 11, "index": 17, "type": "fun" },
   { "name": "[cry]", "parentIndex": 17, "index": 18, "type": "rep" },
   { "name": "cry", "parentIndex": 18, "index": 19, "type": "rep_item" },
+  { "name": "cry", "parentIndex": 17, "index": 20, "type": "rep_item" },
 
-  { "name": "_cSwap Test", "parentIndex": 0, "index": 20, "type": "fun" },
-  { "name": "[csw]", "parentIndex": 20, "index": 21, "type": "rep" },
-  { "name": "csw", "parentIndex": 21, "index": 22, "type": "rep_item" },
-
-  { "name": "h", "parentIndex": 0, "index": 23, "type": "rep_item" }
+  { "name": "_Swap Test", "parentIndex": 0, "index": 21, "type": "fun" },
+  { "name": "h", "parentIndex": 21, "index": 22, "type": "rep_item" },
+  { "name": "_cCSWAPs", "parentIndex": 21, "index": 23, "type": "fun" },
+  { "name": "[csw]", "parentIndex": 23, "index": 24, "type": "rep" },
+  { "name": "csw", "parentIndex": 24, "index": 25, "type": "rep_item" },
+  { "name": "h", "parentIndex": 21, "index": 26, "type": "rep_item" }
 ]
