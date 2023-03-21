@@ -16,6 +16,8 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
   const [svgWidth, setSvgWidth] = useState(400);
   const [svgHeight, setSvgHeight] = useState(400);
   const [rectSize, setRectSize] = useState(20);
+  const [curEntGroup, setCurEntGroup] = useState<number[][]>([]);
+  const [preEntGroup, setPreEntGroup] = useState<number[][]>([]);
 
   useEffect(() => {
     var svg = d3.select("#matrixSVG");
@@ -57,7 +59,8 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
       switch (message.command) {
         case "context.setCircuit":
           setMatrix(message.data.matrix);
-
+          setCurEntGroup(message.data.curEntGroup);
+          setPreEntGroup(message.data.preEntGroup);
           break;
         case "context.setMatrix":
           setMatrix(message.matrix);

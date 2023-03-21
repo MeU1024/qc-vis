@@ -177,11 +177,13 @@ class ContextualCircuit {
     this._updateIdle();
   }
   setMatrixComponentIndex(index: number) {
-    this._connectivityComponentIndex = index;
-    this._updateConnectivity();
+    this._connectivityComponentIndex = 11;
+    const { curEntGroup, preEntGroup } = this._updateConnectivity();
     return {
       matrix: this._connectivityMatrix,
       title: this._treeStructure[index].name,
+      curEntGroup: curEntGroup,
+      preEntGroup: preEntGroup,
     };
   }
 
@@ -339,8 +341,8 @@ class ContextualCircuit {
     //   return averageValue;
     // });
 
-    let pre: number[][] = []; // pre[row][col] : at row, the last qubit position before col 
-    let suf: number[][] = []; 
+    let pre: number[][] = []; // pre[row][col] : at row, the last qubit position before col
+    let suf: number[][] = [];
 
     for (let row = 0; row < qubitsNum; ++row) {
       pre[row] = [];
@@ -352,63 +354,64 @@ class ContextualCircuit {
     }
 
     // update pre
-    for(let col = 0; col < this._originalLayers.length; ++ col) { // 第一维是不是一定是定长的，指如果这一层没有qubit也会有这一位
-      if(col != 0) {
-        for(let row = 0; row < qubitsNum; ++ row) { 
+    for (let col = 0; col < this._originalLayers.length; ++col) {
+      // 第一维是不是一定是定长的，指如果这一层没有qubit也会有这一位
+      if (col != 0) {
+        for (let row = 0; row < qubitsNum; ++row) {
           pre[row][col] = Math.max(pre[row][col], pre[row][col - 1]);
         }
-      } 
-      if(col === this._originalLayers.length - 1){
       }
-      else {
+      if (col === this._originalLayers.length - 1) {
+      } else {
         let layerGate = this._originalLayers[col];
         layerGate.forEach((gate: ComponentGate) => {
-            if(gate.qubits.length === 1) { // one
-              let row = parseInt(gate.qubits[0].qubitName);
-              pre[row][col + 1] = Math.max(pre[row][col + 1], col)
-            }else { // two // control gate
-              let mx = -1;
-              for(let idx = 0; idx < gate.qubits.length; ++idx) {
-                let row =  parseInt(gate.qubits[idx].qubitName);
-                pre[row][col + 1] = Math.max(pre[row][col + 1], col); 
-                mx = Math.max(mx, pre[row][col + 1]);
-              }
-              for(let idx = 0; idx < gate.qubits.length; ++idx) {
-                let row =  parseInt(gate.qubits[idx].qubitName);
-                pre[row][col + 1] = Math.max(pre[row][col + 1], mx); 
-              }
+          if (gate.qubits.length === 1) {
+            // one
+            let row = parseInt(gate.qubits[0].qubitName);
+            pre[row][col + 1] = Math.max(pre[row][col + 1], col);
+          } else {
+            // two // control gate
+            let mx = -1;
+            for (let idx = 0; idx < gate.qubits.length; ++idx) {
+              let row = parseInt(gate.qubits[idx].qubitName);
+              pre[row][col + 1] = Math.max(pre[row][col + 1], col);
+              mx = Math.max(mx, pre[row][col + 1]);
             }
+            for (let idx = 0; idx < gate.qubits.length; ++idx) {
+              let row = parseInt(gate.qubits[idx].qubitName);
+              pre[row][col + 1] = Math.max(pre[row][col + 1], mx);
+            }
+          }
         });
       }
     }
 
     // update suf
-    for(let col = this._originalLayers.length - 1; col >= 0; -- col) { 
-      if(col != this._originalLayers.length -1) {
-        for(let row = 0; row < qubitsNum; ++ row) { 
+    for (let col = this._originalLayers.length - 1; col >= 0; --col) {
+      if (col != this._originalLayers.length - 1) {
+        for (let row = 0; row < qubitsNum; ++row) {
           suf[row][col] = Math.min(suf[row][col], suf[row][col + 1]);
         }
-      } 
-      if(col === 0){ 
       }
-      else {
+      if (col === 0) {
+      } else {
         let layerGate = this._originalLayers[col];
         layerGate.forEach((gate: ComponentGate) => {
-            if(gate.qubits.length === 1) {
-              let row = parseInt(gate.qubits[0].qubitName);
-              suf[row][col - 1] = Math.min(suf[row][col - 1], col)
-            }else { 
-              let mn = layerNum + 1;
-              for(let idx = 0; idx < gate.qubits.length; ++idx) {
-                let row =  parseInt(gate.qubits[idx].qubitName);
-                suf[row][col - 1] = Math.min(suf[row][col - 1], col); 
-                mn = Math.min(mn, suf[row][col - 1]);
-              }
-              for(let idx = 0; idx < gate.qubits.length; ++idx) {
-                let row =  parseInt(gate.qubits[idx].qubitName);
-                suf[row][col - 1] = Math.min(suf[row][col - 1], mn); 
-              }
+          if (gate.qubits.length === 1) {
+            let row = parseInt(gate.qubits[0].qubitName);
+            suf[row][col - 1] = Math.min(suf[row][col - 1], col);
+          } else {
+            let mn = layerNum + 1;
+            for (let idx = 0; idx < gate.qubits.length; ++idx) {
+              let row = parseInt(gate.qubits[idx].qubitName);
+              suf[row][col - 1] = Math.min(suf[row][col - 1], col);
+              mn = Math.min(mn, suf[row][col - 1]);
             }
+            for (let idx = 0; idx < gate.qubits.length; ++idx) {
+              let row = parseInt(gate.qubits[idx].qubitName);
+              suf[row][col - 1] = Math.min(suf[row][col - 1], mn);
+            }
+          }
         });
       }
     }
@@ -417,16 +420,16 @@ class ContextualCircuit {
     let averageIdleValue: number[][] = [];
     for (let col = 0; col < layerNum; ++col) {
       averageIdleValue[col] = [];
-      for (let row = 0; row < qubitsNum; ++row) { 
+      for (let row = 0; row < qubitsNum; ++row) {
         averageIdleValue[col][row] = 0;
       }
     }
 
-    for(let row = 0; row < qubitsNum ; ++ row) {
-      for(let col = 0; col < layerNum; ++ col) {
+    for (let row = 0; row < qubitsNum; ++row) {
+      for (let col = 0; col < layerNum; ++col) {
         let sum = 0.0;
-        for(let colidx = pre[row][col] + 1; colidx < suf[row][col]; ++ colidx) {
-           sum += this._layerParallelism[colidx];
+        for (let colidx = pre[row][col] + 1; colidx < suf[row][col]; ++colidx) {
+          sum += this._layerParallelism[colidx];
         }
         averageIdleValue[col][row] = sum / (suf[row][col] - pre[row][col] - 1); // double？
       }
@@ -434,18 +437,18 @@ class ContextualCircuit {
 
     this._averageIdleValue = averageIdleValue;
 
-    // idlePosition 
+    // idlePosition
     for (let col = 0; col < layerNum; ++col) {
       idlePosition[col] = [];
       for (let row = 0; row < qubitsNum; ++row) {
         idlePosition[col][row] = [];
       }
     }
-    for(let row = 0; row < qubitsNum ; ++ row) {
-      for(let col = 0; col < layerNum; ++ col) {
-        for(let colidx = pre[row][col] + 1; colidx < suf[row][col]; ++ colidx) {
+    for (let row = 0; row < qubitsNum; ++row) {
+      for (let col = 0; col < layerNum; ++col) {
+        for (let colidx = pre[row][col] + 1; colidx < suf[row][col]; ++colidx) {
           idlePosition[col][row].push(colidx);
-        } 
+        }
       }
     }
 
@@ -455,7 +458,7 @@ class ContextualCircuit {
     //     const qubitPos = [];
     //     for (let index = 0; index < 10; index++) {
     //       // qubitPos.push([index]);
-          
+
     //     }
     //     this._idlePosition.push(qubitPos);
     //   } else {
@@ -507,13 +510,25 @@ class ContextualCircuit {
   private _updateConnectivity() {
     const originalGates = this._compnentCircuit.getOriginalGates();
     const originalQubits = this._compnentCircuit.getOriginalQubits();
+    let curEntGroup: number[][];
+    let preEntGroup: number[][];
     this._connectivityMatrix = [];
+
+    /*
+    0: no connection
+    1: connection but not in component
+    2: connection and in component
+    */
+
+    //initialization
     for (let row = 0; row < originalQubits.length; row++) {
       this._connectivityMatrix.push([]);
       for (let col = 0; col < originalQubits.length; col++) {
         this._connectivityMatrix[row].push(0);
       }
     }
+
+    //iterate all gates
     originalGates.forEach((gate: ComponentGate) => {
       let node = this._treeStructure[gate.treeIndex];
       while (node.type !== "fun") {
@@ -523,7 +538,7 @@ class ContextualCircuit {
         const qubits = gate.qubits.map((qubit: Qubit) => {
           return parseInt(qubit.qubitName);
         });
-        //TODO:directed?multiple?
+        //TODO:cswap ryy cry cx
         if (qubits.length >= 2) {
           for (let start = 0; start < qubits.length; start++) {
             for (let end = start + 1; end < qubits.length; end++) {
@@ -538,6 +553,19 @@ class ContextualCircuit {
         }
       }
     });
+
+    //calculation the entanglement after current component
+    let afterTimeStamp = 147;
+    curEntGroup = [
+      [1, 2, 3, 4],
+      [5, 6, 7, 8],
+    ];
+
+    //calculation the entanglement before the endTimeStamp(not included)
+    let beforeTimeStamp = 74;
+    preEntGroup = [[1, 2, 3, 4]];
+
+    return { curEntGroup, preEntGroup };
   }
   private _updateQubit() {
     const layers = this._compnentCircuit.getLayers();

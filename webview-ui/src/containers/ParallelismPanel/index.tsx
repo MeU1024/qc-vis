@@ -379,6 +379,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     <div className="parallelismPanel">
       <div className="panelHeader">{panelTitle}</div>
       <div>Idle Wire Extent:</div>
+      {/* TODO: */}
       <div>Parallelism Level:</div>
       <div>Idle Level:</div>
       <div className="parallelismView">
