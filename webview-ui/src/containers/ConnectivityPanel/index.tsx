@@ -13,10 +13,11 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
   const [panelTitle, setPanelTitle] = useState("Connectivity");
   const [componentTitle, setComponentTitle] = useState("");
   const [matrix, setMatrix] = useState(matrixData());
-  // const [rectSize, setRectSize] = useState(20);
+  const [svgWidth, setSvgWidth] = useState(400);
+  const [svgHeight, setSvgHeight] = useState(400);
+  const [rectSize, setRectSize] = useState(20);
 
   useEffect(() => {
-    const rectSize = 400 / matrix.length;
     var svg = d3.select("#matrixSVG");
     svg.selectAll("rect").remove();
     var rects = svg.selectAll("rect").data(matrix);
@@ -37,6 +38,15 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
           return d[index] ? MATRIX_BG : "none";
         })
         .attr("stroke", MATRIX_STROKE);
+    }
+  }, [matrix, rectSize]);
+
+  useEffect(() => {
+    const rectSize = svgWidth / matrix.length;
+    if (rectSize > 30) {
+      setSvgWidth(matrix.length * 30);
+      setSvgHeight(matrix.length * 30);
+      setRectSize(30);
     }
   }, [matrix]);
 
@@ -87,9 +97,9 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
       <div className="matrix">
         <svg
           id="matrixSVG"
-          viewBox="0 0 400 400"
-          width="400"
-          height="400"
+          viewBox={"0 0 " + svgWidth + " " + svgHeight}
+          width={svgWidth}
+          height={svgHeight}
         ></svg>
       </div>
       <div className="componentTitle">Component: {componentTitle}</div>
