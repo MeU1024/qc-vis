@@ -27,7 +27,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
     var svg = d3.select("#matrixSVG");
     svg.selectAll("rect").remove();
     var rects = svg.selectAll("rect").data(matrix);
-
+    console.log(matrix);
     for (let index = 0; index < matrix.length; index++) {
       rects
         .enter()
@@ -40,8 +40,18 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         })
         .attr("width", rectSize)
         .attr("height", rectSize)
-        .attr("fill", function (d, i) {
-          return d[index] ? MATRIX_BG : "none";
+        .attr("fill", MATRIX_BG)
+        .attr("fill-opacity", function (d, i) {
+          switch (d[index]) {
+            case 1:
+              return "50%";
+            case 2:
+              return "0%";
+            case 0:
+              return "0%";
+            default:
+              return "100%";
+          }
         })
         .attr("stroke", MATRIX_STROKE);
     }
@@ -53,6 +63,8 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
       setSvgWidth(matrix.length * 30);
       setSvgHeight(matrix.length * 30);
       setRectSize(30);
+    } else {
+      setRectSize(rectSize);
     }
   }, [matrix]);
 
@@ -95,7 +107,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         return colorGroup[d];
       })
       .attr("fill-opacity", "50%");
-  }, [preEntGroup, curEntGroup]);
+  }, [preEntGroup, curEntGroup, rectSize]);
 
   useEffect(() => {
     const handleMessageEvent = (event: any) => {

@@ -512,6 +512,8 @@ class ContextualCircuit {
   }
 
   private _updateConnectivity() {
+    this._connectivityComponentIndex = 11;
+    //this._treeStructure
     const originalGates = this._compnentCircuit.getOriginalGates();
     const originalQubits = this._compnentCircuit.getOriginalQubits();
     let curEntGroup: number[];
@@ -542,6 +544,7 @@ class ContextualCircuit {
         const qubits = gate.qubits.map((qubit: Qubit) => {
           return parseInt(qubit.qubitName);
         });
+
         //TODO:cswap ryy cry cx
         if (qubits.length >= 2) {
           for (let start = 0; start < qubits.length; start++) {
