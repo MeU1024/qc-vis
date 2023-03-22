@@ -180,6 +180,7 @@ class ContextualCircuit {
     this._updateSubCircuit();
     this._updateIdle();
   }
+
   setMatrixComponentIndex(index: number) {
     this._connectivityComponentIndex = 11;
     const { curEntGroup, preEntGroup } = this._updateConnectivity();
@@ -204,6 +205,7 @@ class ContextualCircuit {
       averageIdleValue: this._averageIdleValue,
     };
   }
+
   setQubitRangeStart(qubitStart: number) {
     this._subGraphQubitRange =
       qubitStart + 7 <= this._originalQubits.length

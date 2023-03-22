@@ -84,7 +84,12 @@ const Circuit2GridData = (circuitData: {
       case "cy":
       case "cry":
         for (let index = start; index < end; index++) {
-          graph[xRange[0]][index] = opDict["vertical_line"];
+          if (graph[xRange[0]][index] !== opDict["empty"]) {
+            graph[xRange[0]][index] = opDict["vertical_line"];
+          } else {
+            graph[xRange[0]][index] = opDict["vertical_line_empty_bg"];
+          }
+          // graph[xRange[0]][index] = opDict["vertical_line"];
         }
 
         if (ctrl_bit < target_bit) {
@@ -145,14 +150,24 @@ const Circuit2GridData = (circuitData: {
           graph[xRange[0]][yRange[2]] = opDict["cy_up"];
 
           for (let index = target + 1; index <= ctrl_bit_big; index++) {
-            graph[xRange[0]][index] = opDict["vertical_line"];
+            if (graph[xRange[0]][index] !== opDict["empty"]) {
+              graph[xRange[0]][index] = opDict["vertical_line"];
+            } else {
+              graph[xRange[0]][index] = opDict["vertical_line_empty_bg"];
+            }
+            // graph[xRange[0]][index] = opDict["vertical_line"];
           }
           graph[xRange[0]][ctrl_bit_small] = opDict["ctrl_middle"];
           graph[xRange[0]][ctrl_bit_big] = opDict["ctrl_down"];
         } else {
           graph[xRange[0]][yRange[2]] = opDict["cy_down"];
           for (let index = ctrl_bit_small; index < target; index++) {
-            graph[xRange[0]][index] = opDict["vertical_line"];
+            if (graph[xRange[0]][index] !== opDict["empty"]) {
+              graph[xRange[0]][index] = opDict["vertical_line"];
+            } else {
+              graph[xRange[0]][index] = opDict["vertical_line_empty_bg"];
+            }
+            // graph[xRange[0]][index] = opDict["vertical_line"];
           }
 
           graph[xRange[0]][ctrl_bit_small] = opDict["ctrl_up"];
@@ -175,7 +190,14 @@ const Circuit2GridData = (circuitData: {
               break;
             default:
               for (let index = start; index < end; index++) {
-                graph[xRange[0]][index] = opDict["single_gate_middle"];
+                // graph[xRange[0]][index] = opDict["single_gate_middle"];
+                // console.log("middle", graph[xRange[0]][index]);
+                if (graph[xRange[0]][index] == opDict["empty"]) {
+                  graph[xRange[0]][index] =
+                    opDict["single_gate_middle_empty_bg"];
+                } else {
+                  graph[xRange[0]][index] = opDict["single_gate_middle"];
+                }
               }
               graph[xRange[0]][start] = opDict["single_gate_up"];
               graph[xRange[0]][yRange[yRange.length - 1]] =

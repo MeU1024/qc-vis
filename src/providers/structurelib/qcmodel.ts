@@ -93,8 +93,8 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
   if (!file) {
     let path = vscode.Uri.joinPath(
       qv.getExtensionUri(),
-      "/resources/data/qugan-structure.json"
-      // "/resources/data/mul-structure.json"
+      // "/resources/data/qugan-structure.json"
+      "/resources/data/mul-structure.json"
     ).fsPath;
     file = vscode.Uri.file(path);
   }
@@ -242,7 +242,8 @@ export class ComponentGate {
     readonly gateName: string,
     readonly qubits: Qubit[],
     readonly range: number[],
-    readonly treeIndex: number
+    readonly treeIndex: number,
+    readonly repTimes: string
   ) {}
 }
 

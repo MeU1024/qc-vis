@@ -90,6 +90,22 @@ const GridDrawing = (props: GridDrawingProps) => {
 
       ctx.stroke();
       break;
+    case "single_gate_middle_empty_bg":
+      maxWidth = width < 80 ? (width / 4) * 3 : 60;
+      // square
+      ctx.strokeStyle = CUSTOM_GATE_STROKE;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width - maxWidth) / 2, yCoord);
+      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height);
+
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width - (width - maxWidth) / 2, yCoord);
+      ctx.lineTo(xCoord + width - (width - maxWidth) / 2, yCoord + height);
+
+      ctx.stroke();
+      break;
     case "single_gate_up":
       maxWidth = width < 80 ? (width / 4) * 3 : 60;
       ctx.strokeStyle = WIRE_STROKE;
