@@ -38,23 +38,23 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [paraBarData, setParaBarData] = useState(geneParaData());
   const [originalCircuit, setOriginalCircuit] = useState<
     | {
-        output_size: number[];
-        op_map: {};
-        qubits: string[];
-        gate_format: string;
-        all_gates: ((number | number[])[] | (number | number[])[])[];
-      }
+      output_size: number[];
+      op_map: {};
+      qubits: string[];
+      gate_format: string;
+      all_gates: ((number | number[])[] | (number | number[])[])[];
+    }
     | undefined
   >(generateCircuit());
 
   const [subCircuit, setSubCircuit] = useState<
     | {
-        output_size: number[];
-        op_map: {};
-        qubits: string[];
-        gate_format: string;
-        all_gates: ((number | number[])[] | (number | number[])[])[];
-      }
+      output_size: number[];
+      op_map: {};
+      qubits: string[];
+      gate_format: string;
+      all_gates: ((number | number[])[] | (number | number[])[])[];
+    }
     | undefined
   >(generateCircuit());
   const [idlePosition, setIdlePosition] = useState<number[][][]>([
@@ -268,7 +268,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       .attr("stroke", "black");
   }, [paraBarData, layerRangeStart]);
 
-  useEffect(() => {}, []);
+  useEffect(() => { }, []);
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
       const message = event.data;
@@ -371,10 +371,66 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
   return (
     <div className="parallelismPanel">
+
       <div className="panelHeader">{panelTitle}</div>
-      <div>Idle Wire Extent:</div>
-      <div>Parallelism Level:</div>
-      <div>Idle Level:</div>
+      <div className="parallelismHori">
+        <div className="parallelismTitle">
+          <div>Idle Wire Extent:</div>
+          <div>Parallelism Level:</div>
+          <div>Idle Level:</div>
+        </div>
+        <div className="parallelismSvg">
+          <div className="parallelismSvgAbove">
+            <div>To Left</div>
+            <svg width="15" height="15" version="1.1" xmlns="http://www.w3.org/2000/svg"
+              viewBox={"0 0 " + 15 + " " + 15}
+            >
+              {/* <defs>
+                <linearGradient id="Gradient1" >
+                  <stop offset="0%" stop-color="#3FA9F5" />
+                  <stop offset="100%" stop-color="#FF1D25" />
+                </linearGradient>
+              </defs> */}
+              <rect x="0" y="0" rx="0" ry="0" width="15" height="15" fill="#FFFFFF" />
+            </svg>
+            <div>To Right</div>
+          </div>
+          <div className="parallelismSvgBlow">
+            <div className="contentLow"> Low </div>
+            <div>
+              <div>
+                <svg width="150" height="15" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                  viewBox={"0 0 " + 150 + " " + 15}
+                >
+                  <defs>
+                    <linearGradient id="Gradient1" >
+                      <stop offset="0%" stop-color="#3FA9F5" />
+                      <stop offset="100%" stop-color="#FF1D25" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="0" y="0" rx="0" ry="0" width="150" height="15" fill="url(#Gradient1)" />
+                </svg>
+              </div>
+              <div>
+                <svg width="150" height="15" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                  viewBox={"0 0 " + 150 + " " + 15}
+                >
+                  <defs>
+                    <linearGradient id="Gradient2" >
+                      <stop offset="0%" stop-color="#FFFFFF" />
+                      <stop offset="100%" stop-color="#BDCCD4" />
+                    </linearGradient>
+                  </defs>
+                  <rect x="0" y="0" rx="0" ry="0" width="150" height="15" fill="url(#Gradient2)" />
+                </svg>
+              </div>
+            </div>
+            <div className="contentHigh"> High </div>
+          </div>
+
+        </div>
+      </div>
+
       <div className="parallelismView">
         <div className="firstRow">
           {" "}

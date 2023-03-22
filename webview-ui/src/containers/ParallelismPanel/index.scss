@@ -25,4 +25,25 @@
     margin-top: 10px;
     margin-left: 20px;
   }
+  .parallelismHori {
+    margin: 5px;
+    display: flex;
+    flex-direction: row;
+  }
+  .parallelismSvgBlow {
+    margin-left: 10px;
+    display: flex;
+    flex-direction: row;
+    align-items:center;
+  }
+  .parallelismSvgAbove{
+    margin-left: 10px;
+    display: flex;
+  }
+  .contentLow {
+    margin : 5px;
+  }
+  .contentHigh {
+    margin : 5px;
+  }
 }
