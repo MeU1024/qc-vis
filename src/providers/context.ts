@@ -180,6 +180,7 @@ class ContextualCircuit {
     this._updateSubCircuit();
     this._updateIdle();
   }
+
   setMatrixComponentIndex(index: number) {
     this._connectivityComponentIndex = 11;
     const { curEntGroup, preEntGroup } = this._updateConnectivity();
@@ -204,6 +205,7 @@ class ContextualCircuit {
       averageIdleValue: this._averageIdleValue,
     };
   }
+
   setQubitRangeStart(qubitStart: number) {
     this._subGraphQubitRange =
       qubitStart + 7 <= this._originalQubits.length
@@ -344,9 +346,10 @@ class ContextualCircuit {
     }
 
     // update pre
-    for (let col = 0; col < this._originalLayers.length; ++col) {
-      if (col != 0) {
-        for (let row = 0; row < qubitsNum; ++row) {
+
+    for(let col = 0; col < this._originalLayers.length; ++ col) {
+      if(col != 0) {
+        for(let row = 0; row < qubitsNum; ++ row) { 
           pre[row][col] = Math.max(pre[row][col], pre[row][col - 1]);
         }
       }
@@ -354,17 +357,20 @@ class ContextualCircuit {
       } else {
         let layerGate = this._originalLayers[col];
         layerGate.forEach((gate: ComponentGate) => {
-          if (gate.qubits.length === 1) {
-            // one
-            let row = parseInt(gate.qubits[0].qubitName);
-            pre[row][col + 1] = Math.max(pre[row][col + 1], col);
-          } else {
-            // two // control gate
-            let mx = -1;
-            for (let idx = 0; idx < gate.qubits.length; ++idx) {
-              let row = parseInt(gate.qubits[idx].qubitName);
-              pre[row][col + 1] = Math.max(pre[row][col + 1], col);
-              mx = Math.max(mx, pre[row][col]);
+            if(gate.qubits.length === 1) { // one
+              let row = parseInt(gate.qubits[0].qubitName);
+              pre[row][col + 1] = Math.max(pre[row][col + 1], col)
+            }else { // control gate
+              let mx = -1;
+              for(let idx = 0; idx < gate.qubits.length; ++idx) {
+                let row =  parseInt(gate.qubits[idx].qubitName);
+                pre[row][col + 1] = Math.max(pre[row][col + 1], col); 
+                mx = Math.max(mx, pre[row][col]);
+              }
+              for(let idx = 0; idx < gate.qubits.length; ++idx) {
+                let row =  parseInt(gate.qubits[idx].qubitName);
+                pre[row][col] = Math.max(pre[row][col], mx); 
+              }
             }
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
               let row = parseInt(gate.qubits[idx].qubitName);
@@ -386,19 +392,20 @@ class ContextualCircuit {
       } else {
         let layerGate = this._originalLayers[col];
         layerGate.forEach((gate: ComponentGate) => {
-          if (gate.qubits.length === 1) {
-            let row = parseInt(gate.qubits[0].qubitName);
-            suf[row][col - 1] = Math.min(suf[row][col - 1], col);
-          } else {
-            let mn = layerNum + 1;
-            for (let idx = 0; idx < gate.qubits.length; ++idx) {
-              let row = parseInt(gate.qubits[idx].qubitName);
-              suf[row][col - 1] = Math.min(suf[row][col - 1], col);
-              mn = Math.min(mn, suf[row][col]);
-            }
-            for (let idx = 0; idx < gate.qubits.length; ++idx) {
-              let row = parseInt(gate.qubits[idx].qubitName);
-              suf[row][col] = Math.min(suf[row][col], mn);
+            if(gate.qubits.length === 1) {
+              let row = parseInt(gate.qubits[0].qubitName);
+              suf[row][col - 1] = Math.min(suf[row][col - 1], col)
+            }else { 
+              let mn = layerNum + 1;
+              for(let idx = 0; idx < gate.qubits.length; ++idx) {
+                let row =  parseInt(gate.qubits[idx].qubitName);
+                suf[row][col - 1] = Math.min(suf[row][col - 1], col); 
+                mn = Math.min(mn, suf[row][col]);
+              }
+              for(let idx = 0; idx < gate.qubits.length; ++idx) {
+                let row =  parseInt(gate.qubits[idx].qubitName);
+                suf[row][col] = Math.min(suf[row][col], mn);
+              }
             }
           }
         });
@@ -420,6 +427,7 @@ class ContextualCircuit {
         for (let colidx = pre[row][col] + 1; colidx < suf[row][col]; ++colidx) {
           sum += this._layerParallelism[colidx];
         }
+        averageIdleValue[col][row] = sum / (suf[row][col] - pre[row][col] - 1);
         averageIdleValue[col][row] = sum / (suf[row][col] - pre[row][col] - 1);
       }
     }

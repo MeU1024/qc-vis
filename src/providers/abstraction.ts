@@ -123,8 +123,8 @@ class AbstractedCircuit {
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
       // "/resources/data/qugan-json-data-50.json"
-      "/resources/data/qugan-json-data-50.json"
-      // "/resources/data/mul-json-data.json"
+      // "/resources/data/qugan-json-data-50.json"
+      "/resources/data/mul-json-data.json"
     ).fsPath;
     let data = require(dataSource);
     let semantics = data.semantics.map((sem: any) => {
@@ -322,13 +322,13 @@ class AbstractedCircuit {
         if (isIdelNewQubit[i] && isIdelNewLayer[j]) {
           const checkIn = checkInAbstraction(i, j, "diagonal");
           if (checkIn) {
-            ret[j].gates.push(new ComponentGate("...", [curQubit], [], 0));
+            ret[j].gates.push(new ComponentGate("...", [curQubit], [], 0, ""));
           }
         }
         if (isIdelNewQubit[i]) {
           const checkIn = checkInAbstraction(i, j, "vertical");
           if (checkIn) {
-            ret[j].gates.push(new ComponentGate("...", [curQubit], [], 0));
+            ret[j].gates.push(new ComponentGate("...", [curQubit], [], 0, ""));
           }
         } else if (isIdelNewLayer[j]) {
           const checkIn = checkInAbstraction(i, j, "horizontal");
@@ -338,7 +338,9 @@ class AbstractedCircuit {
             //   //curQubit = curQubit.qubits[0];
             // }
 
-            ret[j].gates.push(new ComponentGate("colDots", [curQubit], [], 0));
+            ret[j].gates.push(
+              new ComponentGate("colDots", [curQubit], [], 0, "")
+            );
           }
         }
       }
