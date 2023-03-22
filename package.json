@@ -70,6 +70,15 @@
         "category": "Quantivine"
       },
       {
+        "command": "quantivine.refreshView",
+        "title": "Refresh",
+        "category": "Quantivine",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
         "command": "quantivine.showMatrix",
         "title": "Show matrix",
         "icon": {
@@ -166,6 +175,13 @@
           "when": "editorLangId =~ /^python$/ && !virtualWorkspace",
           "command": "quantivine.build",
           "group": "navigation@1"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "quantivine.refreshView",
+          "when": "view == quantivine-treeview",
+          "group": "navigation"
         }
       ],
       "view/item/context": [

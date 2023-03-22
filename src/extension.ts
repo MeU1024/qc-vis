@@ -24,6 +24,9 @@ function registerQuantivineCommands() {
     vscode.commands.registerCommand("quantivine.build", () =>
       qv.commander.build()
     ),
+    vscode.commands.registerCommand("quantivine.refreshView", () =>
+      qv.commander.refreshView()
+    ),
     vscode.commands.registerCommand(
       "quantivine.view",
       (mode: "tab" | vscode.Uri | undefined) => qv.commander.view(mode)

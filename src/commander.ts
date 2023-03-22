@@ -59,3 +59,7 @@ export async function setMatrixComponentIndex(index: number) {
     panel.setMatrixComponentIndex(index);
   });
 }
+
+export async function refreshView() {
+  qv.viewer.refreshView();
+}

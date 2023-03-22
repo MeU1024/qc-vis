@@ -53,6 +53,14 @@ export class Viewer {
     return true;
   }
 
+  refreshView() {
+    const curDataUri = qv.getDefaultDataFile();
+    const panelSet = QCViewerManagerService.getPanelSet(curDataUri);
+    panelSet?.forEach((panel) => {
+      panel.updateData();
+    });
+  }
+
   openExternal(): void {}
 
   updateHighlight(id: string) {
