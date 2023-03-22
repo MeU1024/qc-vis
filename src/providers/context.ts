@@ -225,8 +225,8 @@ class ContextualCircuit {
   }[] {
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      "/resources/data/qugan-structure.json"
-      // "/resources/data/mul-structure.json"
+      // "/resources/data/qugan-structure.json"
+      "/resources/data/mul-structure.json"
     ).fsPath;
     let data = require(dataSource);
     let treeStructure = data.map((tree: any) => {
@@ -266,7 +266,7 @@ class ContextualCircuit {
     this._layerParallelism = layerPara;
   }
 
-  //TODO:update averageIdleValue & _idleQubit (need fix)
+  //TODO:update averageIdleValue & _idleQubit
   private _updateIdle() {
     const qubitsNum = this._originalQubits.length;
     const layerNum = this._originalLayers.length;
@@ -351,6 +351,21 @@ class ContextualCircuit {
         }
       }
       if (col === this._originalLayers.length - 1) {
+        let layerGate = this._originalLayers[col];
+        layerGate.forEach((gate: ComponentGate) => {
+          if (gate.qubits.length === 1) {
+          } else {
+            let mx = -1;
+            for (let idx = 0; idx < gate.qubits.length; ++idx) {
+              let row = parseInt(gate.qubits[idx].qubitName);
+              mx = Math.max(mx, pre[row][col]);
+            }
+            for (let idx = 0; idx < gate.qubits.length; ++idx) {
+              let row = parseInt(gate.qubits[idx].qubitName);
+              pre[row][col] = Math.max(pre[row][col], mx);
+            }
+          }
+        });
       } else {
         let layerGate = this._originalLayers[col];
         layerGate.forEach((gate: ComponentGate) => {
@@ -359,7 +374,7 @@ class ContextualCircuit {
             let row = parseInt(gate.qubits[0].qubitName);
             pre[row][col + 1] = Math.max(pre[row][col + 1], col);
           } else {
-            // two // control gate
+            // control gate
             let mx = -1;
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
               let row = parseInt(gate.qubits[idx].qubitName);
@@ -383,6 +398,21 @@ class ContextualCircuit {
         }
       }
       if (col === 0) {
+        let layerGate = this._originalLayers[col];
+        layerGate.forEach((gate: ComponentGate) => {
+          if (gate.qubits.length === 1) {
+          } else {
+            let mn = layerNum + 1;
+            for (let idx = 0; idx < gate.qubits.length; ++idx) {
+              let row = parseInt(gate.qubits[idx].qubitName);
+              mn = Math.min(mn, suf[row][col]);
+            }
+            for (let idx = 0; idx < gate.qubits.length; ++idx) {
+              let row = parseInt(gate.qubits[idx].qubitName);
+              suf[row][col] = Math.min(suf[row][col], mn);
+            }
+          }
+        });
       } else {
         let layerGate = this._originalLayers[col];
         layerGate.forEach((gate: ComponentGate) => {
@@ -477,7 +507,6 @@ class ContextualCircuit {
     this._subGraphLayerRange = layerRange;
   }
 
-  // todo
   private isInComponent(chiGate: ComponentGate, paIdx: number) {
     let nwidx = chiGate.treeIndex;
     while (nwidx != 0) {
