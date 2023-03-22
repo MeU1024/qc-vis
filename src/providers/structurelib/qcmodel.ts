@@ -242,7 +242,8 @@ export class ComponentGate {
     readonly gateName: string,
     readonly qubits: Qubit[],
     readonly range: number[],
-    readonly treeIndex: number
+    readonly treeIndex: number,
+    readonly repTimes: string
   ) {}
 }
 

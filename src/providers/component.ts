@@ -205,7 +205,8 @@ export class ComponentCircuit {
           gate[0],
           qubits,
           gate[2],
-          gate[3]
+          gate[3],
+          gate[4].toString()
         );
         this._originalGates.push(componentGate);
       });
@@ -277,15 +278,16 @@ export class ComponentCircuit {
   private _build() {
     // Build component circuit
 
-    const { gatesInfo, treeMap } = this._grouping();
+    const { gatesInfo, treeIndexGatesMap } = this._grouping();
     const { edgeMap, qubitMap } = this._bundling(gatesInfo);
     // const layers = this._placement(gatesInfo, edgeMap);
-    const layers = this._semBasedPlacement(gatesInfo, edgeMap, treeMap);
+    const layers = this._semBasedPlacement(gatesInfo, edgeMap);
     this._generateLayout(layers, gatesInfo, qubitMap);
   }
 
   private _grouping() {
     let treeMap = new Map<number, number[]>();
+    let treeIndexGatesMap = new Map<number, { [key: string]: number[] }>();
 
     this._treeStructure.forEach(
       (item: {
@@ -295,25 +297,58 @@ export class ComponentCircuit {
         type: string;
       }) => {
         treeMap.set(item.index, []);
+        treeIndexGatesMap.set(item.index, {});
       }
     );
 
     //aggregate gates
+    // this._originalGates.forEach((gate: ComponentGate, gateIndex) => {
+    //   const treeIndex = gate.treeIndex;
+    //   //groupDict[tagIndex].gates.push(gateIndex);
+    //   const newTreeIndex = this._treeMap.get(treeIndex);
+    //   if (newTreeIndex !== undefined) {
+    //     let gates = treeMap.get(newTreeIndex);
+    //     if (gates !== undefined) {
+    //       gates.push(gateIndex);
+    //       treeMap.set(newTreeIndex, gates);
+    //     }
+    //   } else {
+    //     let gates = treeMap.get(treeIndex);
+    //     if (gates !== undefined) {
+    //       gates.push(gateIndex);
+    //       treeMap.set(treeIndex, gates);
+    //     }
+    //   }
+    // });
+
     this._originalGates.forEach((gate: ComponentGate, gateIndex) => {
       const treeIndex = gate.treeIndex;
-      //groupDict[tagIndex].gates.push(gateIndex);
+      const timestampKey = gate.repTimes.toString();
+
       const newTreeIndex = this._treeMap.get(treeIndex);
       if (newTreeIndex !== undefined) {
-        let gates = treeMap.get(newTreeIndex);
-        if (gates !== undefined) {
-          gates.push(gateIndex);
-          treeMap.set(newTreeIndex, gates);
+        let gatesDict = treeIndexGatesMap.get(newTreeIndex);
+        if (gatesDict !== undefined) {
+          let newGatesDict = gatesDict;
+          let gateList = newGatesDict[timestampKey];
+          if (gateList !== undefined) {
+            newGatesDict[timestampKey] = [...gateList, gateIndex];
+          } else {
+            newGatesDict[timestampKey] = [gateIndex];
+          }
+          treeIndexGatesMap.set(newTreeIndex, newGatesDict);
         }
       } else {
-        let gates = treeMap.get(treeIndex);
-        if (gates !== undefined) {
-          gates.push(gateIndex);
-          treeMap.set(treeIndex, gates);
+        let gatesDict = treeIndexGatesMap.get(treeIndex);
+        if (gatesDict !== undefined) {
+          let newGatesDict = gatesDict;
+          let gateList = newGatesDict[timestampKey];
+          if (gateList !== undefined) {
+            newGatesDict[timestampKey] = [...gateList, gateIndex];
+          } else {
+            newGatesDict[timestampKey] = [gateIndex];
+          }
+          treeIndexGatesMap.set(treeIndex, newGatesDict);
         }
       }
     });
@@ -324,87 +359,164 @@ export class ComponentCircuit {
       qubits: Qubit[];
       range: number[];
       treeIndex: number;
+      repTimes: string;
     }[] = [];
 
-    treeMap.forEach((gates: number[], treeIndex: number) => {
-      const treeNodeType = this._treeStructure[treeIndex].type;
-      const treeNodeName = this._treeStructure[treeIndex].name;
-      if (gates.length !== 0) {
-        let timeRange = this._originalGates[gates[0]].range;
-        let bits = new Set<Qubit>();
-        switch (treeNodeType) {
-          case "fun":
-            gates.forEach((gateIndex: number) => {
-              const gate = this._originalGates[gateIndex];
-              if (gate.range[0] < timeRange[0]) {
-                timeRange[0] = gate.range[0];
-              }
-              if (gate.range[1] > timeRange[1]) {
-                timeRange[1] = gate.range[1];
-              }
-              gate.qubits.forEach((bit: Qubit) => {
-                bits.add(bit);
-              });
-            });
-            gatesInfo.push({
-              gates: gates,
-              name: treeNodeName,
-              qubits: Array.from(bits).sort((a, b) => {
-                return parseInt(a.qubitName) - parseInt(b.qubitName);
-              }),
-              range: timeRange,
-              treeIndex: treeIndex,
-            });
-            this._groupInfoMap.set(treeIndex, {
-              gatesIndex: [gatesInfo.length - 1],
-            });
-            break;
+    // treeMap.forEach((gates: number[], treeIndex: number) => {
+    //   const treeNodeType = this._treeStructure[treeIndex].type;
+    //   const treeNodeName = this._treeStructure[treeIndex].name;
+    //   if (gates.length !== 0) {
+    //     let timeRange = this._originalGates[gates[0]].range;
+    //     let bits = new Set<Qubit>();
+    //     switch (treeNodeType) {
+    //       case "fun":
+    //         gates.forEach((gateIndex: number) => {
+    //           const gate = this._originalGates[gateIndex];
+    //           if (gate.range[0] < timeRange[0]) {
+    //             timeRange[0] = gate.range[0];
+    //           }
+    //           if (gate.range[1] > timeRange[1]) {
+    //             timeRange[1] = gate.range[1];
+    //           }
+    //           gate.qubits.forEach((bit: Qubit) => {
+    //             bits.add(bit);
+    //           });
+    //         });
+    //         gatesInfo.push({
+    //           gates: gates,
+    //           name: treeNodeName,
+    //           qubits: Array.from(bits).sort((a, b) => {
+    //             return parseInt(a.qubitName) - parseInt(b.qubitName);
+    //           }),
+    //           range: timeRange,
+    //           treeIndex: treeIndex,
 
-          case "rep_item":
-            gates.forEach((gateIndex: number) => {
-              gatesInfo.push({
-                gates: [gateIndex],
-                name: treeNodeName,
-                qubits: this._originalGates[gateIndex].qubits,
-                range: this._originalGates[gateIndex].range,
-                treeIndex: treeIndex,
-              });
-              const gates = this._groupInfoMap.get(treeIndex);
-              if (gates !== undefined) {
-                this._groupInfoMap.set(treeIndex, {
-                  gatesIndex: [...gates.gatesIndex, gatesInfo.length - 1],
+    //         });
+    //         this._groupInfoMap.set(treeIndex, {
+    //           gatesIndex: [gatesInfo.length - 1],
+    //         });
+    //         break;
+
+    //       case "rep_item":
+    //         gates.forEach((gateIndex: number) => {
+    //           gatesInfo.push({
+    //             gates: [gateIndex],
+    //             name: treeNodeName,
+    //             qubits: this._originalGates[gateIndex].qubits,
+    //             range: this._originalGates[gateIndex].range,
+    //             treeIndex: treeIndex,
+    //           });
+    //           const gates = this._groupInfoMap.get(treeIndex);
+    //           if (gates !== undefined) {
+    //             this._groupInfoMap.set(treeIndex, {
+    //               gatesIndex: [...gates.gatesIndex, gatesInfo.length - 1],
+    //             });
+    //           } else {
+    //             this._groupInfoMap.set(treeIndex, {
+    //               gatesIndex: [gatesInfo.length - 1],
+    //             });
+    //           }
+    //         });
+
+    //         break;
+    //       default:
+    //         break;
+    //     }
+    //   }
+    // });
+
+    treeIndexGatesMap.forEach(
+      (
+        gatesDict: {
+          [key: string]: number[];
+        },
+        treeIndex: number
+      ) => {
+        for (const [timestampKey, gates] of Object.entries(gatesDict)) {
+          const treeNodeType = this._treeStructure[treeIndex].type;
+          const treeNodeName = this._treeStructure[treeIndex].name;
+
+          if (gates.length !== 0) {
+            let timeRange = this._originalGates[gates[0]].range;
+            let bits = new Set<Qubit>();
+            switch (treeNodeType) {
+              case "fun":
+                gates.forEach((gateIndex: number) => {
+                  const gate = this._originalGates[gateIndex];
+                  if (gate.range[0] < timeRange[0]) {
+                    timeRange[0] = gate.range[0];
+                  }
+                  if (gate.range[1] > timeRange[1]) {
+                    timeRange[1] = gate.range[1];
+                  }
+                  gate.qubits.forEach((bit: Qubit) => {
+                    bits.add(bit);
+                  });
                 });
-              } else {
+                gatesInfo.push({
+                  gates: gates,
+                  name: treeNodeName,
+                  qubits: Array.from(bits).sort((a, b) => {
+                    return parseInt(a.qubitName) - parseInt(b.qubitName);
+                  }),
+                  range: timeRange,
+                  treeIndex: treeIndex,
+                  repTimes: timestampKey,
+                });
                 this._groupInfoMap.set(treeIndex, {
                   gatesIndex: [gatesInfo.length - 1],
                 });
-              }
-            });
+                break;
 
-            break;
-          default:
-            break;
+              case "rep_item":
+                gates.forEach((gateIndex: number) => {
+                  gatesInfo.push({
+                    gates: [gateIndex],
+                    name: treeNodeName,
+                    qubits: this._originalGates[gateIndex].qubits,
+                    range: this._originalGates[gateIndex].range,
+                    treeIndex: treeIndex,
+                    repTimes: timestampKey,
+                  });
+                  const gates = this._groupInfoMap.get(treeIndex);
+                  if (gates !== undefined) {
+                    this._groupInfoMap.set(treeIndex, {
+                      gatesIndex: [...gates.gatesIndex, gatesInfo.length - 1],
+                    });
+                  } else {
+                    this._groupInfoMap.set(treeIndex, {
+                      gatesIndex: [gatesInfo.length - 1],
+                    });
+                  }
+                });
+
+                break;
+              default:
+                break;
+            }
+          }
         }
       }
-    });
+    );
 
     //sort new gates according to time range
-    // gatesInfo.sort(
-    //   (
-    //     a,
-    //     b: {
-    //       gates: number[];
-    //       name: string;
-    //       qubits: Qubit[];
-    //       range: number[];
-    //       treeIndex: number;
-    //     }
-    //   ) => {
-    //     return a.range[0] - b.range[0];
-    //   }
-    // );
+    gatesInfo.sort(
+      (
+        a,
+        b: {
+          gates: number[];
+          name: string;
+          qubits: Qubit[];
+          range: number[];
+          treeIndex: number;
+          repTimes: string;
+        }
+      ) => {
+        return a.range[0] - b.range[0];
+      }
+    );
 
-    return { gatesInfo, treeMap };
+    return { gatesInfo, treeIndexGatesMap };
   }
 
   private _bundling(
@@ -414,6 +526,7 @@ export class ComponentCircuit {
       qubits: Qubit[];
       range: number[];
       treeIndex: number;
+      repTimes: string;
     }[]
   ) {
     //bundling
@@ -456,6 +569,11 @@ export class ComponentCircuit {
           }
         }
       } else {
+        if (mergableEdges.length !== 0) {
+          newEdges.push(mergableEdges);
+          mergableEdges = [];
+          currentSet = new Set();
+        }
         newEdges.push([edge]);
       }
     });
@@ -545,7 +663,7 @@ export class ComponentCircuit {
     return layers;
   }
 
-  private _semBasedPlacement(
+  private _semBasedPlacement2(
     gatesInfo: {
       gates: number[];
       name: string;
@@ -607,6 +725,129 @@ export class ComponentCircuit {
     return layers;
   }
 
+  private _semBasedPlacement(
+    gatesInfo: {
+      gates: number[];
+      name: string;
+      qubits: Qubit[];
+      range: number[];
+      treeIndex: number;
+      repTimes: string;
+    }[],
+    edgeMap: number[]
+    // treeIndexGatesMap: Map<number, number[]>
+  ) {
+    //gate placement
+    let qubitsPlacement = this._qubits.map((bit: Qubit) => {
+      return 0;
+    });
+    let layers: number[][] = [];
+
+    // this._groupInfoMap.forEach((value, treeIndex) => {
+    //   let functionPlacement = 0;
+    //   let qSet = new Set<number>();
+    //   value.gatesIndex.forEach((gateIndex: number, index) => {
+    //     let layerIndex = 0;
+    //     gatesInfo[gateIndex].qubits.forEach((qubit: Qubit) => {
+    //       const qubitIndex = edgeMap[parseInt(qubit.qubitName)];
+    //       if (qubitIndex !== undefined) {
+    //         if (qubitsPlacement[qubitIndex] > layerIndex) {
+    //           layerIndex = qubitsPlacement[qubitIndex];
+    //         }
+    //       }
+    //       qSet.add(qubitIndex);
+    //     });
+
+    //     if (layers.length < layerIndex + 1) {
+    //       layers.push([gateIndex]);
+    //     } else {
+    //       layers[layerIndex].push(gateIndex);
+    //     }
+
+    //     if (functionPlacement < layerIndex + 1) {
+    //       functionPlacement = layerIndex + 1;
+    //     }
+
+    //     gatesInfo[gateIndex].qubits.forEach((qubit: Qubit) => {
+    //       const qubitIndex = edgeMap[parseInt(qubit.qubitName)];
+    //       if (qubitIndex !== undefined) {
+    //         qubitsPlacement[qubitIndex] = layerIndex + 1;
+    //       }
+    //     });
+    //   });
+
+    //   const qRange = Array.from(qSet).sort((a: number, b: number) => {
+    //     return a - b;
+    //   });
+
+    //   for (let index = qRange[0]; index <= qRange[qRange.length - 1]; index++) {
+    //     qubitsPlacement[index] = functionPlacement;
+    //   }
+    // });
+    let functionPlacement = 0;
+    let qSet = new Set<number>();
+    let functionTreeIndex = 0;
+
+    gatesInfo.forEach((gateInfo, index) => {
+      //placement
+      let layerIndex = 0;
+
+      //get parent function index
+      let node = this._treeStructure[gateInfo.treeIndex];
+      node = this._treeStructure[node.parentIndex];
+      while (node.type !== "fun") {
+        node = this._treeStructure[node.parentIndex];
+      }
+      const parentFuncIndex = node.index;
+
+      //if parent change update qubit placement state
+      if (parentFuncIndex !== functionTreeIndex) {
+        const qRange = Array.from(qSet).sort((a: number, b: number) => {
+          return a - b;
+        });
+
+        for (
+          let index = qRange[0];
+          index <= qRange[qRange.length - 1];
+          index++
+        ) {
+          qubitsPlacement[index] = functionPlacement;
+        }
+        functionPlacement = 0;
+        qSet = new Set<number>();
+        functionTreeIndex = parentFuncIndex;
+      }
+
+      gateInfo.qubits.forEach((qubit: Qubit) => {
+        const qubitIndex = edgeMap[parseInt(qubit.qubitName)];
+        if (qubitIndex !== undefined) {
+          if (qubitsPlacement[qubitIndex] > layerIndex) {
+            layerIndex = qubitsPlacement[qubitIndex];
+          }
+          qSet.add(qubitIndex);
+        }
+      });
+      if (layers.length < layerIndex + 1) {
+        layers.push([index]);
+      } else {
+        layers[layerIndex].push(index);
+      }
+
+      if (functionPlacement < layerIndex + 1) {
+        functionPlacement = layerIndex + 1;
+      }
+
+      gateInfo.qubits.forEach((qubit: Qubit) => {
+        const qubitIndex = edgeMap[parseInt(qubit.qubitName)];
+        if (qubitIndex !== undefined) {
+          qubitsPlacement[qubitIndex] = layerIndex + 1;
+        }
+      });
+    });
+
+    return layers;
+  }
+
   private _generateLayout(
     layers: number[][],
     gatesInfo: {
@@ -615,6 +856,7 @@ export class ComponentCircuit {
       qubits: Qubit[];
       range: number[];
       treeIndex: number;
+      repTimes: string;
     }[],
     qubitMap: Map<Qubit, SuperQubit>
   ) {
@@ -634,7 +876,8 @@ export class ComponentCircuit {
           gateInfo.name,
           Array.from(qubits),
           gateInfo.range,
-          gateInfo.treeIndex
+          gateInfo.treeIndex,
+          gateInfo.repTimes
         );
         this._gates.push(gate);
         return gate;

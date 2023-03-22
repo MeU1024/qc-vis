@@ -189,8 +189,14 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   ]);
 
   useEffect(() => {
-    if (averageIdleValue.length !== 0 && focusIndex !== undefined) {
-      const layerIdleValue = averageIdleValue[layerPosition[focusIndex]];
+    if (averageIdleValue.length !== 0) {
+      let layerIdleValue;
+      if (focusLayer !== undefined) {
+        layerIdleValue = averageIdleValue[focusLayer];
+      } else {
+        layerIdleValue = averageIdleValue[0];
+      }
+
       var svg = d3.select("#idleBar");
       svg.selectAll("*").remove();
       const elementHeight = idleBarheight - 10;
@@ -223,7 +229,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         .attr("stroke-width", "1px")
         .attr("stroke", "black");
     }
-  }, [averageIdleValue, qubitRangeStart, focusIndex, layerPosition]);
+  }, [averageIdleValue, qubitRangeStart, focusLayer]);
 
   useEffect(() => {
     var svg = d3.select("#parallelismBar");
@@ -373,6 +379,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     <div className="parallelismPanel">
 
       <div className="panelHeader">{panelTitle}</div>
+
       <div className="parallelismHori">
         <div className="parallelismTitle">
           <div>Idle Wire Extent:</div>
