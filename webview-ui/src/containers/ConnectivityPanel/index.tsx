@@ -46,7 +46,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
             case 1:
               return "50%";
             case 2:
-              return "0%";
+              return "100%";
             case 0:
               return "0%";
             default:
