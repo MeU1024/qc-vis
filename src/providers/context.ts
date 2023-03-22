@@ -71,12 +71,16 @@ export class ContextDataProvider {
       });
     }
   }
-  private async _postMatrixData(matrix: number[][], title: string) {
-    if (matrix !== undefined) {
+  private async _postMatrixData(data: {
+    matrix: number[][];
+    title: string;
+    curEntGroup: number[];
+    preEntGroup: number[];
+  }) {
+    if (data !== undefined) {
       let message = {
         command: "context.setMatrix",
-        matrix: matrix,
-        title: title,
+        data: data,
       };
 
       let panelSet = QCViewerManagerService.getPanelSet(this._dataFile);
@@ -91,7 +95,7 @@ export class ContextDataProvider {
   setMatrixComponentIndex(index: number) {
     const data = this._data?.setMatrixComponentIndex(index);
     if (data !== undefined) {
-      this._postMatrixData(data.matrix, data.title);
+      this._postMatrixData(data);
     }
   }
   setLayerRangeStart(layerRangeStart: number) {
@@ -221,8 +225,8 @@ class ContextualCircuit {
   }[] {
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      // "/resources/data/qugan-structure.json"
-      "/resources/data/mul-structure.json"
+      "/resources/data/qugan-structure.json"
+      // "/resources/data/mul-structure.json"
     ).fsPath;
     let data = require(dataSource);
     let treeStructure = data.map((tree: any) => {
@@ -510,8 +514,8 @@ class ContextualCircuit {
   private _updateConnectivity() {
     const originalGates = this._compnentCircuit.getOriginalGates();
     const originalQubits = this._compnentCircuit.getOriginalQubits();
-    let curEntGroup: number[][];
-    let preEntGroup: number[][];
+    let curEntGroup: number[];
+    let preEntGroup: number[];
     this._connectivityMatrix = [];
 
     /*
@@ -554,16 +558,13 @@ class ContextualCircuit {
       }
     });
 
-    //calculation the entanglement after current component
-    let afterTimeStamp = 147;
-    curEntGroup = [
-      [1, 2, 3, 4],
-      [5, 6, 7, 8],
-    ];
+    //calculation the entanglement after current component(included)
+    let currentTimeStamp = 147;
+    curEntGroup = [1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     //calculation the entanglement before the endTimeStamp(not included)
     let beforeTimeStamp = 74;
-    preEntGroup = [[1, 2, 3, 4]];
+    preEntGroup = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
     return { curEntGroup, preEntGroup };
   }

@@ -78,3 +78,5 @@ export const colorDict: { [key: string]: string } = {
   double: MULTI_GATE_STROKE,
   triple: MULTI_GATE_STROKE,
 };
+
+export const colorGroup = ["#ebf1f4", "#7ac943", "#ff7bac"];

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./index.scss";
 import * as d3 from "d3";
-import { MATRIX_BG, MATRIX_STROKE } from "../../const";
+import { colorGroup, MATRIX_BG, MATRIX_STROKE } from "../../const";
 
 export interface ConnectivityPanelProps {
   theme: any;
@@ -16,8 +16,12 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
   const [svgWidth, setSvgWidth] = useState(400);
   const [svgHeight, setSvgHeight] = useState(400);
   const [rectSize, setRectSize] = useState(20);
-  const [curEntGroup, setCurEntGroup] = useState<number[][]>([]);
-  const [preEntGroup, setPreEntGroup] = useState<number[][]>([]);
+  const [curEntGroup, setCurEntGroup] = useState<number[]>([
+    1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  ]);
+  const [preEntGroup, setPreEntGroup] = useState<number[]>([
+    1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  ]);
 
   useEffect(() => {
     var svg = d3.select("#matrixSVG");
@@ -53,18 +57,65 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
   }, [matrix]);
 
   useEffect(() => {
+    var svg = d3.select("#entGroupSVG");
+    svg.selectAll("*").remove();
+    var preLayer = svg.append("g");
+    var line = svg
+      .append("line")
+      .attr("x1", 0)
+      .attr("y1", (rectSize / 4) * 3)
+      .attr("x2", svgWidth)
+      .attr("y2", (rectSize / 4) * 3)
+      .attr("stroke", MATRIX_STROKE);
+    var curLayer = svg.append("g");
+    var circles = curLayer
+      .selectAll("circle")
+      .data(curEntGroup)
+      .enter()
+      .append("circle")
+      .attr("cx", function (d, i) {
+        return rectSize / 2 + i * rectSize;
+      })
+      .attr("cy", rectSize / 2)
+      .attr("r", rectSize / 4)
+      .attr("fill", function (d, i) {
+        return colorGroup[d];
+      });
+    var circles = preLayer
+      .selectAll("circle")
+      .data(preEntGroup)
+      .enter()
+      .append("circle")
+      .attr("cx", function (d, i) {
+        return rectSize / 2 + i * rectSize;
+      })
+      .attr("cy", (rectSize / 4) * 3)
+      .attr("r", rectSize / 4)
+      .attr("fill", function (d, i) {
+        return colorGroup[d];
+      })
+      .attr("fill-opacity", "50%");
+  }, [preEntGroup, curEntGroup]);
+
+  useEffect(() => {
     const handleMessageEvent = (event: any) => {
       const message = event.data;
 
       switch (message.command) {
         case "context.setCircuit":
           setMatrix(message.data.matrix);
-          setCurEntGroup(message.data.curEntGroup);
-          setPreEntGroup(message.data.preEntGroup);
+          // setCurEntGroup(message.data.curEntGroup);
+          // setPreEntGroup(message.data.preEntGroup);
+          // console.log("curEntGroup", curEntGroup);
           break;
         case "context.setMatrix":
-          setMatrix(message.matrix);
-          setComponentTitle(message.title);
+          setMatrix(message.data.matrix);
+          console.log("curEntGroup", message.data.curEntGroup);
+
+          setCurEntGroup(message.data.curEntGroup);
+          setPreEntGroup(message.data.preEntGroup);
+
+          setComponentTitle(message.data.title);
 
           break;
         // case "context.setTitle":
@@ -103,6 +154,14 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
           viewBox={"0 0 " + svgWidth + " " + svgHeight}
           width={svgWidth}
           height={svgHeight}
+        ></svg>
+      </div>
+      <div className="entGroup">
+        <svg
+          id="entGroupSVG"
+          viewBox={"0 0 " + svgWidth + " " + 30}
+          width={svgWidth}
+          height={30}
         ></svg>
       </div>
       <div className="componentTitle">Component: {componentTitle}</div>
