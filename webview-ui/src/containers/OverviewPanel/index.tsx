@@ -40,6 +40,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
     //     : canvasHeight / circuit.output_size[0];
     var gridSize = canvasHeight / circuit.output_size[0];
     gridSize = gridSize < 20 ? 20 : gridSize;
+    gridSize = gridSize > 200 ? 200 : gridSize;
 
     setGridWidth(gridSize);
     setGridHeight(gridSize);

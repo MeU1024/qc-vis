@@ -124,7 +124,8 @@ class AbstractedCircuit {
       getExtensionUri(),
       // "/resources/data/qugan-json-data-50.json"
       // "/resources/data/qugan-json-data-50.json"
-      "/resources/data/mul-json-data.json"
+      // "/resources/data/mul-json-data.json"
+      "/resources/data/qaoa-json-data.json"
     ).fsPath;
     let data = require(dataSource);
     let semantics = data.semantics.map((sem: any) => {
@@ -183,6 +184,13 @@ class AbstractedCircuit {
       this._isIdleQubit[firstQubitIndex] = false;
       let secondQubitIndex = this._qubits.indexOf(gate.qubits[1]);
       this._isIdleQubit[secondQubitIndex] = false;
+      let lastQubitIndex = this._qubits.indexOf(
+        gate.qubits[gate.qubits.length - 1]
+      );
+      this._isIdleQubit[lastQubitIndex] = false;
+    } else if (gate.gateName[0] === "_") {
+      let firstQubitIndex = this._qubits.indexOf(gate.qubits[0]);
+      this._isIdleQubit[firstQubitIndex] = false;
       let lastQubitIndex = this._qubits.indexOf(
         gate.qubits[gate.qubits.length - 1]
       );
@@ -368,6 +376,7 @@ class AbstractedCircuit {
     }
 
     // TODO: Implement for multi-qubit gates
+    // if (gate.qubits.length > 2 && gate.gateName[0] !== "_") {
     if (gate.qubits.length > 2 && gate.gateName[0] !== "_") {
       let secondQubitIndex = this._qubits.indexOf(gate.qubits[1]);
       if (this._isIdleQubit[secondQubitIndex]) {

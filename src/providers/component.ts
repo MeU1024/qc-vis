@@ -126,7 +126,8 @@ export class ComponentCircuit {
       vscode.Uri.joinPath(
         getExtensionUri(),
         // "/resources/data/default-data-source.json"
-        "/resources/data/mul-json-data.json"
+        "/resources/data/qaoa-json-data.json"
+        // "/resources/data/mul-json-data.json"
         // "/resources/data/qugan-json-data-50.json"
         // "/resources/data/vqc_data_50.json"
       ).fsPath
@@ -222,7 +223,8 @@ export class ComponentCircuit {
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
       // "/resources/data/qugan-structure.json"
-      "/resources/data/mul-structure.json"
+      // "/resources/data/mul-structure.json"
+      "/resources/data/qaoa-structure.json"
     ).fsPath;
     let data = require(dataSource);
     // if (file) {
@@ -249,31 +251,64 @@ export class ComponentCircuit {
       }) => {
         let parentIndex = item.parentIndex;
         let treeIndex = item.index;
-
+        let previousIndex = treeIndex;
         while (1) {
-          const treeVisible = qv.semanticTreeViewer.isVisible(treeIndex);
-          const parentVisible = qv.semanticTreeViewer.isVisible(parentIndex);
+          let treeVisible = qv.semanticTreeViewer.isVisible(treeIndex);
+          let parentVisible = qv.semanticTreeViewer.isVisible(parentIndex);
+
           if (treeVisible) {
             if (this._treeStructure[treeIndex].type === "rep") {
-              treeIndex = item.index;
+              treeIndex = previousIndex;
             }
             break;
           } else {
+            if (this._treeStructure[treeIndex].type !== "rep") {
+              previousIndex = treeIndex;
+            }
             parentIndex = this._treeStructure[parentIndex].parentIndex;
             treeIndex = this._treeStructure[treeIndex].parentIndex;
           }
         }
-        if (
-          this._treeStructure[treeIndex].type === "rep" &&
-          qv.semanticTreeViewer.isVisible(treeIndex)
-        ) {
-          treeIndex = item.index;
-        }
 
         this._treeMap.set(item.index, treeIndex);
+
         // this._funcNodeMap.set();
       }
     );
+    // this._treeStructure.forEach(
+    //   (item: {
+    //     name: string;
+    //     parentIndex: number;
+    //     index: number;
+    //     type: string;
+    //   }) => {
+    //     let parentIndex = item.parentIndex;
+    //     let treeIndex = item.index;
+
+    //     while (1) {
+    //       const treeVisible = qv.semanticTreeViewer.isVisible(treeIndex);
+    //       const parentVisible = qv.semanticTreeViewer.isVisible(parentIndex);
+    //       if (treeVisible) {
+    //         if (this._treeStructure[treeIndex].type === "rep") {
+    //           treeIndex = item.index;
+    //         }
+    //         break;
+    //       } else {
+    //         parentIndex = this._treeStructure[parentIndex].parentIndex;
+    //         treeIndex = this._treeStructure[treeIndex].parentIndex;
+    //       }
+    //     }
+    //     if (
+    //       this._treeStructure[treeIndex].type === "rep" &&
+    //       qv.semanticTreeViewer.isVisible(treeIndex)
+    //     ) {
+    //       treeIndex = item.index;
+    //     }
+
+    //     this._treeMap.set(item.index, treeIndex);
+    //     // this._funcNodeMap.set();
+    //   }
+    // );
   }
   private _build() {
     // Build component circuit
