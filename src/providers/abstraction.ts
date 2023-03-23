@@ -91,7 +91,7 @@ class AbstractedCircuit {
   private _isIdleLayer: boolean[];
   private _abstractions: Abstraction[];
   private _cachedGates: Map<ComponentGate, number>; // Map gate to layer
-  private _cached: boolean;
+  // private _cached: boolean;
   private _drawableCircuit: DrawableCircuit;
   // private _visibilityMatrix: boolean[][]; // Matrix of gate visibility
 
@@ -106,10 +106,10 @@ class AbstractedCircuit {
     this._isIdleLayer = [];
     this._abstractions = [];
     this._cachedGates = new Map<ComponentGate, number>();
-    this._cached = false;
+    // this._cached = false;
     this._drawableCircuit = new DrawableCircuit();
 
-    this._build();
+    this._newBuild();
   }
 
   private _importCircuitFromFile(dataFile: vscode.Uri): ComponentCircuit {
@@ -173,6 +173,46 @@ class AbstractedCircuit {
     this._generateLayout();
   }
 
+  private _newBuild() {
+    let width = this._componentCircuit.width;
+
+    this._qubits = this._componentCircuit.qubits;
+    this._isIdleQubit = new Array(this._qubits.length).fill(true);
+    this._layers = new Array(width);
+    this._isIdleLayer = new Array(width).fill(true);
+    this._abstractions = [];
+    this._cachedGates.clear();
+
+    // Build abstracted circuit with semantics
+    this._semanticsList.forEach((semantics) => {
+      if (qv.semanticTreeViewer.isVisible(semantics.treeIndex)) {
+        let subCircuit = this._componentCircuit.slice(semantics.range);
+        let abstraction = AbstractionRule.apply(subCircuit, semantics);
+        if (abstraction) {
+          // Mark symbol gates in abstraction
+          abstraction.start.forEach((gate) => this._visGate(gate));
+          abstraction.second.forEach((gate) => this._visGate(gate));
+          abstraction.end.forEach((gate) => this._visGate(gate));
+
+          this._abstractions.push(abstraction);
+
+          // Cache gates in abstraction
+          this._cacheGates(abstraction.gates);
+        }
+      }
+    });
+
+    // visualize gates that are not abstracted
+    this._componentCircuit.gates.forEach((gate) => {
+      if (!this._cachedGates.has(gate)) {
+        this._visGate(gate);
+      }
+    });
+
+    // Generate Layout
+    this._generateLayout();
+  }
+
   //change the state of idle layer and idle qubit
   private _visGate(gate: ComponentGate) {
     let layerIndex = this._componentCircuit.getGateLayer(gate);
@@ -210,14 +250,10 @@ class AbstractedCircuit {
       let layerIndex = this._componentCircuit.getGateLayer(gate);
       this._cachedGates.set(gate, layerIndex!);
     });
-    this._cached = true;
+    // this._cached = true;
   }
 
   private _generateLayout() {
-    if (!this._cached) {
-      return;
-    }
-
     let newQubits: Qubit[] = [];
     let qubitMap = new Map<Qubit, number>();
     let newLayers: Layer[] = [];
@@ -267,7 +303,7 @@ class AbstractedCircuit {
     this._drawableCircuit.loadFromLayers(pushedNewLayers, newQubits, qubitMap);
     // this._drawableCircuit.loadFromLayers(newLayers, newQubits, qubitMap);
 
-    this._cached = false;
+    // this._cached = false;
   }
 
   private _markAbstraction(
