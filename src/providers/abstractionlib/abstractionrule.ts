@@ -58,8 +58,8 @@ export class AbstractionRule {
     let treeIndex = sem.treeIndex;
 
     return (
-      qv.semanticTreeViewer.isVisible(treeIndex) &&
-      !qv.semanticTreeViewer.isExpanded(treeIndex)
+      qv.semanticTreeViewer.isVisible(treeIndex) 
+      // && !qv.semanticTreeViewer.isExpanded(treeIndex)
     );
   }
 }
@@ -69,27 +69,47 @@ export class Abstraction {
   type: AbstractionType;
   step: number;
   info: string;
+  startTime: number;
+  endTime: number;
+  length: number;
 
   constructor(gates: any, type: AbstractionType, stepSize: number) {
     this.gates = gates;
     this.info = 'Abstracted';
     this.type = type;
     this.step = stepSize;
+    this.startTime = gates[0].range[0];
+    this.endTime = gates[gates.length - 1].range[1];
+    this.length = this.endTime - this.startTime + 1;
   }
 
   get start() {
-    return this.gates.slice(0, this.step);
+    return this.slice(0, this.step - 1);
   }
 
   get second() {
-    if (this.gates.length < this.step * 2) {
+    if (this.length < this.step * 2) {
       return [];
     }
-    return this.gates.slice(this.step, this.step * 2);
+    return this.slice(this.step, this.step * 2 - 1);
   }
 
   get end() {
-    return this.gates.slice(this.gates.length - this.step, this.gates.length);
+    return this.slice(this.length - this.step, this.length - 1);
+  }
+
+  slice(start: number, end: number) {
+    if (start < 0 || end > this.length) {
+      return [];
+    }
+
+    let ret: ComponentGate[] = [];
+    this.gates.forEach((gate: ComponentGate) => {
+      if (gate.range[0] >= this.startTime + start && gate.range[1] <= this.startTime + end) {
+        ret.push(gate);
+      }
+    });
+    return ret;
   }
 }
 
