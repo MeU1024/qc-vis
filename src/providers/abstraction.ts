@@ -215,6 +215,9 @@ class AbstractedCircuit {
 
   //change the state of idle layer and idle qubit
   private _visGate(gate: ComponentGate) {
+    if (this._cachedGates.has(gate)) {
+      return;
+    }
     let layerIndex = this._componentCircuit.getGateLayer(gate);
     this._isIdleLayer[layerIndex!] = false;
 
