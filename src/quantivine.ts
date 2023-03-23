@@ -21,6 +21,7 @@ export function registerDisposable(...items: vscode.Disposable[]) {
 
 export * as commander from "./commander";
 
+export const supportedAlgorithms = ["vqc", "qaoa", "qugan", "mul"];
 export const extensionRoot = path.resolve(`${__dirname}/../../`);
 export const eventBus = new EventBus();
 export const manager = new Manager();

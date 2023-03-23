@@ -14,7 +14,7 @@ export class Viewer {
     preserveFocus: boolean
   ): Promise<void> {
     // TODO: Get data file from source file
-    const dataUri = qv.getDefaultDataFile();
+    const dataUri = qv.manager.sourceFile || qv.getDefaultDataFile();
     return this.visualizeQCircuitInTab(dataUri, tabEditorGroup, preserveFocus);
   }
 
@@ -54,7 +54,7 @@ export class Viewer {
   }
 
   refreshView() {
-    const curDataUri = qv.getDefaultDataFile();
+    const curDataUri = qv.manager.sourceFile || qv.getDefaultDataFile();
     const panelSet = QCViewerManagerService.getPanelSet(curDataUri);
     panelSet?.forEach((panel) => {
       panel.updateData();

@@ -90,12 +90,11 @@ export class QcStructure {
 }
 
 function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
+  const algorithm = qv.manager.algorithm || "vqc";
   if (!file) {
     let path = vscode.Uri.joinPath(
       qv.getExtensionUri(),
-      // "/resources/data/qugan-structure.json"
-      // "/resources/data/mul-structure.json"
-      "/resources/data/qaoa-structure.json"
+      `/resources/data/${algorithm}-structure.json`
     ).fsPath;
     file = vscode.Uri.file(path);
   }

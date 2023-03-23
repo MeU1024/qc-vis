@@ -1,3 +1,4 @@
+import path from "path";
 import * as vscode from "vscode";
 
 import { getLogger } from "../components/logger";
@@ -99,7 +100,7 @@ export class ComponentCircuit {
   private _layerMap: Map<number, number[]>;
   private _drawableCircuit: DrawableCircuit;
 
-  constructor(jsonData: any) {
+  constructor(dataFile: vscode.Uri) {
     this._qubits = [];
 
     // if (jsonData === undefined) {
@@ -122,16 +123,14 @@ export class ComponentCircuit {
     this._groupInfoMap = new Map<number, { gatesIndex: number[] }>();
     this._drawableCircuit = new DrawableCircuit();
 
+    const algorithmName = path.basename(dataFile.fsPath, ".py");
     const file = vscode.Uri.file(
       vscode.Uri.joinPath(
         getExtensionUri(),
-        // "/resources/data/default-data-source.json"
-        "/resources/data/qaoa-json-data.json"
-        // "/resources/data/mul-json-data.json"
-        // "/resources/data/qugan-json-data-50.json"
-        // "/resources/data/vqc_data_50.json"
+        `/resources/data/${algorithmName}-json-data.json`
       ).fsPath
     );
+    logger.log(`Build component circuit from ${file.fsPath}`);
     // if (jsonData === undefined) {
     //   jsonData.layers.forEach((layer: any) => {
     //     this._layers.push(new Layer([]));
@@ -220,11 +219,10 @@ export class ComponentCircuit {
     index: number;
     type: string;
   }[] {
+    const algorithm = qv.manager.algorithm;
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      // "/resources/data/qugan-structure.json"
-      // "/resources/data/mul-structure.json"
-      "/resources/data/qaoa-structure.json"
+      `/resources/data/${algorithm}-structure.json`
     ).fsPath;
     let data = require(dataSource);
     // if (file) {

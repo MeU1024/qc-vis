@@ -13,6 +13,7 @@ export class Manager {
   private _sourceFileLanguageId: string | undefined;
   private _sourceFile: vscode.Uri | undefined;
   private _tmpDir: string | undefined;
+  private _algorithm: string | undefined;
 
   constructor() {
     this.registerSetEnvVar();
@@ -21,8 +22,7 @@ export class Manager {
     qv.registerDisposable(
       vscode.window.onDidChangeActiveTextEditor(
         async (e: vscode.TextEditor | undefined) => {
-          // console.log('ChangeActiveTextEditor');
-          // this.updateSource();
+          this.updateSource();
         }
       )
     );
@@ -72,6 +72,10 @@ export class Manager {
     this._sourceFile = file;
   }
 
+  get algorithm() {
+    return this._algorithm;
+  }
+
   /**
    * Set the current editing file as the source file.
    */
@@ -79,34 +83,50 @@ export class Manager {
     const wsfolders = vscode.workspace.workspaceFolders?.map((e) =>
       e.uri.toString(true)
     );
-    logger.log(`Current workspace folders: ${JSON.stringify(wsfolders)}`);
+    // logger.log(`Current workspace folders: ${JSON.stringify(wsfolders)}`);
 
     const currentFile = vscode.window.activeTextEditor?.document.uri;
-    logger.log(`Current active editor: ${currentFile}`);
+    // logger.log(`Current active editor: ${currentFile}`);
 
     if (!currentFile) {
       return;
     }
 
-    const laguangeId = this.inferLanguageId(currentFile);
+    const filename = path.basename(currentFile.fsPath);
 
-    if (this.sourceFile !== currentFile && this.hasQPLId(laguangeId)) {
+    if (this.sourceFile !== currentFile && this.supportAlgorithm(filename)) {
       logger.log(
         `Source file changed: from ${this.sourceFile} to ${currentFile}`
       );
-
       this.sourceFile = currentFile;
-
-      this.sourceFileLanguageId = laguangeId;
-      logger.log(`Source file languageId: ${laguangeId}`);
-      // void qv.semanticTreeViewer.computeTreeStructure();
+      this._algorithm = filename.substring(0, filename.lastIndexOf('.'));
       qv.eventBus.fire(eventbus.SourceFileChanged, currentFile.fsPath);
-    } else {
-      logger.log(`Keep using the same source file: ${this.sourceFile}`);
-      // void qv.semanticTreeViewer.refreshView();
     }
 
+    // const laguangeId = this.inferLanguageId(currentFile);
+
+    // if (this.sourceFile !== currentFile && this.hasQPLId(laguangeId)) {
+    //   logger.log(
+    //     `Source file changed: from ${this.sourceFile} to ${currentFile}`
+    //   );
+
+    //   this.sourceFile = currentFile;
+
+    //   this.sourceFileLanguageId = laguangeId;
+    //   logger.log(`Source file languageId: ${laguangeId}`);
+    //   // void qv.semanticTreeViewer.computeTreeStructure();
+    //   qv.eventBus.fire(eventbus.SourceFileChanged, currentFile.fsPath);
+    // } else {
+    //   logger.log(`Keep using the same source file: ${this.sourceFile}`);
+    //   // void qv.semanticTreeViewer.refreshView();
+    // }
+
     return this.sourceFile;
+  }
+
+  supportAlgorithm(filename: string) {
+    let algName = filename.substring(0, filename.lastIndexOf('.'));
+    return qv.supportedAlgorithms.includes(algName);
   }
 
   private inferLanguageId(filename: vscode.Uri): string | undefined {
