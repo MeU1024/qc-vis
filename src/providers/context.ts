@@ -52,9 +52,9 @@ export class ContextDataProvider {
   private async _postFocusData(
     data:
       | {
-        idlePosition: number[][][];
-        averageIdleValue: number[][];
-      }
+          idlePosition: number[][][];
+          averageIdleValue: number[][];
+        }
       | undefined
   ) {
     if (data !== undefined) {
@@ -135,7 +135,7 @@ class ContextualCircuit {
   private _originalQubits: Qubit[];
   private _originalGates: ComponentGate[];
   private _connectivityMatrix: number[][];
-  private _focusQubitGates: ComponentGate[];
+  private _focusQubitGates: { gate: ComponentGate; layer: number }[];
   private _treeStructure: {
     name: string;
     parentIndex: number;
@@ -513,62 +513,61 @@ class ContextualCircuit {
       if (nwidx == paIdx) return true;
       nwidx = this._treeStructure[nwidx].parentIndex;
     }
-    return (nwidx == paIdx);
+    return nwidx == paIdx;
   }
 
-  private getGroupId(timeStamp : number) {
+  private getGroupId(timeStamp: number) {
     let fa: number[];
     fa = [];
-    let group : number[];
+    let group: number[];
     group = [];
     const originalGates = this._compnentCircuit.getOriginalGates();
     const originalQubits = this._compnentCircuit.getOriginalQubits();
     // init
-    for(let i = 0; i < originalQubits.length; ++ i) {
+    for (let i = 0; i < originalQubits.length; ++i) {
       group[i] = 0;
       fa[i] = i;
     }
 
-    let find = (x : number) => {
-      if(fa[x] == x) return x;
+    let find = (x: number) => {
+      if (fa[x] == x) return x;
       fa[x] = find(fa[x]);
       return fa[x];
-    }
-    let union = (x : number, y : number) => {
+    };
+    let union = (x: number, y: number) => {
       let pax = find(x);
       let pay = find(y);
-      if(pax == pay) return;
-      if(pax < pay) {
+      if (pax == pay) return;
+      if (pax < pay) {
         fa[pay] = pax;
-      }
-      else {
+      } else {
         fa[pax] = pay;
       }
-    }
+    };
 
-    let maxTime = (gate : ComponentGate) => {
+    let maxTime = (gate: ComponentGate) => {
       let mx = -1;
-      for(let i = 0; i < gate.range.length; ++ i) {
+      for (let i = 0; i < gate.range.length; ++i) {
         mx = Math.max(mx, gate.range[i]);
       }
       return mx;
-    }
+    };
 
-    let used : boolean[];
+    let used: boolean[];
     used = [];
-    for(let i = 0; i < originalQubits.length; ++ i) {
+    for (let i = 0; i < originalQubits.length; ++i) {
       used[i] = false;
     }
 
-    for(let idx = 0; idx < originalGates.length; ++idx) {
+    for (let idx = 0; idx < originalGates.length; ++idx) {
       let gate = originalGates[idx];
-      if(maxTime(gate) <= timeStamp) {
+      if (maxTime(gate) <= timeStamp) {
         let a = parseInt(gate.qubits[0].qubitName);
-        if(gate.qubits.length == 1) {
+        if (gate.qubits.length == 1) {
           used[a] = true;
           continue;
         }
-        for(let i = 1; i < gate.qubits.length; ++ i) {
+        for (let i = 1; i < gate.qubits.length; ++i) {
           let b = parseInt(gate.qubits[i].qubitName);
           used[b] = true;
           union(a, b);
@@ -577,18 +576,18 @@ class ContextualCircuit {
     }
 
     let groupId = 0; //qubit1 begin with 1
-    for(let i = 1; i < originalQubits.length; ++i) { 
-      if(used[i] == false) continue;
+    for (let i = 1; i < originalQubits.length; ++i) {
+      if (used[i] == false) continue;
       let flag = false;
-      for(let j = 1; j < i; ++ j) {
-        if(find(i) == find(j)) {
-          group[i] = group[j]; 
+      for (let j = 1; j < i; ++j) {
+        if (find(i) == find(j)) {
+          group[i] = group[j];
           flag = true;
           break;
         }
       }
-      if(flag) continue;
-      group[i] = ++ groupId;
+      if (flag) continue;
+      group[i] = ++groupId;
     }
 
     return group;
@@ -624,7 +623,9 @@ class ContextualCircuit {
       //   node = this._treeStructure[node.parentIndex];
       // }
 
-      let num = this.isInComponent(gate, this._connectivityComponentIndex) ? 2 : 1;
+      let num = this.isInComponent(gate, this._connectivityComponentIndex)
+        ? 2
+        : 1;
 
       // if (node.index === this._connectivityComponentIndex) {
       const qubits = gate.qubits.map((qubit: Qubit) => {
@@ -641,23 +642,22 @@ class ContextualCircuit {
             }
           }
         }
-        if(gate.gateName == "csw") { // 3 
+        if (gate.gateName == "csw") {
+          // 3
           this._connectivityMatrix[qubits[0]][qubits[1]] = num;
           this._connectivityMatrix[qubits[0]][qubits[2]] = num;
           this._connectivityMatrix[qubits[1]][qubits[2]] = num;
           this._connectivityMatrix[qubits[2]][qubits[1]] = num;
-        }
-        else if(gate.gateName  == "ryy"){ // 2 
+        } else if (gate.gateName == "ryy") {
+          // 2
           this._connectivityMatrix[qubits[0]][qubits[1]] = num;
           this._connectivityMatrix[qubits[1]][qubits[0]] = num;
-        }
-        else if(gate.gateName == "cry" || gate.gateName =="cx") {
+        } else if (gate.gateName == "cry" || gate.gateName == "cx") {
           this._connectivityMatrix[qubits[0]][qubits[1]] = num;
         }
       } else {
         this._connectivityMatrix[qubits[0]][qubits[0]] = num;
       }
-      
     });
 
     //calculation the entanglement after current component(included)
@@ -672,15 +672,16 @@ class ContextualCircuit {
 
     return { curEntGroup, preEntGroup };
   }
+
   private _updateQubit() {
     const layers = this._compnentCircuit.getLayers();
     const qubits = this._compnentCircuit.getQubits();
     const focusQubit = qubits[this._focusQubitIndex];
-    const focusGates: ComponentGate[] = [];
-    layers.forEach((layer: Layer) => {
+    const focusGates: { gate: ComponentGate; layer: number }[] = [];
+    layers.forEach((layer: Layer, layerIndex) => {
       layer.gates.forEach((gate: ComponentGate) => {
         if (gate.qubits.includes(focusQubit)) {
-          focusGates.push(gate);
+          focusGates.push({ gate: gate, layer: layerIndex });
         }
       });
     });
@@ -830,14 +831,17 @@ class ContextualCircuit {
         highlights.push(0);
       }
     });
-    let focusQubitGates = this._focusQubitGates.map((gate: ComponentGate) => {
-      return {
-        gateName: gate.gateName,
-        qubits: gate.qubits.map((item: Qubit) => {
-          return item.qubitName;
-        }),
-      };
-    });
+    let focusQubitGates = this._focusQubitGates.map(
+      (gateInfo: { gate: ComponentGate; layer: number }) => {
+        return {
+          gateName: gateInfo.gate.gateName,
+          qubits: gateInfo.gate.qubits.map((item: Qubit) => {
+            return item.qubitName;
+          }),
+          layer: gateInfo.layer,
+        };
+      }
+    );
 
     let subCircuit = this._subCircuit2Json();
     let originalCircuit = this._originalLayers2Json();
