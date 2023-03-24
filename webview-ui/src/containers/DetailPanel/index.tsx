@@ -56,7 +56,7 @@ const DetailPanel = (props: DetailPanelProps) => {
         let deltaScale = e.deltaY * -0.001;
         // console.log(widthScale);
         if (deltaScale > 0) {
-          if (gridWidth < gridHeight) {
+          if (widthScale < 1) {
             setWidthScale((widthScale) =>
               Math.min(Math.max(widthScale + deltaScale * 0.1, 0.35), 1)
             );
