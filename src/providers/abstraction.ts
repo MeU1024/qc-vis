@@ -1,27 +1,27 @@
-import * as vscode from 'vscode';
+import * as vscode from "vscode";
 
-import {getLogger} from '../components/logger';
+import { getLogger } from "../components/logger";
 import {
   Abstraction,
   AbstractionRule,
   AbstractionType,
   Semantics,
-} from './abstractionlib/abstractionrule';
+} from "./abstractionlib/abstractionrule";
 import {
   ComponentGate,
   DrawableCircuit,
   Layer,
   Qubit,
   SuperQubit,
-} from './structurelib/qcmodel';
+} from "./structurelib/qcmodel";
 
-import * as qv from '../quantivine';
-import {QCViewerManagerService} from '../components/viewerlib/qcviewermanager';
-import {ComponentCircuit} from './component';
-import {getExtensionUri} from '../quantivine';
-import path from 'path';
+import * as qv from "../quantivine";
+import { QCViewerManagerService } from "../components/viewerlib/qcviewermanager";
+import { ComponentCircuit } from "./component";
+import { getExtensionUri } from "../quantivine";
+import path from "path";
 
-const logger = getLogger('DataProvider', 'Abstraction');
+const logger = getLogger("DataProvider", "Abstraction");
 
 export class AbstractionDataProvider {
   private _data: AbstractedCircuit | undefined;
@@ -60,12 +60,12 @@ export class AbstractionDataProvider {
     }
 
     let message1 = {
-      command: 'abstraction.setTitle',
-      data: {title: 'Abstraction View'},
+      command: "abstraction.setTitle",
+      data: { title: "Abstraction View" },
     };
 
     let message2 = {
-      command: 'abstraction.setCircuit',
+      command: "abstraction.setCircuit",
       data: this._data.exportJson(),
     };
 
@@ -125,12 +125,12 @@ class AbstractedCircuit {
   }
 
   private _importSemanticsFromFile(dataFile: vscode.Uri): Semantics[] {
-    const algorithmName = path.basename(dataFile.fsPath, '.py');
+    const algorithmName = path.basename(dataFile.fsPath, ".py");
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
       `/resources/data/${algorithmName}-json-data.json`
     ).fsPath;
-    logger.log('Load semantics data from: ' + dataSource);
+    logger.log("Load semantics data from: " + dataSource);
     let data = require(dataSource);
     let semantics = data.semantics.map((sem: any) => {
       let semType = sem.type;
@@ -226,7 +226,7 @@ class AbstractedCircuit {
     this._isIdleLayer[layerIndex!] = false;
 
     // TODO: Implement for multi-qubit gates
-    if (gate.qubits.length > 2 && gate.gateName[0] !== '_') {
+    if (gate.qubits.length > 2 && gate.gateName[0] !== "_") {
       let firstQubitIndex = this._qubits.indexOf(gate.qubits[0]);
       this._isIdleQubit[firstQubitIndex] = false;
       let secondQubitIndex = this._qubits.indexOf(gate.qubits[1]);
@@ -235,7 +235,7 @@ class AbstractedCircuit {
         gate.qubits[gate.qubits.length - 1]
       );
       this._isIdleQubit[lastQubitIndex] = false;
-    } else if (gate.gateName[0] === '_') {
+    } else if (gate.gateName[0] === "_") {
       let firstQubitIndex = this._qubits.indexOf(gate.qubits[0]);
       this._isIdleQubit[firstQubitIndex] = false;
       let lastQubitIndex = this._qubits.indexOf(
@@ -276,7 +276,7 @@ class AbstractedCircuit {
           index === this._qubits.length - 1 ||
           !this._isIdleQubit[index - 1]
         ) {
-          newQubits.push(new SuperQubit('...', [qubit]));
+          newQubits.push(new SuperQubit("...", [qubit]));
         } else {
           let superQubit = newQubits[newQubits.length - 1] as SuperQubit;
           superQubit.qubits.push(qubit);
@@ -323,7 +323,7 @@ class AbstractedCircuit {
     let m = newLayers.length;
     let ret = newLayers;
 
-    let isIdelNewQubit = newQubits.map((qubit) => qubit.qubitName === '...');
+    let isIdelNewQubit = newQubits.map((qubit) => qubit.qubitName === "...");
     let isIdelNewLayer = newLayers.map((layer) => layer.gates.length === 0);
 
     const checkInAbstraction = (
@@ -366,23 +366,23 @@ class AbstractedCircuit {
           continue;
         }
         let curQubit = newQubits[i];
-        if (curQubit instanceof SuperQubit && curQubit.qubitName === '...') {
+        if (curQubit instanceof SuperQubit && curQubit.qubitName === "...") {
           curQubit = curQubit.qubits[0];
         }
 
         if (isIdelNewQubit[i] && isIdelNewLayer[j]) {
-          const checkIn = checkInAbstraction(i, j, 'diagonal');
+          const checkIn = checkInAbstraction(i, j, "diagonal");
           if (checkIn) {
-            ret[j].gates.push(new ComponentGate('...', [curQubit], [], 0, ''));
+            ret[j].gates.push(new ComponentGate("...", [curQubit], [], 0, []));
           }
         }
         if (isIdelNewQubit[i]) {
-          const checkIn = checkInAbstraction(i, j, 'vertical');
+          const checkIn = checkInAbstraction(i, j, "vertical");
           if (checkIn) {
-            ret[j].gates.push(new ComponentGate('...', [curQubit], [], 0, ''));
+            ret[j].gates.push(new ComponentGate("...", [curQubit], [], 0, []));
           }
         } else if (isIdelNewLayer[j]) {
-          const checkIn = checkInAbstraction(i, j, 'horizontal');
+          const checkIn = checkInAbstraction(i, j, "horizontal");
           if (checkIn) {
             // let curQubit = newQubits[Math.floor(newQubits.length / 2)];
             // if (curQubit instanceof SuperQubit) {
@@ -390,7 +390,7 @@ class AbstractedCircuit {
             // }
 
             ret[j].gates.push(
-              new ComponentGate('colDots', [curQubit], [], 0, '')
+              new ComponentGate("colDots", [curQubit], [], 0, [])
             );
           }
         }
@@ -420,7 +420,7 @@ class AbstractedCircuit {
 
     // TODO: Implement for multi-qubit gates
     // if (gate.qubits.length > 2 && gate.gateName[0] !== "_") {
-    if (gate.qubits.length > 2 && gate.gateName[0] !== '_') {
+    if (gate.qubits.length > 2 && gate.gateName[0] !== "_") {
       let secondQubitIndex = this._qubits.indexOf(gate.qubits[1]);
       if (this._isIdleQubit[secondQubitIndex]) {
         return false;

@@ -26,7 +26,7 @@ const GridText = (props: GridTextProps) => {
     y.reduce((sum, value) => {
       return sum + value;
     }, 0) / y.length;
-  ctx.font = (width * 0.4 < 20 ? width * 0.4 : 20).toString() + "px serif";
+  ctx.font = (width * 0.4 < 20 ? width * 0.4 : 20).toString() + "px system-ui";
   // ctx.fillStyle = fillStyle.length == 0 ? FILL_STYLE : fillStyle;
   ctx.fillStyle = CUSTOM_GATE_STROKE;
   if (content[0] == "_") {
@@ -72,7 +72,8 @@ const GridText = (props: GridTextProps) => {
     let text = ctx.measureText(lines[i]);
     if (text.width > (width / 4) * 3) {
       ctx.font =
-        ((width * 0.4 < 20 ? width * 0.4 : 20) * 0.8).toString() + "px serif ";
+        ((width * 0.4 < 20 ? width * 0.4 : 20) * 0.8).toString() +
+        "px system-ui ";
       text = ctx.measureText(lines[i]);
       fontSize = (width * 0.4 < 20 ? width * 0.4 : 20) * 0.8;
     }
