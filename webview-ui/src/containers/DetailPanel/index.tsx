@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import BitsName from '../../components/BitsName';
 import {CircuitAnnotator} from '../../components/CircuitAnnotator';
 import {CircuitRender} from '../../components/CircuitRender';
@@ -24,9 +24,37 @@ const DetailPanel = (props: DetailPanelProps) => {
     all_gates: (number | number[])[][];
   }>(data);
 
+  const [scale, setScale] = useState(1);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const canvasStyle = {
+    transform: `scale(${scale})`,
+    transformOrigin: '0 0',
+  };
+
   const [panelTitle, setPanelTitle] = useState('Abstraction');
 
   const {theme, highlightGate} = props;
+
+  function handleWheelEvent(e: any) {
+    if (e.ctrlKey) {
+      e.preventDefault();
+      let deltaScale = e.deltaY * -0.001;
+      setScale((scale) => Math.min(Math.max(scale + deltaScale, 0.1), 10));
+    }
+  }
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.addEventListener('wheel', handleWheelEvent);
+    }
+    return () => {
+      if (canvas) {
+        canvas.removeEventListener('wheel', handleWheelEvent);
+      }
+    };
+  }, []);
 
   //fetch data and modify canvas size
   useEffect(() => {
@@ -112,6 +140,8 @@ const DetailPanel = (props: DetailPanelProps) => {
         />
         <canvas
           id='detailCanvas'
+          ref={canvasRef}
+          style={canvasStyle}
           width={canvasWidth}
           height={canvasHeight}
         ></canvas>

@@ -1,11 +1,12 @@
 main {
+  font-family: 'Microsoft YaHei UI', 'Microsoft YaHei', 'Segoe UI', Tahoma,
+    Geneva, Verdana, sans-serif;
   align-items: flex-start;
   margin: 10px;
 
   .MainContent {
     display: grid;
     grid-template-rows: 45% 55%;
-    // height: 100vh;
     height: 1040px;
     width: 1600px;
 
@@ -67,7 +68,11 @@ main {
 
 .divider {
   margin-top: 2px;
-  border-bottom: 1px solid #D4D4D4;
+  border-bottom: 2px solid #d4d4d4;
+}
+
+.circuit {
+  border: 2px solid #d4d4d4;
 }
 
 ::-webkit-scrollbar {
