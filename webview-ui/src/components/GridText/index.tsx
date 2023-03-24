@@ -64,7 +64,9 @@ const GridText = (props: GridTextProps) => {
   ctx.textBaseline = "middle";
 
   var lines = content.split(" ");
-  var lineheight = 25;
+  var lineheight = 20;
+  var fontSize = width * 0.4;
+  //
 
   for (var i = 0; i < lines.length; i++) {
     let text = ctx.measureText(lines[i]);
@@ -72,11 +74,24 @@ const GridText = (props: GridTextProps) => {
       ctx.font =
         ((width * 0.4 < 20 ? width * 0.4 : 20) * 0.8).toString() + "px serif ";
       text = ctx.measureText(lines[i]);
+      fontSize = (width * 0.4 < 20 ? width * 0.4 : 20) * 0.8;
     }
+  }
+
+  var linesHeight = fontSize * lines.length + lineheight * (lines.length - 1);
+
+  for (var i = 0; i < lines.length; i++) {
+    let text = ctx.measureText(lines[i]);
+
     const xCoord = xPos * width + width / 2 - text.width / 2;
     const yCoord =
-      yPos * height + height / 2 - ((lines.length - 1) * lineheight) / 2;
-    ctx.fillText(lines[i], xCoord, yCoord + i * lineheight);
+      yPos * height +
+      height / 2 -
+      linesHeight / 2 +
+      fontSize / 2 +
+      i * fontSize +
+      i * lineheight;
+    ctx.fillText(lines[i], xCoord, yCoord);
   }
 
   return null;

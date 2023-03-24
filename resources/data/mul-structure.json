@@ -15,7 +15,7 @@
     "index": 8,
     "type": "rep"
   },
-  { "name": "_Operations", "parentIndex": 8, "index": 9, "type": "fun" },
+  { "name": "_Ops", "parentIndex": 8, "index": 9, "type": "fun" },
 
   { "name": "[ccx&Adder]", "parentIndex": 9, "index": 10, "type": "rep" },
   { "name": "_Ccx& Adder", "parentIndex": 10, "index": 11, "type": "fun" },

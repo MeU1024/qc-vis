@@ -211,13 +211,13 @@ const Circuit2GridData = (circuitData: {
           if (op[1] == "c") {
             graphText.push({
               x: xRange,
-              y: yRange.slice(1),
+              y: [yRange[1], yRange[yRange.length - 1]],
               content: op,
             });
           } else {
             graphText.push({
               x: xRange,
-              y: yRange,
+              y: [yRange[0], yRange[yRange.length - 1]],
               content: op,
             });
           }
