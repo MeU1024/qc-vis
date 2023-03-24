@@ -21,7 +21,7 @@ const geneParaData = () => {
 const ParallelismPanel = (props: ParallelismPanelProps) => {
   const { theme, highlightGate } = props;
 
-  const [panelTitle, setPanelTitle] = useState("Idle Qubit | Parallelism");
+  const [panelTitle, setPanelTitle] = useState("Placement");
   const [idleBarwidth, setIdleBarwidth] = useState(40);
   const [idleBarheight, setIdleBarheight] = useState(360);
   const [canvasWidth, setCanvasWidth] = useState(350);
@@ -376,9 +376,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   };
 
   return (
-    <div className="parallelismPanel">
+    <div className="panel parallelismPanel">
 
-      <div className="panelHeader">{panelTitle}</div>
+      <div className="panelHeader">
+        <span className="title">{panelTitle}</span>
+      </div>
 
       <div className="parallelismHori">
         <div className="parallelismTitle">

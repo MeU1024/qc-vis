@@ -1,9 +1,7 @@
 #connectivityPanel {
-  display: flex;
-  flex-direction: column;
-  // justify-content: center;
-  align-items: center;
+  margin-left: 20px;
 }
+
 .legend {
   margin: 10px;
   align-self: flex-end;
@@ -12,7 +10,3 @@
   margin: 5px;
 }
 
-.first {
-  align-self: flex-start;
-  justify-content: start;
-}

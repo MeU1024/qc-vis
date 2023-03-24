@@ -143,7 +143,9 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
 
   return (
     <div className="panel" id="connectivityPanel">
-      <div className="panelHeader first">{panelTitle}</div>
+      <div className="panelHeader">
+        <span className="title">{panelTitle}</span>
+      </div>
       <div className="legend">
         <span className="legendName">Linked</span>
         <svg viewBox="0 0 8 8" width="8" height="8">

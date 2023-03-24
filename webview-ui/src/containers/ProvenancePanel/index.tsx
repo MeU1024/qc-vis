@@ -31,7 +31,7 @@ const generateQubitData = () => {
 const ProvenancePanel = (props: ProvenancePanelProps) => {
   const { theme, highlightGate } = props;
 
-  const [panelTitle, setPanelTitle] = useState("Provenance");
+  const [panelTitle, setPanelTitle] = useState("Qubit Provenance");
   const [qubitData, setQubitData] = useState<
     | undefined
     | {
@@ -235,7 +235,9 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
   }, []);
   return (
     <div className="panel">
-      <div className="panelHeader">{panelTitle}</div>
+      <div className="panelHeader">
+        <span className="title">{panelTitle}</span>
+      </div>
       <div className="qubitView">
         <div className="qubitTitle">Qubit {focusQubit}</div>
         <svg

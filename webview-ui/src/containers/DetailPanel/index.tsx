@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import BitsName from "../../components/BitsName";
-import { CircuitAnnotator } from "../../components/CircuitAnnotator";
-import { CircuitRender } from "../../components/CircuitRender";
-import Circuit2GridData from "../../utilities/Circuit2GridData";
+import {useEffect, useState} from 'react';
+import BitsName from '../../components/BitsName';
+import {CircuitAnnotator} from '../../components/CircuitAnnotator';
+import {CircuitRender} from '../../components/CircuitRender';
+import Circuit2GridData from '../../utilities/Circuit2GridData';
 
-import data from "../../../data/vqc-10-detail-abstract.json";
+import data from '../../../data/vqc-10-detail-abstract.json';
 export interface DetailPanelProps {
   theme: any;
   highlightGate: string | null;
@@ -24,9 +24,9 @@ const DetailPanel = (props: DetailPanelProps) => {
     all_gates: (number | number[])[][];
   }>(data);
 
-  const [panelTitle, setPanelTitle] = useState("Abstraction");
+  const [panelTitle, setPanelTitle] = useState('Abstraction');
 
-  const { theme, highlightGate } = props;
+  const {theme, highlightGate} = props;
 
   //fetch data and modify canvas size
   useEffect(() => {
@@ -50,21 +50,21 @@ const DetailPanel = (props: DetailPanelProps) => {
 
   useEffect(() => {
     if (gridHeight !== null && gridWidth !== null) {
-      const { graph, graphText } = Circuit2GridData(circuit);
+      const {graph, graphText} = Circuit2GridData(circuit);
 
-      const canvas = document.getElementById("detailCanvas");
+      const canvas = document.getElementById('detailCanvas');
       if (canvas) {
-        const ctx = (canvas as HTMLCanvasElement).getContext("2d");
+        const ctx = (canvas as HTMLCanvasElement).getContext('2d');
         if (ctx) {
-          ctx.fillStyle = "#ffffff";
+          ctx.fillStyle = '#ffffff';
           ctx.clearRect(
             0,
             0,
             (canvas as HTMLCanvasElement).width,
             (canvas as HTMLCanvasElement).height
           );
-          CircuitRender({ graph, ctx, gridWidth, gridHeight });
-          CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
+          CircuitRender({graph, ctx, gridWidth, gridHeight});
+          CircuitAnnotator({graphText, ctx, gridWidth, gridHeight});
         }
       }
     }
@@ -74,46 +74,49 @@ const DetailPanel = (props: DetailPanelProps) => {
     const handleMessageEvent = (event: any) => {
       const message = event.data;
       switch (message.command) {
-        case "abstraction.setCircuit":
+        case 'abstraction.setCircuit':
           setCircuit(message.data);
-          console.log("abs", message.data);
+          console.log('abs', message.data);
           break;
-        case "abstraction.setCanvasSize":
+        case 'abstraction.setCanvasSize':
           setCanvasWidth(message.data.width);
           setCanvasHeight(message.data.height);
           break;
-        case "abstraction.setTitle":
+        case 'abstraction.setTitle':
           setPanelTitle(message.data.title);
           break;
       }
     };
-    window.addEventListener("message", handleMessageEvent);
+    window.addEventListener('message', handleMessageEvent);
     return () => {
-      window.removeEventListener("message", handleMessageEvent);
+      window.removeEventListener('message', handleMessageEvent);
     };
   }, []);
 
   return (
-    <div className="panel">
-      <div className="panelHeader">{panelTitle}</div>
+    <div className='panel abstraction-view'>
+      <div className='panelHeader'>
+        <span className='title'>{panelTitle}</span>
+      </div>
       <div
-        className="circuit"
+        className='circuit'
         style={{
           gridTemplateColumns:
-            ((gridHeight < 50 ? gridHeight : 50) * 1.2).toString() + "px auto",
+            ((gridHeight < 50 ? gridHeight : 50) * 1.2).toString() + 'px auto',
         }}
       >
         <BitsName
           qbitLengths={qbitLengths}
-          alignment={"sub"}
+          alignment={'sub'}
           gridHeight={gridHeight}
         />
         <canvas
-          id="detailCanvas"
+          id='detailCanvas'
           width={canvasWidth}
           height={canvasHeight}
         ></canvas>
       </div>
+      <div className='divider'></div>
     </div>
   );
 };
