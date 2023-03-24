@@ -1,4 +1,4 @@
-import * as vscode from "vscode";
+import * as vscode from 'vscode';
 
 export enum NodeType {
   superGate = 0,
@@ -27,5 +27,19 @@ export class QuantumTreeNode extends vscode.TreeItem {
 
     // super(label, collapsibleState);
   }
-  contextValue = "component";
+  contextValue = 'component';
+
+  get semanticDepth(): number {
+    let d = 0;
+    let parent = this.parent;
+
+    while (parent) {
+      if (parent.type !== NodeType.repetition) {
+        d++;
+      }
+      parent = parent.parent;
+    }
+
+    return d;
+  }
 }

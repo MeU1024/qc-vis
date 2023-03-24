@@ -238,6 +238,8 @@ export class Gate {
 }
 
 export class ComponentGate {
+  private _treePath: number[] = [];
+  private _depth: number | undefined;
   constructor(
     readonly gateName: string,
     readonly qubits: Qubit[],
@@ -245,10 +247,29 @@ export class ComponentGate {
     readonly treeIndex: number,
     readonly repTimes: number[]
   ) {}
+
+  get treePath(): number[] {
+    return this.repTimes;
+  }
+
+  get depth(): number {
+    return this.treePath.length - 1;
+  }
+
+  set depth(depth: number) {
+    this._depth = depth;
+  }
+
+  get index(): number {
+    return this.treePath[this.depth];
+  }
 }
 
 export class Qubit {
   constructor(readonly qubitName: string, readonly qubitIndex?: number) {}
+  get index(): number {
+    return this.qubitIndex ? this.qubitIndex : 0;
+  }
 }
 
 export class SuperQubit extends Qubit {
