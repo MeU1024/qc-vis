@@ -57,7 +57,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.strokeStyle = SINGLE_GATE_STROKE;
       ctx.strokeRect(
         xCoord + (width - maxWidth) / 2,
-        yCoord + (width - maxWidth) / 2,
+        yCoord + (height - maxWidth) / 2,
         maxWidth,
         maxWidth
       );
@@ -151,10 +151,13 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(xCoord + (width - maxWidth) / 2, yCoord);
-      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + (width / 8) * 7);
+      ctx.lineTo(
+        xCoord + (width - maxWidth) / 2,
+        yCoord + height - (width - maxWidth) / 2
+      );
       ctx.lineTo(
         xCoord + width - (width - maxWidth) / 2,
-        yCoord + (width / 8) * 7
+        yCoord + height - (width - maxWidth) / 2
       );
       ctx.lineTo(xCoord + width - (width - maxWidth) / 2, yCoord);
       // ctx.closePath();
@@ -545,7 +548,10 @@ const GridDrawing = (props: GridDrawingProps) => {
       );
 
       ctx.beginPath();
-      ctx.moveTo(xCoord + width / 2, yCoord + (height / 8) * 7);
+      ctx.moveTo(
+        xCoord + width / 2,
+        yCoord + height - (height - (width / 4) * 3) / 2
+      );
       ctx.lineTo(xCoord + width / 2, yCoord + height);
       ctx.stroke();
       break;
@@ -565,13 +571,13 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.strokeStyle = MULTI_GATE_STROKE;
       ctx.strokeRect(
         xCoord + width / 8,
-        yCoord + height / 8,
+        yCoord + (height - (width / 4) * 3) / 2,
         (width / 4) * 3,
-        (height / 4) * 3
+        (width / 4) * 3
       );
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 2, yCoord);
-      ctx.lineTo(xCoord + width / 2, yCoord + height / 8);
+      ctx.lineTo(xCoord + width / 2, yCoord + (height - (width / 4) * 3) / 2);
 
       ctx.stroke();
       break;

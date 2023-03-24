@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import BitsName from "../../components/BitsName";
 import { CircuitAnnotator } from "../../components/CircuitAnnotator";
 import { CircuitRender } from "../../components/CircuitRender";
@@ -31,6 +31,22 @@ const OverviewPanel = (props: OverviewPanelProps) => {
     originalQubitLength?: number;
     originalGateLength?: number;
   }>(overviewData_abs);
+
+  const [scale, setScale] = useState(1);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const canvasStyle = {
+    transform: `scale(${scale})`,
+    transformOrigin: "0 0",
+  };
+
+  function handleWheelEvent(e: any) {
+    if (e.ctrlKey) {
+      e.preventDefault();
+      let deltaScale = e.deltaY * -0.001;
+      setScale((scale) => Math.min(Math.max(scale + deltaScale, 0.1), 10));
+    }
+  }
 
   useEffect(() => {
     // var gridSize =
@@ -77,6 +93,18 @@ const OverviewPanel = (props: OverviewPanelProps) => {
       }
     }
   }, [circuit, canvasHeight, canvasWidth, gridHeight, gridWidth]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.addEventListener("wheel", handleWheelEvent);
+    }
+    return () => {
+      if (canvas) {
+        canvas.removeEventListener("wheel", handleWheelEvent);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (highlightGate == "PA") {
@@ -127,18 +155,21 @@ const OverviewPanel = (props: OverviewPanelProps) => {
         className="circuit"
         style={{
           gridTemplateColumns:
-            ((gridHeight < 50 ? gridHeight : 50) * 1.2).toString() + "px auto",
+            ((gridHeight < 50 ? gridHeight : 50) * 0.9 * scale).toString() +
+            "px auto",
         }}
       >
         <BitsName
           qbitLengths={qbitLengths}
           alignment={"sub"}
-          gridHeight={gridHeight}
+          gridHeight={gridHeight * scale}
         />
         <canvas
           id="overviewCanvas"
           width={canvasWidth}
           height={canvasHeight}
+          ref={canvasRef}
+          style={canvasStyle}
         ></canvas>
       </div>
       <div className="divider"></div>
