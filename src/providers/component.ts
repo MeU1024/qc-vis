@@ -206,7 +206,7 @@ export class ComponentCircuit {
           qubits,
           gate[2],
           gate[3],
-          gate[4].toString()
+          gate[4]
         );
         this._originalGates.push(componentGate);
       });
@@ -321,6 +321,7 @@ export class ComponentCircuit {
   private _grouping() {
     let treeMap = new Map<number, number[]>();
     let treeIndexGatesMap = new Map<number, { [key: string]: number[] }>();
+    let parentMap = new Map<number, { [key: number]: number }>();
 
     this._treeStructure.forEach(
       (item: {
@@ -331,6 +332,21 @@ export class ComponentCircuit {
       }) => {
         treeMap.set(item.index, []);
         treeIndexGatesMap.set(item.index, {});
+
+        if (item.type === "rep_item") {
+          let parentDict: { [key: number]: number } = {};
+          // let node = this._treeStructure[item.parentIndex];
+          let parentIndex = item.parentIndex;
+          let node = this._treeStructure[parentIndex];
+          while (parentIndex !== 0) {
+            if (node.type === "fun") {
+              parentDict[node.index] = Object.keys(parentDict).length;
+            }
+            parentIndex = node.parentIndex;
+            node = this._treeStructure[parentIndex];
+          }
+          parentMap.set(item.index, parentDict);
+        }
       }
     );
 
@@ -356,9 +372,17 @@ export class ComponentCircuit {
 
     this._originalGates.forEach((gate: ComponentGate, gateIndex) => {
       const treeIndex = gate.treeIndex;
-      const timestampKey = gate.repTimes.toString();
 
+      //obtain the func index with the leaf node as start point
       const newTreeIndex = this._treeMap.get(treeIndex);
+      const parentDict = parentMap.get(treeIndex);
+      let repTimesInTree = 0;
+      if (parentDict !== undefined && newTreeIndex !== undefined) {
+        repTimesInTree = parentDict[newTreeIndex];
+      }
+
+      const timestampKey = gate.repTimes[repTimesInTree];
+
       if (newTreeIndex !== undefined) {
         let gatesDict = treeIndexGatesMap.get(newTreeIndex);
         if (gatesDict !== undefined) {
@@ -910,7 +934,7 @@ export class ComponentCircuit {
           Array.from(qubits),
           gateInfo.range,
           gateInfo.treeIndex,
-          gateInfo.repTimes
+          []
         );
         this._gates.push(gate);
         return gate;
