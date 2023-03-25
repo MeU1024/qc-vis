@@ -38,9 +38,7 @@ const DetailPanel = (props: DetailPanelProps) => {
   const [panelTitle, setPanelTitle] = useState("Abstraction");
 
   const canvasFixedWidth = 32000;
-  const [canvasMinHeight, setCanvasMinHeight] = useState();
 
-  const [deltaScale, setDeltaScale] = useState<number | undefined>(undefined);
   const { theme, highlightGate } = props;
 
   useEffect(() => {

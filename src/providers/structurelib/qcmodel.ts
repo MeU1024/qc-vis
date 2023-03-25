@@ -355,9 +355,16 @@ export class DrawableCircuit {
       layer.gates.forEach((gate) => {
         let gateInfo: any[] = [];
         const opNameIndex = this._opMap.get(gate.gateName);
-        const qubitsIndex = gate.qubits.map((qubit) =>
-          this._qubitMap.get(qubit)
-        );
+        const qubitsIndex = gate.qubits.map((qubit) => {
+          return this._qubitMap.get(qubit);
+          // const index = this._qubitMap.get(qubit);
+          // if (index !== undefined) {
+          //   return index;
+          // } else {
+          //   return -1;
+          // }
+        });
+
         gateInfo.push(opNameIndex);
         gateInfo.push([layerIndex]);
         gateInfo.push(qubitsIndex);

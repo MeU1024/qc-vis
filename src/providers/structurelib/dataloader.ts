@@ -1,7 +1,7 @@
-import * as vscode from 'vscode';
-import * as qv from '../../quantivine';
-import {SemanticTree} from './layout';
-import {ComponentGate, Qubit} from './qcmodel';
+import * as vscode from "vscode";
+import * as qv from "../../quantivine";
+import { SemanticTree } from "./layout";
+import { ComponentGate, Qubit } from "./qcmodel";
 
 export class DataLoader {
   private _qubits: Qubit[] = [];
@@ -61,6 +61,10 @@ export class DataLoader {
   }
 
   get compiledTree(): SemanticTree {
-    throw new Error('Method not implemented.');
+    throw new Error("Method not implemented.");
+  }
+
+  get qubits(): Qubit[] {
+    return this._qubits;
   }
 }

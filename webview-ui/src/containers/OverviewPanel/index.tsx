@@ -6,6 +6,7 @@ import "./index.scss";
 import overviewData from "../../../data/vqc-10-overview.json";
 import overviewData_abs from "../../../data/vqc-10-detail-abstract.json";
 import Circuit2GridData from "../../utilities/Circuit2GridData";
+import { WIRE_STROKE, LINE_WIDTH, BOLD_LINE_WIDTH } from "../../const";
 
 export interface OverviewPanelProps {
   // gridWidth: number;
@@ -33,33 +34,29 @@ const OverviewPanel = (props: OverviewPanelProps) => {
   }>(overviewData_abs);
 
   const [scale, setScale] = useState(1);
+  const [widthScale, setWidthScale] = useState(1);
+  const [originalGridWidth, setOriginalGridWidth] = useState(25);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const canvasFixedWidth = 32000;
 
   const canvasStyle = {
     transform: `scale(${scale})`,
     transformOrigin: "0 0",
   };
 
-  function handleWheelEvent(e: any) {
-    if (e.ctrlKey) {
-      e.preventDefault();
-      let deltaScale = e.deltaY * -0.001;
-      setScale((scale) => Math.min(Math.max(scale + deltaScale, 0.1), 10));
-    }
-  }
+  useEffect(() => {
+    setGridWidth(originalGridWidth * widthScale);
+  }, [widthScale]);
 
   useEffect(() => {
-    // var gridSize =
-    //   canvasWidth / circuit.output_size[1] <
-    //   canvasHeight / circuit.output_size[0]
-    //     ? canvasWidth / circuit.output_size[1]
-    //     : canvasHeight / circuit.output_size[0];
     var gridSize = canvasHeight / circuit.output_size[0];
-    gridSize = gridSize < 20 ? 20 : gridSize;
+    gridSize = gridSize < 25 ? 25 : gridSize;
     gridSize = gridSize > 200 ? 200 : gridSize;
 
     setGridWidth(gridSize);
     setGridHeight(gridSize);
+    setOriginalGridWidth(gridSize);
     setCanvasHeight(gridSize * circuit.output_size[0]);
     setCanvasWidth(
       gridSize * circuit.output_size[1] < 32000
@@ -89,6 +86,23 @@ const OverviewPanel = (props: OverviewPanelProps) => {
           );
           CircuitRender({ graph, ctx, gridWidth, gridHeight });
           CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
+
+          //add wires
+          const circuitWidth = circuit.output_size[1] * gridWidth;
+          const qubitNumber = circuit.output_size[0];
+
+          ctx.strokeStyle = WIRE_STROKE;
+          ctx.lineWidth = gridWidth < 50 ? LINE_WIDTH : BOLD_LINE_WIDTH;
+
+          for (let index = 0; index < qubitNumber; index++) {
+            ctx.beginPath();
+            ctx.moveTo(circuitWidth, index * gridHeight + gridHeight / 2);
+            ctx.lineTo(
+              canvasFixedWidth - 10,
+              index * gridHeight + gridHeight / 2
+            );
+            ctx.stroke();
+          }
         }
       }
     }
@@ -96,6 +110,38 @@ const OverviewPanel = (props: OverviewPanelProps) => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+
+    const handleWheelEvent = (e: any) => {
+      if (e.ctrlKey) {
+        e.preventDefault();
+        let deltaScale = e.deltaY * -0.001;
+        // console.log(widthScale);
+        if (deltaScale > 0) {
+          if (widthScale < 1) {
+            setWidthScale((widthScale) =>
+              Math.min(Math.max(widthScale + deltaScale * 0.1, 0.35), 1)
+            );
+          } else {
+            setScale((scale) =>
+              Math.min(Math.max(scale + deltaScale, 0.1), 10)
+            );
+          }
+        } else {
+          const scaleChange = Math.min(Math.max(scale + deltaScale, 0.1), 10);
+          // console.log("scaleChange", scaleChange);
+          if (scaleChange * canvasHeight < 350) {
+            setWidthScale((widthScale) =>
+              Math.min(Math.max(widthScale + deltaScale * 0.1, 0.35), 1)
+            );
+          } else {
+            setScale((scale) =>
+              Math.min(Math.max(scale + deltaScale, 0.1), 10)
+            );
+          }
+        }
+      }
+    };
+
     if (canvas) {
       canvas.addEventListener("wheel", handleWheelEvent);
     }
@@ -104,7 +150,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
         canvas.removeEventListener("wheel", handleWheelEvent);
       }
     };
-  }, []);
+  }, [widthScale, scale]);
 
   useEffect(() => {
     if (highlightGate == "PA") {
@@ -166,7 +212,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
         />
         <canvas
           id="overviewCanvas"
-          width={canvasWidth}
+          width={canvasFixedWidth}
           height={canvasHeight}
           ref={canvasRef}
           style={canvasStyle}
