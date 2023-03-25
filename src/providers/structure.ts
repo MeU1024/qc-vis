@@ -203,6 +203,10 @@ export class GateNodeProvider
     );
   }
 
+  getNodeByTreeIndex(treeIndex: number): QuantumTreeNode | undefined {
+    return this._nodeMap.get(treeIndex);
+  }
+
   logTree(node: QuantumTreeNode | undefined) {
     if (node) {
       logger.log(`${node.label} ${this._statMap.get(node.treeIndex)}`);
@@ -275,6 +279,10 @@ export class SemanticTreeViewer {
 
   getNearestNode(gate: ComponentGate): QuantumTreeNode {
     return this._treeDataProvider.getNearestNode(gate);
+  }
+
+  getNodeByTreeIndex(treeIndex: number): QuantumTreeNode | undefined {
+    return this._treeDataProvider.getNodeByTreeIndex(treeIndex);
   }
 
   /**
