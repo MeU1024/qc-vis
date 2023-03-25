@@ -86,6 +86,15 @@
           "dark": "resources/dark/matrix.svg"
         },
         "category": "Quantivine"
+      },
+      {
+        "command": "quantivine.focus",
+        "title": "Focus",
+        "icon": {
+          "light": "resources/light/focus.svg",
+          "dark": "resources/dark/focus.svg"
+        },
+        "category": "Quantivine"
       }
     ],
     "configuration": {
@@ -187,10 +196,16 @@
       "view/item/context": [
         {
           "command": "quantivine.showMatrix",
-          "when": "viewItem == component",
+          "when": "viewItem == component || viewItem == highlightcomponent",
+          "group": "inline"
+        },
+        {
+          "command": "quantivine.focus",
+          "when": "viewItem == component ||viewItem == highlightcomponent",
           "group": "inline"
         }
       ]
+      
     }
   },
   "scripts": {

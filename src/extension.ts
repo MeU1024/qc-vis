@@ -48,6 +48,16 @@ function registerQuantivineCommands() {
     )
   );
   qv.registerDisposable(
+    vscode.commands.registerCommand(
+      "quantivine.focus",
+      (node: QuantumTreeNode) => {
+        qv.commander.setFocus(node.treeIndex);
+        // node.contextValue ='highlightcomponent'
+        logger.log(node.treeIndex.toString());
+      }
+    )
+  );
+  qv.registerDisposable(
     vscode.window.onDidChangeActiveColorTheme(async (event) => {
       qv.commander.themeChange(event);
     })

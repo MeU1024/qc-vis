@@ -76,3 +76,10 @@ export function getDefaultDataFile() {
       .fsPath
   );
 }
+
+export function getCurrentDataFile() {
+  return vscode.Uri.file(
+    vscode.Uri.joinPath(getExtensionUri(), "/resources/data/vqc_data_50.json")
+      .fsPath
+  );
+}

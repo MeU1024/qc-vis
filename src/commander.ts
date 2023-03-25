@@ -54,10 +54,22 @@ export async function themeChange(theme: vscode.ColorTheme) {
 }
 
 export async function setMatrixComponentIndex(index: number) {
-  const panelSet = QCViewerManagerService.getPanelSet(qv.getDefaultDataFile());
-  panelSet?.forEach((panel) => {
-    panel.setMatrixComponentIndex(index);
-  });
+  const sourceFile = qv.manager.sourceFile;
+  if (sourceFile !== undefined) {
+    const panelSet = QCViewerManagerService.getPanelSet(sourceFile);
+    panelSet?.forEach((panel) => {
+      panel.setMatrixComponentIndex(index);
+    });
+  }
+}
+export async function setFocus(index: number) {
+  const sourceFile = qv.manager.sourceFile;
+  if (sourceFile !== undefined) {
+    const panelSet = QCViewerManagerService.getPanelSet(sourceFile);
+    panelSet?.forEach((panel) => {
+      panel.setFocus(index);
+    });
+  }
 }
 
 export async function refreshView() {

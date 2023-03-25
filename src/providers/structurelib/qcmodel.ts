@@ -278,6 +278,10 @@ export class SuperQubit extends Qubit {
   }
 }
 
+export class Region {
+  constructor(layer: number[], qubit: number[], name: string) {}
+}
+
 export class DrawableCircuit {
   private _width: number;
   private _height: number;

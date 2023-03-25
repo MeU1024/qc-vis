@@ -7,6 +7,7 @@ import overviewData from "../../../data/vqc-10-overview.json";
 import overviewData_abs from "../../../data/vqc-10-detail-abstract.json";
 import Circuit2GridData from "../../utilities/Circuit2GridData";
 import { WIRE_STROKE, LINE_WIDTH, BOLD_LINE_WIDTH } from "../../const";
+import { HighlightFrameRender } from "../../utilities/HighlightFrameRender";
 
 export interface OverviewPanelProps {
   // gridWidth: number;
@@ -32,7 +33,13 @@ const OverviewPanel = (props: OverviewPanelProps) => {
     originalQubitLength?: number;
     originalGateLength?: number;
   }>(overviewData_abs);
-
+  const [highlightRegions, setHighlightRegions] = useState<
+    {
+      layer: number[];
+      qubit: number[];
+      name: string;
+    }[]
+  >([]);
   const [scale, setScale] = useState(1);
   const [widthScale, setWidthScale] = useState(1);
   const [originalGridWidth, setOriginalGridWidth] = useState(25);
@@ -84,6 +91,14 @@ const OverviewPanel = (props: OverviewPanelProps) => {
             (canvas as HTMLCanvasElement).width,
             (canvas as HTMLCanvasElement).height
           );
+
+          HighlightFrameRender({
+            highlightRegions,
+            ctx,
+            gridWidth,
+            gridHeight,
+          });
+
           CircuitRender({ graph, ctx, gridWidth, gridHeight });
           CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
 
@@ -103,10 +118,19 @@ const OverviewPanel = (props: OverviewPanelProps) => {
             );
             ctx.stroke();
           }
+
+          //highlight
         }
       }
     }
-  }, [circuit, canvasHeight, canvasWidth, gridHeight, gridWidth]);
+  }, [
+    circuit,
+    canvasHeight,
+    canvasWidth,
+    gridHeight,
+    gridWidth,
+    highlightRegions,
+  ]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -166,11 +190,17 @@ const OverviewPanel = (props: OverviewPanelProps) => {
       switch (message.command) {
         case "component.setCircuit":
           setCircuit(message.data);
+          setHighlightRegions(message.data.componentRegion);
           console.log("in diagram", message.data);
           break;
         case "component.setCanvasSize":
           setCanvasWidth(message.data.width);
           setCanvasHeight(message.data.height);
+          break;
+        case "component.setRegion":
+          setHighlightRegions(message.data);
+          console.log("highlightRegions", message.data);
+
           break;
       }
     };

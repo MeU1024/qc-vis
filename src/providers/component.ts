@@ -1,23 +1,24 @@
-import path from 'path';
-import * as vscode from 'vscode';
+import path from "path";
+import * as vscode from "vscode";
 
-import {getLogger} from '../components/logger';
-import {QCViewerManagerService} from '../components/viewerlib/qcviewermanager';
+import { getLogger } from "../components/logger";
+import { QCViewerManagerService } from "../components/viewerlib/qcviewermanager";
 
-import * as qv from '../quantivine';
-import {getExtensionUri} from '../quantivine';
-import {DataLoader} from './structurelib/dataloader';
-import {SemanticLayout} from './structurelib/layout';
+import * as qv from "../quantivine";
+import { getExtensionUri } from "../quantivine";
+import { DataLoader } from "./structurelib/dataloader";
+import { SemanticLayout } from "./structurelib/layout";
 import {
   Qubit,
   ComponentGate,
   Layer,
   SuperQubit,
   DrawableCircuit,
-} from './structurelib/qcmodel';
-import {QuantumTreeNode} from './structurelib/quantumgate';
+  Region,
+} from "./structurelib/qcmodel";
+import { QuantumTreeNode } from "./structurelib/quantumgate";
 
-const logger = getLogger('DataProvider', 'Component');
+const logger = getLogger("DataProvider", "Component");
 
 export class ComponentDataProvider {
   private _data: ComponentCircuit | undefined;
@@ -43,6 +44,12 @@ export class ComponentDataProvider {
     this._data = await this.componentQcData();
     this._postData();
   }
+  setFocus(index: number) {
+    const data = this._data?.setFocus(index);
+    if (data !== undefined) {
+      this._postHighlightData(data);
+    }
+  }
 
   async componentQcData() {
     let componentCircuit = new ComponentCircuit(this._dataFile);
@@ -50,17 +57,39 @@ export class ComponentDataProvider {
     return componentCircuit;
   }
 
+  private async _postHighlightData(
+    data: {
+      layer: number[];
+      qubit: number[];
+      name: string;
+    }[]
+  ) {
+    if (data !== undefined) {
+      let message = {
+        command: "component.setRegion",
+        data: data,
+      };
+
+      let panelSet = QCViewerManagerService.getPanelSet(this._dataFile);
+
+      panelSet?.forEach((panel) => {
+        panel.postMessage(message);
+        logger.log(`Sent Message: ${panel.dataFileUri}`);
+      });
+    }
+  }
+
   private async _postData() {
     if (!this._data) {
       return;
     }
     let message1 = {
-      command: 'component.setTitle',
-      data: {title: 'Component View'},
+      command: "component.setTitle",
+      data: { title: "Component View" },
     };
 
     let message2 = {
-      command: 'component.setCircuit',
+      command: "component.setCircuit",
       data: this._data.exportJson(),
     };
 
@@ -76,10 +105,10 @@ export class ComponentDataProvider {
 
 export class ComponentCircuit {
   getPredecessors(gate: ComponentGate): ComponentGate[] {
-    throw new Error('Method not implemented.');
+    throw new Error("Method not implemented.");
   }
   getSuccessors(gate: ComponentGate): ComponentGate[] {
-    throw new Error('Method not implemented.');
+    throw new Error("Method not implemented.");
   }
   private _originalGates: ComponentGate[];
   private _originalQubits: Qubit[];
@@ -97,12 +126,13 @@ export class ComponentCircuit {
   private _pushLayers: Layer[];
   private _gateLayerMap: Map<ComponentGate, number>;
   private _treeMap: Map<number, number>;
-  private _groupInfoMap: Map<number, {gatesIndex: number[]}>;
+  private _groupInfoMap: Map<number, { gatesIndex: number[] }>;
   private _superQubitMap: Map<Qubit, number>;
   private _layerMap: Map<number, number[]>;
   private _drawableCircuit: DrawableCircuit;
   private _dataLoader: DataLoader;
-
+  private _treeChildrenList: number[][];
+  private _highlightedComponent: number[];
   constructor(dataFile: vscode.Uri) {
     this._qubits = [];
 
@@ -119,18 +149,21 @@ export class ComponentCircuit {
     this._superQubits = [];
     this._originalQubits = [];
     this._originalGates = [];
+    this._treeChildrenList = [];
     this._superQubitMap = new Map<Qubit, number>();
     this._gateLayerMap = new Map<ComponentGate, number>();
     this._treeMap = new Map<number, number>();
     this._layerMap = new Map<number, number[]>();
-    this._groupInfoMap = new Map<number, {gatesIndex: number[]}>();
+    this._groupInfoMap = new Map<number, { gatesIndex: number[] }>();
     this._drawableCircuit = new DrawableCircuit();
+    this._highlightedComponent = [9];
 
-    const algorithmName = path.basename(dataFile.fsPath, '.py');
+    const algorithmName = path.basename(dataFile.fsPath, ".py");
 
     this._dataLoader = new DataLoader(algorithmName);
     this._originalQubits = this._dataLoader.qubits;
     this._originalGates = this._dataLoader.quantumGates;
+
     const file = vscode.Uri.file(
       vscode.Uri.joinPath(
         getExtensionUri(),
@@ -184,7 +217,7 @@ export class ComponentCircuit {
       });
 
       //TODO: cswap...
-      if (gateName[0] === '_' && gateName[1] !== 'c') {
+      if (gateName[0] === "_" && gateName[1] !== "c") {
         qubits.sort((a, b) => {
           return parseInt(a.qubitName) - parseInt(b.qubitName);
         });
@@ -221,12 +254,12 @@ export class ComponentCircuit {
   private _getTreeNode(gate: ComponentGate) {
     let semanticTreeNodeIndex = this._treeMap.get(gate.treeIndex);
     if (semanticTreeNodeIndex === undefined) {
-      throw new Error('Semantic tree node not found');
+      throw new Error("Semantic tree node not found");
     }
     let node = qv.semanticTreeViewer.getNodeByTreeIndex(semanticTreeNodeIndex);
 
     if (node === undefined) {
-      throw new Error('Semantic tree node not found');
+      throw new Error("Semantic tree node not found");
     }
     return node;
   }
@@ -241,6 +274,11 @@ export class ComponentCircuit {
     return gateLayerMap;
   }
 
+  setFocus(index: number) {
+    this._highlightedComponent = [index];
+
+    return this.getComponentRegion();
+  }
   getGateLayer(gate: ComponentGate): number | undefined {
     return this._gateLayerMap.get(gate);
   }
@@ -261,7 +299,7 @@ export class ComponentCircuit {
     return this._layers;
   }
   private _importGatesFromFile(dataFile: vscode.Uri) {
-    logger.log('Load layer data from: ' + dataFile.fsPath);
+    logger.log("Load layer data from: " + dataFile.fsPath);
     let data = require(dataFile.fsPath);
 
     this._originalQubits = [];
@@ -315,6 +353,7 @@ export class ComponentCircuit {
   }
 
   private _updateTreeMap() {
+    this._treeChildrenList = this._treeStructure.map((item) => [item.index]);
     this._treeStructure.forEach(
       (item: {
         name: string;
@@ -330,12 +369,12 @@ export class ComponentCircuit {
           let parentVisible = qv.semanticTreeViewer.isVisible(parentIndex);
 
           if (treeVisible) {
-            if (this._treeStructure[treeIndex].type === 'rep') {
+            if (this._treeStructure[treeIndex].type === "rep") {
               treeIndex = previousIndex;
             }
             break;
           } else {
-            if (this._treeStructure[treeIndex].type !== 'rep') {
+            if (this._treeStructure[treeIndex].type !== "rep") {
               previousIndex = treeIndex;
             }
             parentIndex = this._treeStructure[parentIndex].parentIndex;
@@ -345,6 +384,11 @@ export class ComponentCircuit {
 
         this._treeMap.set(item.index, treeIndex);
 
+        let nodeIndex = item.parentIndex;
+        while (nodeIndex !== 0) {
+          this._treeChildrenList[nodeIndex].push(item.index);
+          nodeIndex = this._treeStructure[nodeIndex].parentIndex;
+        }
         // this._funcNodeMap.set();
       }
     );
@@ -387,7 +431,7 @@ export class ComponentCircuit {
     // Build component circuit
 
     let componentGates = this._groupGates(this._dataLoader.quantumGates);
-    const {edgeMap, qubitMap} = this._bundling(componentGates);
+    const { edgeMap, qubitMap } = this._bundling(componentGates);
     const newComponentGates = this._updateGateQubit(componentGates, edgeMap);
     this._gates = newComponentGates;
     let layout = new SemanticLayout(newComponentGates);
@@ -400,8 +444,8 @@ export class ComponentCircuit {
   private _build_() {
     // Build component circuit
 
-    const {gatesInfo, treeIndexGatesMap} = this._grouping();
-    const {edgeMap, qubitMap} = this._bundling_(gatesInfo);
+    const { gatesInfo, treeIndexGatesMap } = this._grouping();
+    const { edgeMap, qubitMap } = this._bundling_(gatesInfo);
     // const layers = this._placement(gatesInfo, edgeMap);
     const layers = this._semBasedPlacement(gatesInfo, edgeMap);
 
@@ -410,8 +454,8 @@ export class ComponentCircuit {
 
   private _grouping() {
     let treeMap = new Map<number, number[]>();
-    let treeIndexGatesMap = new Map<number, {[key: string]: number[]}>();
-    let parentMap = new Map<number, {[key: number]: number}>();
+    let treeIndexGatesMap = new Map<number, { [key: string]: number[] }>();
+    let parentMap = new Map<number, { [key: number]: number }>();
 
     this._treeStructure.forEach(
       (item: {
@@ -423,13 +467,13 @@ export class ComponentCircuit {
         treeMap.set(item.index, []);
         treeIndexGatesMap.set(item.index, {});
 
-        if (item.type === 'rep_item') {
-          let parentDict: {[key: number]: number} = {};
+        if (item.type === "rep_item") {
+          let parentDict: { [key: number]: number } = {};
           // let node = this._treeStructure[item.parentIndex];
           let parentIndex = item.parentIndex;
           let node = this._treeStructure[parentIndex];
           while (parentIndex !== 0) {
-            if (node.type === 'fun') {
+            if (node.type === "fun") {
               parentDict[node.index] = Object.keys(parentDict).length;
             }
             parentIndex = node.parentIndex;
@@ -439,26 +483,6 @@ export class ComponentCircuit {
         }
       }
     );
-
-    //aggregate gates
-    // this._originalGates.forEach((gate: ComponentGate, gateIndex) => {
-    //   const treeIndex = gate.treeIndex;
-    //   //groupDict[tagIndex].gates.push(gateIndex);
-    //   const newTreeIndex = this._treeMap.get(treeIndex);
-    //   if (newTreeIndex !== undefined) {
-    //     let gates = treeMap.get(newTreeIndex);
-    //     if (gates !== undefined) {
-    //       gates.push(gateIndex);
-    //       treeMap.set(newTreeIndex, gates);
-    //     }
-    //   } else {
-    //     let gates = treeMap.get(treeIndex);
-    //     if (gates !== undefined) {
-    //       gates.push(gateIndex);
-    //       treeMap.set(treeIndex, gates);
-    //     }
-    //   }
-    // });
 
     this._originalGates.forEach((gate: ComponentGate, gateIndex) => {
       const treeIndex = gate.treeIndex;
@@ -587,7 +611,7 @@ export class ComponentCircuit {
             let timeRange = this._originalGates[gates[0]].range;
             let bits = new Set<Qubit>();
             switch (treeNodeType) {
-              case 'fun':
+              case "fun":
                 gates.forEach((gateIndex: number) => {
                   const gate = this._originalGates[gateIndex];
                   if (gate.range[0] < timeRange[0]) {
@@ -615,7 +639,7 @@ export class ComponentCircuit {
                 });
                 break;
 
-              case 'rep_item':
+              case "rep_item":
                 gates.forEach((gateIndex: number) => {
                   gatesInfo.push({
                     gates: [gateIndex],
@@ -663,7 +687,7 @@ export class ComponentCircuit {
       }
     );
 
-    return {gatesInfo, treeIndexGatesMap};
+    return { gatesInfo, treeIndexGatesMap };
   }
 
   private _bundling_(
@@ -677,9 +701,9 @@ export class ComponentCircuit {
     }[]
   ) {
     //bundling
-    let qubitsGateSetList: {gateSet: Set<number>; isMergable: boolean}[] =
+    let qubitsGateSetList: { gateSet: Set<number>; isMergable: boolean }[] =
       this._originalQubits.map((bit: Qubit) => {
-        return {gateSet: new Set(), isMergable: true};
+        return { gateSet: new Set(), isMergable: true };
       });
     let edgeMap = this._originalQubits.map((qubit: Qubit, qubitIndex) => {
       return qubitIndex;
@@ -689,7 +713,7 @@ export class ComponentCircuit {
       gateInfo.qubits.forEach((qubit: Qubit) => {
         const qubitIndex = parseInt(qubit.qubitName);
         qubitsGateSetList[qubitIndex].gateSet.add(index);
-        if (this._treeStructure[gateInfo.treeIndex].type === 'rep_item') {
+        if (this._treeStructure[gateInfo.treeIndex].type === "rep_item") {
           qubitsGateSetList[qubitIndex].isMergable = false;
         }
       });
@@ -741,7 +765,7 @@ export class ComponentCircuit {
       const qubitName =
         qubits.length === 1
           ? edges[0].toString()
-          : edges[0].toString() + '-' + edges[edges.length - 1].toString();
+          : edges[0].toString() + "-" + edges[edges.length - 1].toString();
       const superQubit = new SuperQubit(qubitName, qubits);
       superQubitMap.set(superQubit, index);
       qubits.forEach((qubit: Qubit) => {
@@ -760,14 +784,14 @@ export class ComponentCircuit {
       });
     });
 
-    return {edgeMap, qubitMap};
+    return { edgeMap, qubitMap };
   }
 
   private _bundling(componentGates: ComponentGate[]) {
     //bundling
-    let qubitsGateSetList: {gateSet: Set<number>; isMergable: boolean}[] =
+    let qubitsGateSetList: { gateSet: Set<number>; isMergable: boolean }[] =
       this._originalQubits.map((bit: Qubit) => {
-        return {gateSet: new Set(), isMergable: true};
+        return { gateSet: new Set(), isMergable: true };
       });
     let edgeMap = this._originalQubits.map((qubit: Qubit, qubitIndex) => {
       return qubitIndex;
@@ -777,7 +801,7 @@ export class ComponentCircuit {
       componentGate.qubits.forEach((qubit: Qubit) => {
         const qubitIndex = parseInt(qubit.qubitName);
         qubitsGateSetList[qubitIndex].gateSet.add(index);
-        if (this._treeStructure[componentGate.treeIndex].type === 'rep_item') {
+        if (this._treeStructure[componentGate.treeIndex].type === "rep_item") {
           qubitsGateSetList[qubitIndex].isMergable = false;
         }
       });
@@ -829,7 +853,7 @@ export class ComponentCircuit {
       const qubitName =
         qubits.length === 1
           ? edges[0].toString()
-          : edges[0].toString() + '-' + edges[edges.length - 1].toString();
+          : edges[0].toString() + "-" + edges[edges.length - 1].toString();
       const superQubit = new SuperQubit(qubitName, qubits);
       superQubitMap.set(superQubit, index);
       qubits.forEach((qubit: Qubit) => {
@@ -848,7 +872,7 @@ export class ComponentCircuit {
       });
     });
 
-    return {edgeMap, qubitMap};
+    return { edgeMap, qubitMap };
   }
 
   private _updateGateQubit(componentGates: ComponentGate[], edgeMap: number[]) {
@@ -915,68 +939,6 @@ export class ComponentCircuit {
     return layers;
   }
 
-  private _semBasedPlacement2(
-    gatesInfo: {
-      gates: number[];
-      name: string;
-      qubits: Qubit[];
-      range: number[];
-      treeIndex: number;
-    }[],
-    edgeMap: number[],
-    treeMap: Map<number, number[]>
-  ) {
-    //gate placement
-    let qubitsPlacement = this._qubits.map((bit: Qubit) => {
-      return 0;
-    });
-    let layers: number[][] = [];
-
-    this._groupInfoMap.forEach((value, treeIndex) => {
-      let functionPlacement = 0;
-      let qSet = new Set<number>();
-      value.gatesIndex.forEach((gateIndex: number, index) => {
-        let layerIndex = 0;
-        gatesInfo[gateIndex].qubits.forEach((qubit: Qubit) => {
-          const qubitIndex = edgeMap[parseInt(qubit.qubitName)];
-          if (qubitIndex !== undefined) {
-            if (qubitsPlacement[qubitIndex] > layerIndex) {
-              layerIndex = qubitsPlacement[qubitIndex];
-            }
-          }
-          qSet.add(qubitIndex);
-        });
-
-        if (layers.length < layerIndex + 1) {
-          layers.push([gateIndex]);
-        } else {
-          layers[layerIndex].push(gateIndex);
-        }
-
-        if (functionPlacement < layerIndex + 1) {
-          functionPlacement = layerIndex + 1;
-        }
-
-        gatesInfo[gateIndex].qubits.forEach((qubit: Qubit) => {
-          const qubitIndex = edgeMap[parseInt(qubit.qubitName)];
-          if (qubitIndex !== undefined) {
-            qubitsPlacement[qubitIndex] = layerIndex + 1;
-          }
-        });
-      });
-
-      const qRange = Array.from(qSet).sort((a: number, b: number) => {
-        return a - b;
-      });
-
-      for (let index = qRange[0]; index <= qRange[qRange.length - 1]; index++) {
-        qubitsPlacement[index] = functionPlacement;
-      }
-    });
-
-    return layers;
-  }
-
   private _semBasedPlacement(
     gatesInfo: {
       gates: number[];
@@ -1006,7 +968,7 @@ export class ComponentCircuit {
       //get parent function index
       let node = this._treeStructure[gateInfo.treeIndex];
       node = this._treeStructure[node.parentIndex];
-      while (node.type !== 'fun') {
+      while (node.type !== "fun") {
         node = this._treeStructure[node.parentIndex];
       }
       const parentFuncIndex = node.index;
@@ -1196,6 +1158,90 @@ export class ComponentCircuit {
     return ret;
   }
 
+  getNodeDepth(treeIndex: number) {
+    let depth = 0;
+    let node = this._treeStructure[treeIndex];
+    while (node.index !== 0) {
+      if (node.type !== "rep") {
+        depth++;
+      }
+      node = this._treeStructure[node.parentIndex];
+    }
+    return depth;
+  }
+
+  getComponentRegion() {
+    const gateGroupDictList: {
+      dict: { [key: number]: ComponentGate[] };
+      index: number;
+    }[] = [];
+    this._highlightedComponent.forEach((componentIndex) => {
+      let gatesDict: { [key: number]: ComponentGate[] } = {};
+      this._gates.forEach((gate, index) => {
+        if (this._treeChildrenList[componentIndex].includes(gate.treeIndex)) {
+          const uni_index = gate.treePath[this.getNodeDepth(componentIndex)];
+          const gates = gatesDict[uni_index];
+          if (gates !== undefined) {
+            gatesDict[uni_index] = [...gates, gate];
+          } else {
+            gatesDict[uni_index] = [gate];
+          }
+        }
+      });
+      gateGroupDictList.push({ dict: gatesDict, index: componentIndex });
+    });
+
+    const componentRegion: {
+      layer: number[];
+      qubit: number[];
+      name: string;
+    }[] = [];
+
+    gateGroupDictList.forEach(
+      (groupInfo: {
+        dict: { [key: number]: ComponentGate[] };
+        index: number;
+      }) => {
+        const allGatesIndex = Object.values(groupInfo.dict);
+
+        allGatesIndex.forEach((gatesIndex: ComponentGate[]) => {
+          let regionLayer = [-1, -1];
+          let regionQubit = [this._originalQubits.length + 1, -1];
+          gatesIndex.forEach((cmpgate: ComponentGate) => {
+            const layer = this.getGateLayer(cmpgate);
+            const qubits = cmpgate.qubits.map((qubit) => {
+              const qubitIndex = this._superQubitMap.get(qubit);
+              if (qubitIndex !== undefined) {
+                regionQubit = [
+                  Math.min(qubitIndex, regionQubit[0]),
+                  Math.max(qubitIndex, regionQubit[1]),
+                ];
+              }
+            });
+
+            if (layer !== undefined) {
+              if (regionLayer[0] === -1) {
+                regionLayer = [layer, layer];
+              } else {
+                regionLayer = [
+                  Math.min(layer, regionLayer[0]),
+                  Math.max(layer, regionLayer[1]),
+                ];
+              }
+            }
+          });
+
+          componentRegion.push({
+            layer: regionLayer,
+            qubit: regionQubit,
+            name: this._treeStructure[groupInfo.index].name,
+          });
+        });
+      }
+    );
+    return componentRegion;
+  }
+
   get layers() {
     return this._layers;
   }
@@ -1218,8 +1264,9 @@ export class ComponentCircuit {
 
   exportJson(): any {
     const data = this._drawableCircuit.exportJson();
-    data['originalQubitLength'] = this._originalQubits.length;
-    data['originalGateLength'] = this._originalGates.length;
+    data["originalQubitLength"] = this._originalQubits.length;
+    data["originalGateLength"] = this._originalGates.length;
+    data["componentRegion"] = this.getComponentRegion();
 
     return data;
   }

@@ -181,6 +181,7 @@ class ContextualCircuit {
     this._updateIdle();
   }
   setMatrixComponentIndex(index: number) {
+    // this._connectivityComponentIndex = index;
     this._connectivityComponentIndex = 11;
     const { curEntGroup, preEntGroup } = this._updateConnectivity();
     return {
