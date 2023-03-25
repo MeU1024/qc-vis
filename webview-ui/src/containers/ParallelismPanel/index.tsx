@@ -237,7 +237,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         .attr("stroke-width", "1px")
         .attr("stroke", "black");
     }
-  }, [averageIdleValue, qubitRangeStart, focusLayer]);
+  }, [averageIdleValue, qubitRangeStart, focusLayer, gridNumber]);
 
   useEffect(() => {
     var svg = d3.select("#parallelismBar");
@@ -280,7 +280,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       .attr("y2", paraBarheight)
       .attr("stroke-width", "1px")
       .attr("stroke", "black");
-  }, [paraBarData, layerRangeStart]);
+  }, [paraBarData, layerRangeStart, gridNumber]);
 
   useEffect(() => {
     const canvas = svgRef.current;
