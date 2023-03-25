@@ -530,54 +530,52 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord, yCoord + height / 2);
-      ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
+      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height / 2);
 
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(xCoord + (width / 8) * 7, yCoord + height / 2);
+      ctx.moveTo(xCoord + width - (width - maxWidth) / 2, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
 
       ctx.stroke();
       //square
       ctx.strokeStyle = MULTI_GATE_STROKE;
       ctx.strokeRect(
-        xCoord + width / 8,
-        yCoord + height / 8,
-        (width / 4) * 3,
-        (height / 4) * 3
+        xCoord + (width - maxWidth) / 2,
+        yCoord + (height - maxWidth) / 2,
+        maxWidth,
+        maxWidth
       );
 
       ctx.beginPath();
-      ctx.moveTo(
-        xCoord + width / 2,
-        yCoord + height - (height - (width / 4) * 3) / 2
-      );
+      ctx.moveTo(xCoord + width / 2, yCoord + height - (height - maxWidth) / 2);
       ctx.lineTo(xCoord + width / 2, yCoord + height);
       ctx.stroke();
       break;
     case "cy_down":
       ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
-      //lines
       ctx.moveTo(xCoord, yCoord + height / 2);
-      ctx.lineTo(xCoord + width / 8, yCoord + height / 2);
+      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height / 2);
+
       ctx.stroke();
       ctx.beginPath();
-      ctx.moveTo(xCoord + (width / 8) * 7, yCoord + height / 2);
+      ctx.moveTo(xCoord + width - (width - maxWidth) / 2, yCoord + height / 2);
       ctx.lineTo(xCoord + width, yCoord + height / 2);
+
       ctx.stroke();
 
       //square
       ctx.strokeStyle = MULTI_GATE_STROKE;
       ctx.strokeRect(
-        xCoord + width / 8,
-        yCoord + (height - (width / 4) * 3) / 2,
-        (width / 4) * 3,
-        (width / 4) * 3
+        xCoord + (width - maxWidth) / 2,
+        yCoord + (height - maxWidth) / 2,
+        maxWidth,
+        maxWidth
       );
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 2, yCoord);
-      ctx.lineTo(xCoord + width / 2, yCoord + (height - (width / 4) * 3) / 2);
+      ctx.lineTo(xCoord + width / 2, yCoord + (height - maxWidth) / 2);
 
       ctx.stroke();
       break;
