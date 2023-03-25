@@ -17,6 +17,7 @@
   { "name": "[ry-rz]", "parentIndex": 12, "index": 13, "type": "rep" },
   { "name": "ry", "parentIndex": 13, "index": 14, "type": "rep_item" },
   { "name": "rz", "parentIndex": 13, "index": 15, "type": "rep_item" },
-  { "name": "[cz]", "parentIndex": 12, "index": 16, "type": "rep" },
-  { "name": "cz", "parentIndex": 16, "index": 17, "type": "rep_item" }
+  { "name": "_Full Connect", "parentIndex": 12, "index": 16, "type": "fun" },
+  { "name": "[cz]", "parentIndex": 16, "index": 17, "type": "rep" },
+  { "name": "cz", "parentIndex": 17, "index": 18, "type": "rep_item" }
 ]
