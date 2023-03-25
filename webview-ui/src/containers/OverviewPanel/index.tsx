@@ -119,7 +119,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
         if (deltaScale > 0) {
           if (widthScale < 1) {
             setWidthScale((widthScale) =>
-              Math.min(Math.max(widthScale + deltaScale * 0.1, 0.35), 1)
+              Math.min(Math.max(widthScale + deltaScale * 0.3, 0.35), 1)
             );
           } else {
             setScale((scale) =>
@@ -131,7 +131,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
           // console.log("scaleChange", scaleChange);
           if (scaleChange * canvasHeight < 350) {
             setWidthScale((widthScale) =>
-              Math.min(Math.max(widthScale + deltaScale * 0.1, 0.35), 1)
+              Math.min(Math.max(widthScale + deltaScale * 0.3, 0.35), 1)
             );
           } else {
             setScale((scale) =>
