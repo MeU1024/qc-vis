@@ -38,6 +38,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
       layer: number[];
       qubit: number[];
       name: string;
+      weight: number;
     }[]
   >([]);
   const [scale, setScale] = useState(1);

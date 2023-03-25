@@ -35,6 +35,7 @@ export interface svgCircuitRenderProps {
   qubitRangeStart: number;
   layerPosition: number[];
   wiresData: number[];
+  gridNumber: number;
 }
 
 const colorScale = d3
@@ -58,6 +59,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     layerPosition,
     wiresData,
     focusLayer,
+    gridNumber,
   } = props;
 
   // const wiresData = [0, 0.2, 0.6, 1, 0.4, 0, 0];
@@ -69,11 +71,16 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   var wiresLayer = svg.append("g");
   var gatesLayer = svg.append("g");
   var focusFrameLayer = svg.append("g");
-  if (focusLayer !== undefined && focusIndex !== undefined) {
+  if (
+    focusLayer !== undefined &&
+    focusIndex !== undefined &&
+    averageIdleValue !== undefined &&
+    idlePosition !== undefined
+  ) {
     if (averageIdleValue.length !== 0) {
       const slicedAverageIdleValue = averageIdleValue[focusLayer].slice(
         qubitRangeStart,
-        qubitRangeStart + 7
+        qubitRangeStart + gridNumber
       );
       var rects = averageLayer
         .selectAll("rect")
@@ -93,7 +100,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       console.log(idlePosition[layerPosition[focusIndex]]);
       const slicedIdlePosition = idlePosition[focusLayer].slice(
         qubitRangeStart,
-        qubitRangeStart + 7
+        qubitRangeStart + gridNumber
       );
       const idleBackground = averageLayer
         .selectAll("g")
@@ -108,7 +115,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
           .attr("height", gridSize)
           .attr("rx", gridSize / 20)
           .attr("fill", IDLE_FILL)
-          .attr("fill-opacity", 0.5);
+          .attr("fill-opacity", 0.15);
       });
     }
   }
@@ -126,8 +133,8 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   }
 
   //wire
-  var wires = wiresLayer.selectAll("rect").data([0, 1, 2, 3, 4, 5, 6]).enter();
-  for (let index = 0; index < 7; index++) {
+  var wires = wiresLayer.selectAll("rect").data(wiresData).enter();
+  for (let index = 0; index < gridNumber; index++) {
     wires
       .append("rect")
       .attr("x", 0)
@@ -187,14 +194,16 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
         .attr("fill", GATE_FILL)
         .attr("fill-opacity", GATE_FILL_OPACITY);
 
-      shape = d3.select(gates.nodes()[index]).append("text");
-      shape
-        .style("font-size", (gridSize / 3).toString() + "px")
-        .attr("x", x * gridSize + gridSize / 2 + offsetX)
-        .attr("y", y * gridSize + gridSize / 2 + gridSize / 3 / 4 + offsetY)
-        .text(gateName)
-        .attr("text-anchor", "middle")
-        .style("fill", colorDict[gateType]);
+      if (gridSize >= 10) {
+        shape = d3.select(gates.nodes()[index]).append("text");
+        shape
+          .style("font-size", (gridSize / 3).toString() + "px")
+          .attr("x", x * gridSize + gridSize / 2 + offsetX)
+          .attr("y", y * gridSize + gridSize / 2 + gridSize / 3 / 4 + offsetY)
+          .text(gateName)
+          .attr("text-anchor", "middle")
+          .style("fill", colorDict[gateType]);
+      }
     }
 
     switch (op) {

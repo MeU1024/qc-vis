@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./index.scss";
 import * as d3 from "d3";
 import {
@@ -16,7 +16,7 @@ export interface ParallelismPanelProps {
   highlightGate: string | null;
 }
 const geneParaData = () => {
-  return [0.1, 0, 3, 0.8, 0.5, 1, 0];
+  return [0.1, 0, 3, 0.8, 0.5, 1, 0, 4, 0.5, 0.9, 0.4, 0.2];
 };
 const ParallelismPanel = (props: ParallelismPanelProps) => {
   const { theme, highlightGate } = props;
@@ -26,7 +26,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [idleBarheight, setIdleBarheight] = useState(360);
   const [canvasWidth, setCanvasWidth] = useState(350);
   const [canvasHeight, setCanvasHeight] = useState(350);
-  const [gridNumber, setGridNumber] = useState(7);
+  const [gridNumber, setGridNumber] = useState(10);
   const [focusIndex, setFocusIndex] = useState<number | undefined>(undefined);
   const [focusLayer, setFocusLayer] = useState<number | undefined>(undefined);
   const [qubitRangeStart, setQubitRangeStart] = useState<number>(0);
@@ -38,35 +38,36 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [paraBarData, setParaBarData] = useState(geneParaData());
   const [originalCircuit, setOriginalCircuit] = useState<
     | {
-      output_size: number[];
-      op_map: {};
-      qubits: string[];
-      gate_format: string;
-      all_gates: ((number | number[])[] | (number | number[])[])[];
-    }
+        output_size: number[];
+        op_map: {};
+        qubits: string[];
+        gate_format: string;
+        all_gates: ((number | number[])[] | (number | number[])[])[];
+      }
     | undefined
   >(generateCircuit());
 
   const [subCircuit, setSubCircuit] = useState<
     | {
-      output_size: number[];
-      op_map: {};
-      qubits: string[];
-      gate_format: string;
-      all_gates: ((number | number[])[] | (number | number[])[])[];
-    }
+        output_size: number[];
+        op_map: {};
+        qubits: string[];
+        gate_format: string;
+        all_gates: ((number | number[])[] | (number | number[])[])[];
+      }
     | undefined
   >(generateCircuit());
   const [idlePosition, setIdlePosition] = useState<number[][][]>([
     [[3], [], [2, 3, 4]],
   ]);
   const [averageIdleValue, setAverageIdleValue] = useState<number[][]>([
-    [0, 1, 0.5, 0.2, 0.4, 0.2, 0.1, 1, 1, 1],
+    [0, 1, 0.5, 0.2, 0.4, 0.2, 0.1, 1, 1, 1, 1, 1],
   ]);
 
   const [graphSize, setGraphSize] = useState([10, 10]);
   const paraBarwidth = 360;
   const paraBarheight = 10;
+  const svgRef = useRef<SVGSVGElement>(null);
 
   const colorScale = d3
     .scaleLinear<string>()
@@ -82,7 +83,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       qubits: string[];
       gate_format: string;
       all_gates: ((number | number[])[] | (number | number[])[])[];
-    }
+    },
+    gridNumber: number
   ) => {
     const new_gates: any[] = [];
     originalCircuit.all_gates.forEach((gateInfo: any) => {
@@ -119,6 +121,9 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       all_gates: new_gates,
     };
   };
+  useEffect(() => {
+    setGridSize(canvasWidth / gridNumber);
+  }, [gridNumber]);
 
   useEffect(() => {
     //TODO:REMOVE OVERLAP
@@ -126,7 +131,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       const subCircuit = getSubCircuit(
         qubitRangeStart,
         layerRangeStart,
-        originalCircuit
+        originalCircuit,
+        gridNumber
       );
       // console.log("getsubcircuit", subCircuit);
       setSubCircuit(subCircuit);
@@ -142,7 +148,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     }
     console.log("list", layerPositionList);
     setLayerPosition(layerPositionList);
-  }, [qubitRangeStart, layerRangeStart, originalCircuit]);
+  }, [qubitRangeStart, layerRangeStart, originalCircuit, gridNumber]);
 
   useEffect(() => {
     if (focusIndex !== undefined) {
@@ -160,7 +166,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         id: "#parallelismSVG",
         width: canvasWidth,
         height: canvasHeight,
-        gridSize: 50,
+        gridSize: gridSize,
         circuit: subCircuit,
         averageIdleValue: averageIdleValue,
         idlePosition: idlePosition,
@@ -175,17 +181,19 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           layerRangeStart,
           layerRangeStart + gridNumber
         ),
+        gridNumber: gridNumber,
       });
     }
   }, [
     subCircuit,
-    averageIdleValue,
+    // averageIdleValue,
     layerRangeStart,
     qubitRangeStart,
     paraBarData,
     focusIndex,
     focusLayer,
-    layerPosition,
+    // layerPosition,
+    gridNumber,
   ]);
 
   useEffect(() => {
@@ -217,7 +225,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         .attr("fill-opacity", (d, i) => (d / 1.2).toString());
 
       //lines for range vis
-      const qubitRange = [qubitRangeStart, qubitRangeStart + 7];
+      const qubitRange = [qubitRangeStart, qubitRangeStart + gridNumber];
       var lines = svg.selectAll("line").data(qubitRange);
       lines
         .enter()
@@ -261,7 +269,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
     //lines for range vis
 
-    const layerRange = [layerRangeStart, layerRangeStart + 7];
+    const layerRange = [layerRangeStart, layerRangeStart + gridNumber];
     var lines = svg.selectAll("line").data(layerRange);
     lines
       .enter()
@@ -274,7 +282,37 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       .attr("stroke", "black");
   }, [paraBarData, layerRangeStart]);
 
-  useEffect(() => { }, []);
+  useEffect(() => {
+    const canvas = svgRef.current;
+
+    const handleWheelEvent = (e: any) => {
+      console.log(gridNumber);
+      if (e.ctrlKey) {
+        e.preventDefault();
+        let deltaScale = e.deltaY;
+        // console.log(widthScale);
+        if (deltaScale > 0) {
+          setGridNumber((gridNumber) =>
+            Math.min(Math.max(gridNumber + 1, 7), averageIdleValue[0].length)
+          );
+        } else {
+          setGridNumber((gridNumber) =>
+            Math.min(Math.max(gridNumber - 1, 7), averageIdleValue[0].length)
+          );
+        }
+      }
+    };
+
+    if (canvas) {
+      canvas.addEventListener("wheel", handleWheelEvent);
+    }
+    return () => {
+      if (canvas) {
+        canvas.removeEventListener("wheel", handleWheelEvent);
+      }
+    };
+  }, [gridNumber]);
+
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
       const message = event.data;
@@ -330,7 +368,10 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     let qubitStart = Math.floor(
       (y - 5) / ((idleBarheight - 10) / graphSize[0])
     );
-    qubitStart = qubitStart + 7 <= graphSize[0] ? qubitStart : graphSize[0] - 7;
+    qubitStart =
+      qubitStart + gridNumber <= graphSize[0]
+        ? qubitStart
+        : graphSize[0] - gridNumber;
     qubitStart = qubitStart < 0 ? 0 : qubitStart;
     setQubitRangeStart(qubitStart);
 
@@ -348,7 +389,10 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     const x = event.clientX - rect.left;
 
     let layerStart = Math.floor((x - 5) / ((paraBarwidth - 10) / graphSize[1]));
-    layerStart = layerStart + 7 <= graphSize[1] ? layerStart : graphSize[1] - 7;
+    layerStart =
+      layerStart + gridNumber <= graphSize[1]
+        ? layerStart
+        : graphSize[1] - gridNumber;
     layerStart = layerStart < 0 ? 0 : layerStart;
     setLayerRangeStart(layerStart);
 
@@ -377,7 +421,6 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
   return (
     <div className="panel parallelismPanel">
-
       <div className="panelHeader">
         <span className="title">{panelTitle}</span>
       </div>
@@ -391,7 +434,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         <div className="parallelismSvg">
           <div className="parallelismSvgAbove">
             <div>To Left</div>
-            <svg width="15" height="15" version="1.1" xmlns="http://www.w3.org/2000/svg"
+            <svg
+              width="15"
+              height="15"
+              version="1.1"
+              xmlns="http://www.w3.org/2000/svg"
               viewBox={"0 0 " + 15 + " " + 15}
             >
               {/* <defs>
@@ -400,7 +447,15 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
                   <stop offset="100%" stop-color="#FF1D25" />
                 </linearGradient>
               </defs> */}
-              <rect x="0" y="0" rx="0" ry="0" width="15" height="15" fill="#FFFFFF" />
+              <rect
+                x="0"
+                y="0"
+                rx="0"
+                ry="0"
+                width="15"
+                height="15"
+                fill="#FFFFFF"
+              />
             </svg>
             <div>To Right</div>
           </div>
@@ -408,35 +463,58 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             <div className="contentLow"> Low </div>
             <div>
               <div>
-                <svg width="150" height="15" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                <svg
+                  width="150"
+                  height="15"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
                   viewBox={"0 0 " + 150 + " " + 15}
                 >
                   <defs>
-                    <linearGradient id="Gradient1" >
+                    <linearGradient id="Gradient1">
                       <stop offset="0%" stop-color="#3FA9F5" />
                       <stop offset="100%" stop-color="#FF1D25" />
                     </linearGradient>
                   </defs>
-                  <rect x="0" y="0" rx="0" ry="0" width="150" height="15" fill="url(#Gradient1)" />
+                  <rect
+                    x="0"
+                    y="0"
+                    rx="0"
+                    ry="0"
+                    width="150"
+                    height="15"
+                    fill="url(#Gradient1)"
+                  />
                 </svg>
               </div>
               <div>
-                <svg width="150" height="15" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                <svg
+                  width="150"
+                  height="15"
+                  version="1.1"
+                  xmlns="http://www.w3.org/2000/svg"
                   viewBox={"0 0 " + 150 + " " + 15}
                 >
                   <defs>
-                    <linearGradient id="Gradient2" >
+                    <linearGradient id="Gradient2">
                       <stop offset="0%" stop-color="#FFFFFF" />
                       <stop offset="100%" stop-color="#BDCCD4" />
                     </linearGradient>
                   </defs>
-                  <rect x="0" y="0" rx="0" ry="0" width="150" height="15" fill="url(#Gradient2)" />
+                  <rect
+                    x="0"
+                    y="0"
+                    rx="0"
+                    ry="0"
+                    width="150"
+                    height="15"
+                    fill="url(#Gradient2)"
+                  />
                 </svg>
               </div>
             </div>
             <div className="contentHigh"> High </div>
           </div>
-
         </div>
       </div>
 
@@ -448,6 +526,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             viewBox={"0 0 " + canvasWidth + " " + canvasHeight}
             width={canvasWidth}
             height={canvasHeight}
+            ref={svgRef}
             onClick={handleClick}
           ></svg>
           <svg

@@ -62,6 +62,7 @@ export class ComponentDataProvider {
       layer: number[];
       qubit: number[];
       name: string;
+      weight: number;
     }[]
   ) {
     if (data !== undefined) {
@@ -156,7 +157,7 @@ export class ComponentCircuit {
     this._layerMap = new Map<number, number[]>();
     this._groupInfoMap = new Map<number, { gatesIndex: number[] }>();
     this._drawableCircuit = new DrawableCircuit();
-    this._highlightedComponent = [9];
+    this._highlightedComponent = [];
 
     const algorithmName = path.basename(dataFile.fsPath, ".py");
 
@@ -275,9 +276,10 @@ export class ComponentCircuit {
   }
 
   setFocus(index: number) {
-    this._highlightedComponent = [index];
+    this._highlightedComponent.push(index);
+    const regions = this.getComponentRegion();
 
-    return this.getComponentRegion();
+    return regions;
   }
   getGateLayer(gate: ComponentGate): number | undefined {
     return this._gateLayerMap.get(gate);
@@ -1195,13 +1197,17 @@ export class ComponentCircuit {
       layer: number[];
       qubit: number[];
       name: string;
+      weight: number;
     }[] = [];
 
     gateGroupDictList.forEach(
-      (groupInfo: {
-        dict: { [key: number]: ComponentGate[] };
-        index: number;
-      }) => {
+      (
+        groupInfo: {
+          dict: { [key: number]: ComponentGate[] };
+          index: number;
+        },
+        gateIndex
+      ) => {
         const allGatesIndex = Object.values(groupInfo.dict);
 
         allGatesIndex.forEach((gatesIndex: ComponentGate[]) => {
@@ -1235,6 +1241,7 @@ export class ComponentCircuit {
             layer: regionLayer,
             qubit: regionQubit,
             name: this._treeStructure[groupInfo.index].name,
+            weight: gateIndex / gateGroupDictList.length,
           });
         });
       }

@@ -11,6 +11,7 @@ export interface HighlightFrameRenderProp {
     layer: number[];
     qubit: number[];
     name: string;
+    weight: number;
   }[];
   gridWidth: number;
   gridHeight: number;
@@ -19,10 +20,12 @@ export interface HighlightFrameRenderProp {
 
 export const HighlightFrameRender = (props: HighlightFrameRenderProp) => {
   const { highlightRegions, gridWidth, gridHeight, ctx } = props;
-  ctx.fillStyle = HIGHLIGHT_FRAME_FILL;
+
   ctx.strokeStyle = HIGHLIGHT_FRAME;
   ctx.lineWidth = gridWidth < 50 ? LINE_WIDTH * 1.5 : BOLD_LINE_WIDTH * 1.5;
   highlightRegions.forEach((region) => {
+    ctx.fillStyle =
+      "rgba(204,204,204," + (region.weight * 0.1 + 0.02).toString() + ")";
     const xCoord = region.layer[0] * gridWidth;
     const yCoord = region.qubit[0] * gridHeight;
     const width = (region.layer[1] - region.layer[0] + 1) * gridWidth;
