@@ -207,7 +207,7 @@ export class ComponentCircuit {
       let qubits: Qubit[] = [];
       let range: number[] = gates[0].range;
       let treeIndex: number = node.treeIndex;
-      let treePath = gates[0].treePath.slice(0, node.depth);
+      let treePath = gates[0].treePath.slice(0, node.depth + 1);
 
       gates.forEach((gate) => {
         qubits = qubits.concat(gate.qubits);

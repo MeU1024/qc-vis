@@ -238,8 +238,6 @@ export class Gate {
 }
 
 export class ComponentGate {
-  private _treePath: number[] = [];
-  private _depth: number | undefined;
   constructor(
     readonly gateName: string,
     readonly qubits: Qubit[],
@@ -254,10 +252,6 @@ export class ComponentGate {
 
   get depth(): number {
     return this.treePath.length - 1;
-  }
-
-  set depth(depth: number) {
-    this._depth = depth;
   }
 
   get index(): number {

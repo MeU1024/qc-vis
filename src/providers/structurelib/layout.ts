@@ -46,10 +46,14 @@ export class SemanticLayout {
             upperLayout = curLayout;
             upperLayouts.set(parentIndex, upperLayout);
           } else {
-            upperLayout.concat(curLayout);
+            upperLayout.appendLayout(curLayout);
           }
         });
-
+      
+      upperLayouts.forEach((layout) => {
+        layout.merge();
+      });
+      
       curDepth--;
     }
 
@@ -86,13 +90,15 @@ export class Layout {
   private _qubitSet: Set<Qubit>;
   private _layers: ComponentGate[][];
   private _timeRange: number[];
+  private _pendingLayouts: Layout[];
 
-  constructor(private _gates: ComponentGate[]) {
+  constructor(gates: ComponentGate[]) {
     this._layers = [];
     this._qubitSet = new Set<Qubit>();
+    this._pendingLayouts = [];
 
     // append the gates to the layout in order of the range
-    this._gates
+    gates
       .sort((a, b) => {
         return a.range[0] - b.range[0];
       })
@@ -102,8 +108,8 @@ export class Layout {
 
     // set the time range
     this._timeRange = [
-      this._gates[0].range[0],
-      this._gates[this._gates.length - 1].range[1],
+      gates[0].range[0],
+      gates[gates.length - 1].range[1],
     ];
   }
 
@@ -145,29 +151,68 @@ export class Layout {
     this._mergeQubits(qubits);
   }
 
-  concat(other: Layout) {
-    const newQubits = other.qubits;
+  appendLayout(newLayout: Layout) {
+    this._pendingLayouts.push(newLayout);
+  }
 
-    if (this.isIntersect(other)) {
-      // insert the new layers next to the existing layers
-      this._layers = this._layers.concat(other.layers);
-    } else {
-      // merge the new layers with the existing layers
-      let newLayers = new Array(
-        Math.max(this._layers.length, other.layers.length)
-      );
+  merge() {
+    let layouts: Layout[] = [this];
+    layouts = layouts.concat(this._pendingLayouts);
+    layouts.sort((a, b) => {
+      return a.timeRange[0] - b.timeRange[0];
+    });
 
-      // merge the layers
-      for (let i = 0; i < newLayers.length; i++) {
-        let layer = this._layers[i] || [];
-        let otherLayer = other.layers[i] || [];
-        newLayers[i] = layer.concat(otherLayer);
+    // calculate the max qubit index
+    let maxQubitIndex = Math.max(
+      ...layouts.map((layout) =>
+        Math.max(...layout.qubits.map((qubit) => qubit.index))
+      )
+    );
+
+    let depthBuffer: number[] = new Array(maxQubitIndex + 1).fill(0);
+
+    // the max length of newLayers is the sum of the width of the layouts
+    let newLayers: ComponentGate[][] = new Array(
+      layouts.reduce((acc, layout) => acc + layout.width, 0)
+    );
+
+    layouts.forEach((layout) => {
+      const rangeY = layout.rangeY;
+
+      // find the leftmost layer that the gate can be inserted
+      let layerIndex = 0;
+      for (let i = rangeY[0]; i <= rangeY[1]; i++) {
+        layerIndex = Math.max(layerIndex, depthBuffer[i]);
       }
 
-      this._layers = newLayers;
-    }
+      // insert the gates starting from the layerIndex
+      layout.layers.forEach((layer) => {
+        if (!newLayers[layerIndex]) {
+          newLayers[layerIndex] = [];
+        }
+        newLayers[layerIndex].push(...layer);
+        layerIndex++;
+      });
+
+      // update the depth buffer
+      for (let i = rangeY[0]; i <= rangeY[1]; i++) {
+        depthBuffer[i] = layerIndex;
+      }
+    });
+
+    // remove the empty layers
+    newLayers = newLayers.filter((layer) => layer.length > 0);
+
+    // set the new layers
+    this._layers = newLayers;
+
     // merge the qubits avoiding duplicates
-    this._mergeQubits(newQubits);
+    layouts.forEach((layout) => {
+      this._mergeQubits(layout.qubits);
+    });
+
+    // empty the pending layouts
+    this._pendingLayouts = [];
   }
 
   isIntersect(other: Layout) {
@@ -220,7 +265,7 @@ export class Layout {
   }
 
   get treePath(): number[] {
-    return this._gates[0].treePath;
+    return this.layers[0][0].treePath;
   }
 }
 
