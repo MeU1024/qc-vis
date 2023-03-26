@@ -191,7 +191,7 @@ export class ComponentCircuit {
     //   });
     // }
 
-    this._importGatesFromFile(file);
+    // this._importGatesFromFile(file);
     this._treeStructure = this._importStructureFromFile(file);
     this._updateTreeMap();
     this._build();

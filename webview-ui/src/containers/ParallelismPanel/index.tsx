@@ -145,18 +145,13 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         layerPosMap[layerRangeStart + gridNumber]
       );
 
-      console.log("getsubcircuit", subCircuit);
       setSubCircuit(subCircuit);
-
-      console.log("list", layerPositionList);
       setLayerPosition(layerPositionList);
     }
   }, [qubitRangeStart, layerRangeStart, originalCircuit, gridNumber]);
 
   useEffect(() => {
     if (focusIndex !== undefined) {
-      console.log("layerPosition", layerPosition);
-      console.log("focusIndex", focusIndex);
       setFocusLayer(layerPosition[focusIndex]);
     }
   }, [focusIndex]);
@@ -295,19 +290,19 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         let deltaScale = e.deltaY;
         // console.log(widthScale);
         if (deltaScale > 0) {
-          console.log("+", originalCircuit?.output_size[1]);
           setGridNumber((gridNumber) =>
             Math.min(
               Math.max(gridNumber + 1, 7),
-              originalCircuit?.output_size[0] || 20
+              // originalCircuit?.output_size[0] || 20
+              50
             )
           );
         } else {
-          console.log("-", originalCircuit?.output_size[1]);
           setGridNumber((gridNumber) =>
             Math.min(
               Math.max(gridNumber - 1, 7),
-              originalCircuit?.output_size[0] || 20
+              50
+              // originalCircuit?.output_size[0] || 20
             )
           );
         }
@@ -320,6 +315,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             Math.min(
               Math.max(qubitRangeStart + 1, 0),
               averageIdleValue[0].length - gridNumber
+              // 50
             )
           );
         } else {
@@ -327,6 +323,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             Math.min(
               Math.max(qubitRangeStart - 1, 0),
               averageIdleValue[0].length - gridNumber
+              // 50
             )
           );
         }
@@ -359,7 +356,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           setIdlePosition(message.data.idlePosition);
           setAverageIdleValue(message.data.averageIdleValue);
           // console.log("context", message.data);
-
+          console.log("circuit", message.data.originalCircuit);
           if (message.data.originalCircuit !== undefined) {
             const { noOverlapCircuit, layerPosMap, posLayerMap, layerWidth } =
               calculateIndexMap(message.data.originalCircuit);
@@ -423,7 +420,6 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         : event.target.getBoundingClientRect();
     const x = event.clientX - rect.left;
 
-    console.log("graphSize", graphSize);
     let layerStart = Math.floor((x - 5) / ((paraBarwidth - 10) / graphSize[1]));
     layerStart =
       layerStart + gridNumber <= graphSize[1]
@@ -437,82 +433,6 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     //   layerRangeStart: layerStart,
     // });
   }
-  //   circuit: {
-  //     output_size: number[];
-  //     op_map: {};
-  //     qubits: string[];
-  //     gate_format: string;
-  //     all_gates: ((number | number[])[] | (number | number[])[])[];
-  //   },
-  //   layerPositionList: number[]
-  // ) => {
-  //   const gatesInLayers: any[][] = [];
-
-  //   const newLayerPosition: number[] = [];
-
-  //   circuit.all_gates.forEach((gateInfo: any) => {
-  //     const layerIndex = gateInfo[1][0];
-  //     console.log("layerIndex", layerIndex);
-  //     if (gatesInLayers.length <= layerIndex) {
-  //       gatesInLayers.push([gateInfo]);
-  //     } else {
-  //       gatesInLayers[layerIndex].push(gateInfo);
-  //     }
-  //   });
-
-  //   console.log("size", circuit.output_size[1]);
-
-  //   const new_all_gates: any[] = [];
-  //   let currentLayer = -1;
-  //   for (
-  //     let originLayerIndex = 0;
-  //     originLayerIndex < gatesInLayers.length;
-  //     originLayerIndex++
-  //   ) {
-  //     let ifOverlap = false;
-  //     let qubitsPlacement = new Array(circuit.output_size[0]).fill(0);
-  //     currentLayer++;
-  //     newLayerPosition.push(originLayerIndex);
-  //     console.log("originLayerIndex", originLayerIndex);
-
-  //     gatesInLayers[originLayerIndex].forEach((gateInfo: any) => {
-  //       const qubitsIndex = gateInfo[2];
-  //       let minQubit = Math.min(...qubitsIndex);
-  //       let maxQubit = Math.max(...qubitsIndex);
-
-  //       for (let index = minQubit; index <= maxQubit; index++) {
-  //         if (qubitsPlacement[index] === 1) {
-  //           ifOverlap = true;
-  //           break;
-  //         }
-  //       }
-  //       if (ifOverlap) {
-  //         currentLayer++;
-  //         newLayerPosition.push(originLayerIndex);
-  //         for (let index = 0; index < circuit.output_size[0]; index++) {
-  //           qubitsPlacement[index] = 0;
-  //         }
-  //         for (let index = minQubit; index <= maxQubit; index++) {
-  //           qubitsPlacement[index] = 1;
-  //         }
-  //         ifOverlap = false;
-  //       } else {
-  //         for (let index = minQubit; index <= maxQubit; index++) {
-  //           qubitsPlacement[index] = 1;
-  //         }
-  //       }
-  //       new_all_gates.push([gateInfo[0], [currentLayer], gateInfo[2]]);
-  //     });
-  //   }
-  //   const noOverlapCircuit = {
-  //     output_size: [circuit.output_size[0], newLayerPosition.length],
-  //     op_map: circuit.op_map,
-  //     qubits: circuit.qubits,
-  //     gate_format: "",
-  //     all_gates: new_all_gates,
-  //   };
-  //   return { noOverlapCircuit, newLayerPosition };
-  // };
 
   const calculateIndexMap = (circuit: {
     output_size: number[];
@@ -524,6 +444,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     const gatesInLayers: any[][] = [];
     const posLayerMap: number[] = [];
     const layerPosMap: number[] = [];
+    console.log("all_gates", circuit.all_gates);
+
     circuit.all_gates.forEach((gateInfo: any) => {
       const layerIndex = gateInfo[1][0];
 
@@ -589,6 +511,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       gate_format: "",
       all_gates: new_all_gates,
     };
+    console.log("noOverlapCircuit", noOverlapCircuit);
 
     return { noOverlapCircuit, layerPosMap, posLayerMap, layerWidth };
   };
@@ -731,7 +654,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 const generateCircuit = () => {
   return {
     output_size: [10, 10],
-    op_map: { null: 0, h: 1, cx: 2, cz: 3, ry: 4, rz: 5 },
+    op_map: { null: 0, h: 1, cx: 2, cz: 3, ry: 4, rz: 5, csw: 6 },
     qubits: ["0", "1", "2", "3", "4", "5", "6"],
     gate_format: "[op_idx, x_range, y_range]",
     all_gates: [
@@ -743,15 +666,15 @@ const generateCircuit = () => {
       [1, [0], [5]],
       [1, [0], [6]],
 
-      [5, [1], [0]],
-      [5, [1], [1]],
-      [5, [1], [2]],
+      [3, [1], [0, 1]],
+      [3, [1], [2, 3]],
+      [3, [1], [4, 5]],
       [5, [1], [3]],
       [5, [1], [4]],
       [5, [1], [5]],
       [5, [1], [6]],
 
-      [2, [2], [0, 1]],
+      [6, [2], [0, 2, 4]],
       [5, [3], [1]],
       [2, [4], [0, 1]],
       [2, [5], [1, 2]],

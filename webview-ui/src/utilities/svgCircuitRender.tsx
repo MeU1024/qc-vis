@@ -164,6 +164,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   var gates = gatesLayer.selectAll("g").data(allGates).enter().append("g");
   gates.each((gate: any, index) => {
     let shape;
+
     const opList = Object.keys(opMap);
     const op = opList[gate[0]];
     const layer = gate[1][0];
@@ -178,9 +179,6 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     if (op[0] == "_") {
       gateType = "customized";
       gateName = gateName.slice(1);
-    } else if (op == "ccx") {
-      gateName = "cx";
-      gateType = opTypeDict[op];
     } else {
       gateType = opTypeDict[op];
     }
@@ -215,9 +213,40 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       }
     }
 
+    if (gateType == "double") {
+      shape = d3.select(gates.nodes()[index]).append("rect");
+      shape
+        .attr("x", x * gridSize + (gridSize / 16) * 3 + offsetX)
+        .attr("y", qubits[0] * gridSize + (gridSize / 16) * 3 + offsetY)
+        .attr("width", (gridSize / 8) * 5)
+        .attr("height", (gridSize / 8) * 5 + (y - control_y) * gridSize)
+        .attr("rx", gridSize / 20)
+        .attr("stroke", colorDict[gateType])
+        .attr("fill", GATE_FILL)
+        .attr("fill-opacity", GATE_FILL_OPACITY);
+
+      if (gridSize >= 15) {
+        shape = d3.select(gates.nodes()[index]).append("text");
+        shape
+          .style("font-size", (gridSize / 3).toString() + "px")
+          .attr("x", x * gridSize + gridSize / 2 + offsetX)
+          .attr(
+            "y",
+            ((y + control_y) / 2) * gridSize +
+              gridSize / 2 +
+              gridSize / 3 / 4 +
+              offsetY
+          )
+          .text(gateName)
+          .attr("text-anchor", "middle")
+          .style("fill", colorDict[gateType]);
+      }
+    }
+
     switch (op) {
       case "cx":
       case "cy":
+      case "cry":
         shape = d3.select(gates.nodes()[index]).append("line");
         shape
           .attr("x1", x * gridSize + gridSize / 2 + offsetX)
@@ -235,6 +264,8 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
           .attr("cy", control_y * gridSize + gridSize / 2 + offsetY)
           .attr("r", gridSize / 20)
           .attr("fill", colorDict[gateType]);
+        break;
+      case "ryy":
         break;
       case "cz":
       case "cp":
@@ -285,6 +316,42 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
           .attr("cy", qubits[1] * gridSize + gridSize / 2 + offsetY)
           .attr("r", gridSize / 20)
           .attr("fill", colorDict[gateType]);
+      case "csw":
+        shape = d3.select(gates.nodes()[index]).append("line");
+        shape
+          .attr("x1", x * gridSize + gridSize / 2 + offsetX)
+          .attr("y1", control_y * gridSize + gridSize / 2 + offsetY)
+          .attr("x2", x * gridSize + gridSize / 2 + offsetX)
+          .attr("y2", y * gridSize + gridSize / 2 + offsetY)
+          .attr("stroke", colorDict[gateType]);
+
+        shape = d3.select(gates.nodes()[index]).append("circle");
+        shape
+          .attr("cx", x * gridSize + gridSize / 2 + offsetX)
+          .attr("cy", control_y * gridSize + gridSize / 2 + offsetY)
+          .attr("r", gridSize / 20)
+          .attr("fill", colorDict[gateType]);
+        qubits.forEach((qubitIndex: number) => {
+          if (qubitIndex !== 0) {
+            shape = d3.select(gates.nodes()[index]).append("line");
+            shape
+              .attr("x1", x * gridSize + (gridSize / 8) * 3 + offsetX)
+              .attr("y1", qubitIndex * gridSize + (gridSize / 8) * 3 + offsetY)
+              .attr("x2", x * gridSize + (gridSize / 8) * 5 + offsetX)
+              .attr("y2", qubitIndex * gridSize + (gridSize / 8) * 5 + offsetY)
+              .attr("stroke", colorDict[gateType]);
+
+            shape = d3.select(gates.nodes()[index]).append("line");
+            shape
+              .attr("x1", x * gridSize + (gridSize / 8) * 3 + offsetX)
+              .attr("y1", qubitIndex * gridSize + (gridSize / 8) * 5 + offsetY)
+              .attr("x2", x * gridSize + (gridSize / 8) * 5 + offsetX)
+              .attr("y2", qubitIndex * gridSize + (gridSize / 8) * 3 + offsetY)
+              .attr("stroke", colorDict[gateType]);
+          }
+        });
+
+        break;
       default:
         break;
     }

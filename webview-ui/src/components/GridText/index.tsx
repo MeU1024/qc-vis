@@ -52,14 +52,10 @@ const GridText = (props: GridTextProps) => {
     content == "ryy"
   ) {
     ctx.fillStyle = MULTI_GATE_STROKE;
-  } else if (content == "cry") {
+  } else if (content == "cry" || content == "ccx") {
     ctx.fillStyle = MULTI_GATE_STROKE;
-    content = "ry";
-  } else if (content == "ccx") {
-    ctx.fillStyle = MULTI_GATE_STROKE;
-    content = "cx";
   } else if (content == "···" || content == "...") {
-    ctx.fillStyle = "black";
+    ctx.fillStyle = "#afafaf";
   }
   ctx.textBaseline = "middle";
 

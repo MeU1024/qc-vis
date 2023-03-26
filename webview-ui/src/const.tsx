@@ -53,7 +53,7 @@ export const IDLE_FILL = "#BDCCD4";
 export const IDLE_STROKE = "#D4D4D4";
 export const GATE_FILL_OPACITY = "80%";
 export const HIGHLIGHT_FRAME_FILL = "rgba(204,204,204,0.1)";
-export const HIGHLIGHT_FRAME = "#CCCCCC";
+export const HIGHLIGHT_FRAME = "#afafaf";
 export const opTypeDict: { [key: string]: string } = {
   x: "single",
 

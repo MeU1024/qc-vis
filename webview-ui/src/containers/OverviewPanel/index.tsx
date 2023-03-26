@@ -244,7 +244,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
         <canvas
           id="overviewCanvas"
           width={canvasFixedWidth}
-          height={canvasHeight}
+          height={canvasHeight + 20}
           ref={canvasRef}
           style={canvasStyle}
         ></canvas>

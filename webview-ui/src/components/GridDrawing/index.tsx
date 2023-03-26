@@ -125,8 +125,14 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(xCoord + (width - maxWidth) / 2, yCoord + height);
-      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height / 8);
-      ctx.lineTo(xCoord + width - (width - maxWidth) / 2, yCoord + height / 8);
+      ctx.lineTo(
+        xCoord + (width - maxWidth) / 2,
+        yCoord + (width - maxWidth) / 2
+      );
+      ctx.lineTo(
+        xCoord + width - (width - maxWidth) / 2,
+        yCoord + (width - maxWidth) / 2
+      );
       ctx.lineTo(xCoord + width - (width - maxWidth) / 2, yCoord + height);
 
       ctx.stroke();
