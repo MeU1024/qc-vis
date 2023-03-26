@@ -36,10 +36,10 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
   const [qubitData, setQubitData] = useState<
     | undefined
     | {
-        gateName: string;
-        qubits: string[];
-        layer: number;
-      }[]
+      gateName: string;
+      qubits: string[];
+      layer: number;
+    }[]
   >(generateQubitData());
   const [qubitPos, setQubitPos] = useState<
     {
@@ -199,44 +199,47 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
 
     // console.log("qubitData", qubitData);
 
-    const minInterval = 30; //layerMinInterval
+    const minInterval = 10; //layerMinInterval
 
     const svgWidth = 640;
-    // const gateWidth = 20;
+    const gateWidth = 20;
     let layerNum = 10; // todo : layerNum(need fix)
     if (qubitData !== undefined) {
       //TODO:calculation the interval
       let n = qubitData.length;
-      let layerInterval = Math.min(svgWidth / layerNum, minInterval);
+      let unitInterval = (svgWidth - n * gateWidth) / layerNum;
 
       let pos: number[]; // layer index
-      // let pre: number[]; // pre[pos] : before pos, there are pre[pos] gates
+      let pre: number[]; // pre[pos] : before pos, there are pre[pos] gates
       pos = [];
-      // pre = [];
+      pre = [];
       for (let i = 0; i < n; ++i) {
         pos[i] = qubitData[i].layer;
       }
       sort(pos);
-      // for (let i = 0; i < n; ++i) {
-      // pre[pos[i]] = i;
-      // }
-      let mnNum = pos[0];
+      for (let i = 0; i < n; ++i) {
+        pre[pos[i]] = i;
+      }
+      let mnNum = Math.max(pos[0], 1);
       for (let i = 1; i < n; ++i) {
         mnNum = Math.min(mnNum, pos[i] - pos[i - 1]);
       }
-
+      // console.log("mnNum : ", mnNum);
+      if (minInterval > unitInterval * mnNum) {
+        unitInterval = unitInterval * minInterval / (unitInterval * mnNum);
+      }
       let totlength = 0; // real width                                      // todo : return
-      totlength = layerInterval * layerNum;
-
+      totlength = Math.ceil(gateWidth * n + unitInterval * layerNum);
+      // console.log("unitInterval : ", unitInterval);
       const qubitPosition = qubitData?.map((item) => {
         return {
           gateName: item.gateName,
           qubits: item.qubits,
-          x: item.layer * layerInterval + layerInterval / 2,
+          x: (item.layer + 1) * unitInterval + gateWidth / 2 + pre[item.layer] * gateWidth,
         };
       });
       setQubitPos(qubitPosition);
-      // console.log("qubitPosition", qubitPosition);
+      // console.log("qubitPosition : ", qubitPosition);
     }
   }, [qubitData]);
 

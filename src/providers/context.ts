@@ -52,9 +52,9 @@ export class ContextDataProvider {
   private async _postFocusData(
     data:
       | {
-          idlePosition: number[][][];
-          averageIdleValue: number[][];
-        }
+        idlePosition: number[][][];
+        averageIdleValue: number[][];
+      }
       | undefined
   ) {
     if (data !== undefined) {
@@ -226,8 +226,8 @@ class ContextualCircuit {
   }[] {
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      // "/resources/data/qugan-structure.json"
-      "/resources/data/mul-structure.json"
+      "/resources/data/qugan-structure.json"
+      // "/resources/data/mul-structure.json"
     ).fsPath;
     let data = require(dataSource);
     let treeStructure = data.map((tree: any) => {
@@ -508,13 +508,13 @@ class ContextualCircuit {
     this._subGraphLayerRange = layerRange;
   }
 
-  private isInComponent(chiGate: ComponentGate, paIdx: number) {
+  private isInComponent(chiGate: ComponentGate, ComponentIdx: number) {
     let nwidx = chiGate.treeIndex;
     while (nwidx != 0) {
-      if (nwidx == paIdx) return true;
+      if (nwidx === ComponentIdx) return true;
       nwidx = this._treeStructure[nwidx].parentIndex;
     }
-    return nwidx == paIdx;
+    return nwidx === ComponentIdx;
   }
 
   private getGroupId(timeStamp: number) {
