@@ -1,8 +1,10 @@
 .qubitView {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
+  // display: flex;
+  // flex-direction: row;
+  // justify-content: center;
+  // align-items: center;
+  display: grid;
+  grid-template-columns: 25px auto;
 }
 .qubitTitle {
   margin-right: 5px;

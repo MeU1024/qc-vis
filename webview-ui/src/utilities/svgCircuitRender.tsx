@@ -143,19 +143,18 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
 
   //wire
   var wires = wiresLayer.selectAll("rect").data(wiresData).enter();
-  for (let index = 0; index < gridNumber; index++) {
-    wires
-      .append("rect")
-      .attr("x", 0)
-      .attr("y", function (d, i) {
-        return i * gridSize + gridSize / 2;
-      })
-      .attr("width", width)
-      .attr("height", 1)
-      .style("fill", (d, i) => {
-        return "url(#myWireGradient)";
-      });
-  }
+  wires
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", function (d, i) {
+      return i * gridSize + gridSize / 2;
+    })
+    .attr("width", width)
+    .attr("height", 1)
+    .style("fill", (d, i) => {
+      return "url(#myWireGradient)";
+    });
+  for (let index = 0; index < gridNumber; index++) {}
 
   //gate
   const allGates = circuit.all_gates;

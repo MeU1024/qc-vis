@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import "./index.scss";
-
+import { vscode } from "../../utilities/vscode";
 export interface BitsNameProps {
   qbitLengths: string[];
   alignment: string;
@@ -12,17 +12,33 @@ const BitsName = (props: BitsNameProps) => {
   const height = gridHeight.toString();
   const width = gridHeight < 40 ? gridHeight : 40;
   var fontSize = gridHeight / 2.5 <= 16 ? gridHeight / 2.5 : 16;
+
+  const handleClick = (e: any, index: number) => {
+    // console.log(e);
+    // console.log("index", index);
+    vscode.postMessage({
+      type: "focusQubit",
+      focusQubit: index,
+    });
+  };
   return (
     <div
       className="bitsName"
       style={{ width: (width * 1.2).toString() + "px" }}
     >
-      {qbitLengths.map((item) => {
+      {qbitLengths.map((item, index) => {
         switch (item) {
           case "···":
             // case "...":
             return (
-              <div className="qbitTitle" style={{ height: height + "px" }}>
+              <div
+                className="qbitTitle"
+                style={{ height: height + "px" }}
+                key={index}
+                onClick={(event) => {
+                  handleClick(event, index);
+                }}
+              >
                 <span
                   className="title-q"
                   style={{
@@ -45,7 +61,14 @@ const BitsName = (props: BitsNameProps) => {
             );
           default:
             return (
-              <div className="qbitTitle" style={{ height: height + "px" }}>
+              <div
+                className="qbitTitle"
+                style={{ height: height + "px" }}
+                key={index}
+                onClick={(event) => {
+                  handleClick(event, index);
+                }}
+              >
                 <span
                   className="title-q"
                   style={{

@@ -10,6 +10,7 @@ import {
 import overviewData_abs from "../../../data/vqc-10-detail-abstract.json";
 import Circuit2GridData from "../../utilities/Circuit2GridData";
 import { svgCircuitRender } from "../../utilities/svgCircuitRender";
+import { extentRender } from "../../utilities/extentRender";
 import { vscode } from "../../utilities/vscode";
 export interface ParallelismPanelProps {
   theme: any;
@@ -22,10 +23,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const { theme, highlightGate } = props;
 
   const [panelTitle, setPanelTitle] = useState("Placement");
-  const [idleBarwidth, setIdleBarwidth] = useState(40);
+  const [idleBarwidth, setIdleBarwidth] = useState(30);
   const [idleBarheight, setIdleBarheight] = useState(360);
-  const [canvasWidth, setCanvasWidth] = useState(350);
-  const [canvasHeight, setCanvasHeight] = useState(350);
+  const [canvasWidth, setCanvasWidth] = useState(320);
+  const [canvasHeight, setCanvasHeight] = useState(320);
+  const [extentWidth, setExtentWidth] = useState(40);
   const [gridNumber, setGridNumber] = useState(10);
   const [focusIndex, setFocusIndex] = useState<number | undefined>(undefined);
   const [focusLayer, setFocusLayer] = useState<number | undefined>(undefined);
@@ -70,7 +72,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   ]);
 
   const [graphSize, setGraphSize] = useState([10, 10]);
-  const paraBarwidth = 360;
+  const paraBarwidth = 380;
   const paraBarheight = 10;
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -176,6 +178,27 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         wiresData: layerPosition.map((index) => {
           return paraBarData[index];
         }),
+        gridNumber: gridNumber,
+        posLayerMap: posLayerMap,
+        layerPosMap: layerPosMap,
+        layerWidth: layerWidth,
+      });
+      extentRender({
+        width: canvasWidth,
+        height: canvasHeight,
+        gridSize: gridSize,
+        circuit: subCircuit,
+        averageIdleValue: averageIdleValue,
+        idlePosition: idlePosition,
+        focusIndex: focusIndex,
+        focusLayer: focusLayer,
+        offsetX: -layerPosMap[layerRangeStart] * gridSize,
+        offsetY: -qubitRangeStart * gridSize,
+        layerRangeStart: layerPosMap[layerRangeStart],
+        qubitRangeStart: qubitRangeStart,
+        layerPosition: layerPosition,
+
+        paraBarData: paraBarData,
         gridNumber: gridNumber,
         posLayerMap: posLayerMap,
         layerPosMap: layerPosMap,
@@ -520,26 +543,14 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
       <div className="parallelismHori">
         <div className="parallelismTitle">
-          <div>Idle Wire Extent:</div>
-          <div>Parallelism Level:</div>
-          <div>Idle Level:</div>
+          <div style={{ margin: "5px" }}>Idle Wire Extent:</div>
+          <div style={{ margin: "5px" }}>Parallelism Level:</div>
+          <div style={{ margin: "5px" }}>Idle Level:</div>
         </div>
         <div className="parallelismSvg">
-          <div className="parallelismSvgAbove">
-            <div>To Left</div>
-            <svg
-              width="15"
-              height="15"
-              version="1.1"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox={"0 0 " + 15 + " " + 15}
-            >
-              {/* <defs>
-                <linearGradient id="Gradient1" >
-                  <stop offset="0%" stop-color="#3FA9F5" />
-                  <stop offset="100%" stop-color="#FF1D25" />
-                </linearGradient>
-              </defs> */}
+          <div className="parallelismSvgAbove" style={{ margin: "2px" }}>
+            <div style={{ margin: "5px" }}>To Left</div>
+            <svg width="15" height="15" viewBox={"0 0 " + 15 + " " + 15}>
               <rect
                 x="0"
                 y="0"
@@ -550,19 +561,13 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
                 fill="#FFFFFF"
               />
             </svg>
-            <div>To Right</div>
+            <div style={{ margin: "5px" }}>To Right</div>
           </div>
           <div className="parallelismSvgBlow">
             <div className="contentLow"> Low </div>
             <div>
               <div>
-                <svg
-                  width="150"
-                  height="15"
-                  version="1.1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox={"0 0 " + 150 + " " + 15}
-                >
+                <svg width="150" height="15" viewBox={"0 0 " + 150 + " " + 15}>
                   <defs>
                     <linearGradient id="Gradient1">
                       <stop offset="0%" stop-color="#3FA9F5" />
@@ -581,13 +586,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
                 </svg>
               </div>
               <div>
-                <svg
-                  width="150"
-                  height="15"
-                  version="1.1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox={"0 0 " + 150 + " " + 15}
-                >
+                <svg width="150" height="15" viewBox={"0 0 " + 150 + " " + 15}>
                   <defs>
                     <linearGradient id="Gradient2">
                       <stop offset="0%" stop-color="#FFFFFF" />
@@ -612,8 +611,13 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       </div>
 
       <div className="parallelismView">
-        <div className="firstRow">
-          {" "}
+        <div className="firstRow" style={{ marginTop: "10px" }}>
+          <svg
+            id="leftExtentSVG"
+            viewBox={"0 0 " + extentWidth + " " + canvasHeight}
+            width={extentWidth}
+            height={canvasHeight}
+          ></svg>
           <svg
             id="parallelismSVG"
             viewBox={"0 0 " + canvasWidth + " " + canvasHeight}
@@ -621,6 +625,12 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             height={canvasHeight}
             ref={svgRef}
             onClick={handleClick}
+          ></svg>
+          <svg
+            id="rightExtentSVG"
+            viewBox={"0 0 " + extentWidth + " " + canvasHeight}
+            width={extentWidth}
+            height={canvasHeight}
           ></svg>
           <svg
             id="idleBar"

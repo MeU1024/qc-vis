@@ -4,18 +4,26 @@
 
   margin-top: 10px;
   margin-bottom: 10px;
+  margin-left: 10px;
   .firstRow {
     align-self: center;
     display: flex;
     flex-direction: row;
   }
+  #rightExtentSVG {
+    margin-right: 10px;
+    margin-left: 1px;
+    border-left: 1px solid #cccccc;
+  }
+  #leftExtentSVG {
+    margin-right: 1px;
+    border-right: 1px solid #cccccc;
+  }
   #parallelismSVG {
-    margin-right: 30px;
-    margin-left: 20px;
   }
   #parallelismBar {
     margin-top: 10px;
-    margin-left: 20px;
+    margin-left: 10px;
   }
   .selectRange {
     margin-top: 10px;
@@ -30,16 +38,16 @@
     margin-left: 10px;
     display: flex;
     flex-direction: row;
-    align-items:center;
+    align-items: center;
   }
-  .parallelismSvgAbove{
+  .parallelismSvgAbove {
     margin-left: 10px;
     display: flex;
   }
   .contentLow {
-    margin : 5px;
+    margin: 5px;
   }
   .contentHigh {
-    margin : 5px;
+    margin: 5px;
   }
 }

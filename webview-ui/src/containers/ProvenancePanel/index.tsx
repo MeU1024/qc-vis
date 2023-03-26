@@ -36,10 +36,10 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
   const [qubitData, setQubitData] = useState<
     | undefined
     | {
-      gateName: string;
-      qubits: string[];
-      layer: number;
-    }[]
+        gateName: string;
+        qubits: string[];
+        layer: number;
+      }[]
   >(generateQubitData());
   const [qubitPos, setQubitPos] = useState<
     {
@@ -50,8 +50,8 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
   >([]);
 
   const [focusQubit, setFocusQubit] = useState(0);
-
-  const width = 650;
+  const [svgWidth, setSVGWidth] = useState(1200);
+  // const width = 650;
   const height = 80;
   const gridSize = height / 2;
 
@@ -65,7 +65,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
       wire
         .attr("x1", 0)
         .attr("y1", gridSize)
-        .attr("x2", width - 10)
+        .attr("x2", svgWidth - 10)
         .attr("y2", gridSize)
         .attr("stroke", WIRE_STROKE);
 
@@ -192,18 +192,19 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
         }
       });
     }
-  }, [qubitPos]);
+  }, [qubitPos, svgWidth]);
 
   useEffect(() => {
     //
 
-    // console.log("qubitData", qubitData);
+    console.log("qubitData", qubitData);
 
     const minInterval = 10; //layerMinInterval
 
     const svgWidth = 640;
     const gateWidth = 20;
-    let layerNum = 10; // todo : layerNum(need fix)
+    //TODO: layerNum(need fix)
+    let layerNum = 75;
     if (qubitData !== undefined) {
       //TODO:calculation the interval
       let n = qubitData.length;
@@ -226,20 +227,25 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
       }
       // console.log("mnNum : ", mnNum);
       if (minInterval > unitInterval * mnNum) {
-        unitInterval = unitInterval * minInterval / (unitInterval * mnNum);
+        unitInterval = (unitInterval * minInterval) / (unitInterval * mnNum);
       }
       let totlength = 0; // real width                                      // todo : return
-      totlength = Math.ceil(gateWidth * n + unitInterval * layerNum);
-      // console.log("unitInterval : ", unitInterval);
+      totlength = Math.ceil(gateWidth * n + unitInterval * (layerNum + 1));
+      console.log("unitInterval : ", unitInterval);
       const qubitPosition = qubitData?.map((item) => {
         return {
           gateName: item.gateName,
           qubits: item.qubits,
-          x: (item.layer + 1) * unitInterval + gateWidth / 2 + pre[item.layer] * gateWidth,
+          x:
+            (item.layer + 0.5) * unitInterval +
+            gateWidth / 2 +
+            pre[item.layer] * gateWidth,
         };
       });
+      console.log("totlength", totlength);
+      setSVGWidth(totlength);
       setQubitPos(qubitPosition);
-      // console.log("qubitPosition : ", qubitPosition);
+      console.log("qubitPosition : ", qubitPosition);
     }
   }, [qubitData]);
 
@@ -267,12 +273,12 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
       <div className="panelHeader">
         <span className="title">{panelTitle}</span>
       </div>
-      <div className="qubitView">
+      <div className="qubitView" style={{ overflow: "scroll" }}>
         <div className="qubitTitle">Qubit {focusQubit}</div>
         <svg
           id="qubitSVG"
-          viewBox={"0 0 " + width + " " + height}
-          width={width}
+          viewBox={"0 0 " + svgWidth + " " + height}
+          width={svgWidth}
           height={height}
         ></svg>
       </div>
