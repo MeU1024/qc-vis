@@ -36,10 +36,10 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
   const [qubitData, setQubitData] = useState<
     | undefined
     | {
-        gateName: string;
-        qubits: string[];
-        layer: number;
-      }[]
+      gateName: string;
+      qubits: string[];
+      layer: number;
+    }[]
   >(generateQubitData());
   const [qubitPos, setQubitPos] = useState<
     {
@@ -229,15 +229,17 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
       if (minInterval > unitInterval * mnNum) {
         unitInterval = (unitInterval * minInterval) / (unitInterval * mnNum);
       }
-      let totlength = 0; // real width                                      // todo : return
+      //TODO:return
+      let totlength = 0; // real width                                      
       totlength = Math.ceil(gateWidth * n + unitInterval * (layerNum + 1));
       console.log("unitInterval : ", unitInterval);
+      let num = (pos[0] == 0) ? 0.5 : 0;
       const qubitPosition = qubitData?.map((item) => {
         return {
           gateName: item.gateName,
           qubits: item.qubits,
           x:
-            (item.layer + 0.5) * unitInterval +
+            (item.layer + num) * unitInterval +
             gateWidth / 2 +
             pre[item.layer] * gateWidth,
         };
