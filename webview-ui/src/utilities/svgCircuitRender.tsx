@@ -36,6 +36,9 @@ export interface svgCircuitRenderProps {
   layerPosition: number[];
   wiresData: number[];
   gridNumber: number;
+  posLayerMap: number[];
+  layerPosMap: number[];
+  layerWidth: number[];
 }
 
 const colorScale = d3
@@ -60,6 +63,9 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     wiresData,
     focusLayer,
     gridNumber,
+    posLayerMap,
+    layerPosMap,
+    layerWidth,
   } = props;
 
   // const wiresData = [0, 0.2, 0.6, 1, 0.4, 0, 0];
@@ -89,15 +95,15 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
 
       rects
         .append("rect")
-        .attr("x", (d) => focusLayer * gridSize + offsetX)
+        .attr("x", (d) => layerPosMap[focusLayer] * gridSize + offsetX)
         .attr("y", (d, i) => i * gridSize)
-        .attr("width", gridSize)
+        .attr("width", gridSize * layerWidth[focusLayer])
         .attr("height", gridSize)
         .attr("fill", IDLE_FILL)
         .attr("fill-opacity", (d) => d / 1.2);
     }
     if (idlePosition[layerPosition[focusIndex]].length !== 0) {
-      console.log(idlePosition[layerPosition[focusIndex]]);
+      // console.log(idlePosition[layerPosition[focusIndex]]);
       const slicedIdlePosition = idlePosition[focusLayer].slice(
         qubitRangeStart,
         qubitRangeStart + gridNumber
@@ -108,10 +114,13 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
         .enter()
         .append("g");
       idleBackground.each((d, index) => {
+        const rectWidth = d.reduce((sum, curIndex) => {
+          return sum + layerWidth[d[curIndex]];
+        }, 0);
         let bg = d3.select(idleBackground.nodes()[index]).append("rect");
-        bg.attr("x", d[0] * gridSize + offsetX)
+        bg.attr("x", layerPosMap[d[0]] * gridSize + offsetX)
           .attr("y", index * gridSize)
-          .attr("width", gridSize * d.length)
+          .attr("width", gridSize * rectWidth)
           .attr("height", gridSize)
           .attr("rx", gridSize / 20)
           .attr("fill", IDLE_FILL)
@@ -194,7 +203,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
         .attr("fill", GATE_FILL)
         .attr("fill-opacity", GATE_FILL_OPACITY);
 
-      if (gridSize >= 10) {
+      if (gridSize >= 15) {
         shape = d3.select(gates.nodes()[index]).append("text");
         shape
           .style("font-size", (gridSize / 3).toString() + "px")
@@ -285,11 +294,13 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   if (focusLayer !== undefined) {
     var frame = focusFrameLayer.selectAll("rect").data([focusLayer]).enter();
 
+    console.log("focusLayer", focusLayer);
+    console.log("layerPosMap", layerPosMap);
     frame
       .append("rect")
-      .attr("x", (d) => d * gridSize + offsetX)
+      .attr("x", (d) => layerPosMap[d] * gridSize + offsetX)
       .attr("y", 0)
-      .attr("width", gridSize)
+      .attr("width", (d) => gridSize * layerWidth[d])
       .attr("height", height)
       .attr("stroke", IDLE_STROKE)
       .attr("stroke-width", 2)

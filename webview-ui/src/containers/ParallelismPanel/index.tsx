@@ -33,6 +33,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [layerRangeStart, setLayerRangeStart] = useState<number>(0);
   const [subLayer, setSubLayer] = useState([0, 6]);
   const [layerPosition, setLayerPosition] = useState([0, 1, 2, 3, 4, 5, 6]);
+  const [posLayerMap, setPosLayerMap] = useState<number[]>([
+    0, 0, 1, 2, 3, 4, 5,
+  ]);
+  const [layerPosMap, setlayerPosMap] = useState<number[]>([0, 2, 3, 4, 5, 6]);
+  const [layerWidth, setLayerWidth] = useState<number[]>([2, 1, 1, 1, 1, 1, 1]);
   const [gridSize, setGridSize] = useState(50);
 
   const [paraBarData, setParaBarData] = useState(geneParaData());
@@ -130,24 +135,22 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     if (originalCircuit !== undefined) {
       const subCircuit = getSubCircuit(
         qubitRangeStart,
-        layerRangeStart,
+        layerPosMap[layerRangeStart],
         originalCircuit,
         gridNumber
       );
-      // console.log("getsubcircuit", subCircuit);
-      setSubCircuit(subCircuit);
-    }
 
-    const layerPositionList = [];
-    for (
-      let index = layerRangeStart;
-      index < layerRangeStart + gridNumber;
-      index++
-    ) {
-      layerPositionList.push(index);
+      const layerPositionList = posLayerMap.slice(
+        layerPosMap[layerRangeStart],
+        layerPosMap[layerRangeStart + gridNumber]
+      );
+
+      console.log("getsubcircuit", subCircuit);
+      setSubCircuit(subCircuit);
+
+      console.log("list", layerPositionList);
+      setLayerPosition(layerPositionList);
     }
-    console.log("list", layerPositionList);
-    setLayerPosition(layerPositionList);
   }, [qubitRangeStart, layerRangeStart, originalCircuit, gridNumber]);
 
   useEffect(() => {
@@ -157,11 +160,9 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       setFocusLayer(layerPosition[focusIndex]);
     }
   }, [focusIndex]);
+
   useEffect(() => {
     if (subCircuit !== undefined) {
-      // removeCircuitOverlap(circuit);
-      // console.log("idlePosition", idlePosition);
-      // console.log("averageIdleValue", averageIdleValue);
       svgCircuitRender({
         id: "#parallelismSVG",
         width: canvasWidth,
@@ -172,16 +173,18 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         idlePosition: idlePosition,
         focusIndex: focusIndex,
         focusLayer: focusLayer,
-        offsetX: -layerRangeStart * gridSize,
+        offsetX: -layerPosMap[layerRangeStart] * gridSize,
         offsetY: -qubitRangeStart * gridSize,
-        layerRangeStart: layerRangeStart,
+        layerRangeStart: layerPosMap[layerRangeStart],
         qubitRangeStart: qubitRangeStart,
         layerPosition: layerPosition,
-        wiresData: paraBarData.slice(
-          layerRangeStart,
-          layerRangeStart + gridNumber
-        ),
+        wiresData: layerPosition.map((index) => {
+          return paraBarData[index];
+        }),
         gridNumber: gridNumber,
+        posLayerMap: posLayerMap,
+        layerPosMap: layerPosMap,
+        layerWidth: layerWidth,
       });
     }
   }, [
@@ -286,18 +289,45 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     const canvas = svgRef.current;
 
     const handleWheelEvent = (e: any) => {
-      console.log(gridNumber);
       if (e.ctrlKey) {
+        // console.log(gridNumber);
         e.preventDefault();
         let deltaScale = e.deltaY;
         // console.log(widthScale);
         if (deltaScale > 0) {
+          console.log("+", originalCircuit?.output_size[1]);
           setGridNumber((gridNumber) =>
-            Math.min(Math.max(gridNumber + 1, 7), averageIdleValue[0].length)
+            Math.min(
+              Math.max(gridNumber + 1, 7),
+              originalCircuit?.output_size[0] || 20
+            )
           );
         } else {
+          console.log("-", originalCircuit?.output_size[1]);
           setGridNumber((gridNumber) =>
-            Math.min(Math.max(gridNumber - 1, 7), averageIdleValue[0].length)
+            Math.min(
+              Math.max(gridNumber - 1, 7),
+              originalCircuit?.output_size[0] || 20
+            )
+          );
+        }
+      } else {
+        e.preventDefault();
+        let deltaScale = e.deltaY;
+        // console.log(widthScale);
+        if (deltaScale > 0) {
+          setQubitRangeStart((qubitRangeStart) =>
+            Math.min(
+              Math.max(qubitRangeStart + 1, 0),
+              averageIdleValue[0].length - gridNumber
+            )
+          );
+        } else {
+          setQubitRangeStart((qubitRangeStart) =>
+            Math.min(
+              Math.max(qubitRangeStart - 1, 0),
+              averageIdleValue[0].length - gridNumber
+            )
           );
         }
       }
@@ -311,7 +341,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         canvas.removeEventListener("wheel", handleWheelEvent);
       }
     };
-  }, [gridNumber]);
+  }, [gridNumber, originalCircuit]);
 
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
@@ -325,10 +355,20 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           // setCurQubit(message.data.qubits);
           setGraphSize(message.data.originalCircuitSize);
           setSubLayer(message.data.subCircuit.subGraphLayerRange);
-          setOriginalCircuit(message.data.originalCircuit);
+
           setIdlePosition(message.data.idlePosition);
           setAverageIdleValue(message.data.averageIdleValue);
           // console.log("context", message.data);
+
+          if (message.data.originalCircuit !== undefined) {
+            const { noOverlapCircuit, layerPosMap, posLayerMap, layerWidth } =
+              calculateIndexMap(message.data.originalCircuit);
+
+            setlayerPosMap(layerPosMap);
+            setPosLayerMap(posLayerMap);
+            setOriginalCircuit(noOverlapCircuit);
+            setLayerWidth(layerWidth);
+          }
           break;
         case "context.setTitle":
           // setPanelTitle(message.data.title);
@@ -352,10 +392,10 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     const y = event.clientY - rect.top;
     const focusIndex = Math.floor(x / gridSize);
     setFocusIndex(focusIndex);
-    vscode.postMessage({
-      type: "focusGate",
-      layer: layerPosition[focusIndex],
-    });
+    // vscode.postMessage({
+    //   type: "focusGate",
+    //   layer: layerPosition[focusIndex],
+    // });
   }
 
   function handleIdleBarClick(event: any) {
@@ -374,11 +414,6 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         : graphSize[0] - gridNumber;
     qubitStart = qubitStart < 0 ? 0 : qubitStart;
     setQubitRangeStart(qubitStart);
-
-    // vscode.postMessage({
-    //   type: "qubitRangeStart",
-    //   qubitRangeStart: qubitStart,
-    // });
   }
 
   function handleParaBarClick(event: any) {
@@ -388,6 +423,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         : event.target.getBoundingClientRect();
     const x = event.clientX - rect.left;
 
+    console.log("graphSize", graphSize);
     let layerStart = Math.floor((x - 5) / ((paraBarwidth - 10) / graphSize[1]));
     layerStart =
       layerStart + gridNumber <= graphSize[1]
@@ -396,29 +432,166 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     layerStart = layerStart < 0 ? 0 : layerStart;
     setLayerRangeStart(layerStart);
 
-    vscode.postMessage({
-      type: "layerRangeStart",
-      layerRangeStart: layerStart,
-    });
+    // vscode.postMessage({
+    //   type: "layerRangeStart",
+    //   layerRangeStart: layerStart,
+    // });
   }
+  //   circuit: {
+  //     output_size: number[];
+  //     op_map: {};
+  //     qubits: string[];
+  //     gate_format: string;
+  //     all_gates: ((number | number[])[] | (number | number[])[])[];
+  //   },
+  //   layerPositionList: number[]
+  // ) => {
+  //   const gatesInLayers: any[][] = [];
 
-  const removeCircuitOverlap = (circuit: {
+  //   const newLayerPosition: number[] = [];
+
+  //   circuit.all_gates.forEach((gateInfo: any) => {
+  //     const layerIndex = gateInfo[1][0];
+  //     console.log("layerIndex", layerIndex);
+  //     if (gatesInLayers.length <= layerIndex) {
+  //       gatesInLayers.push([gateInfo]);
+  //     } else {
+  //       gatesInLayers[layerIndex].push(gateInfo);
+  //     }
+  //   });
+
+  //   console.log("size", circuit.output_size[1]);
+
+  //   const new_all_gates: any[] = [];
+  //   let currentLayer = -1;
+  //   for (
+  //     let originLayerIndex = 0;
+  //     originLayerIndex < gatesInLayers.length;
+  //     originLayerIndex++
+  //   ) {
+  //     let ifOverlap = false;
+  //     let qubitsPlacement = new Array(circuit.output_size[0]).fill(0);
+  //     currentLayer++;
+  //     newLayerPosition.push(originLayerIndex);
+  //     console.log("originLayerIndex", originLayerIndex);
+
+  //     gatesInLayers[originLayerIndex].forEach((gateInfo: any) => {
+  //       const qubitsIndex = gateInfo[2];
+  //       let minQubit = Math.min(...qubitsIndex);
+  //       let maxQubit = Math.max(...qubitsIndex);
+
+  //       for (let index = minQubit; index <= maxQubit; index++) {
+  //         if (qubitsPlacement[index] === 1) {
+  //           ifOverlap = true;
+  //           break;
+  //         }
+  //       }
+  //       if (ifOverlap) {
+  //         currentLayer++;
+  //         newLayerPosition.push(originLayerIndex);
+  //         for (let index = 0; index < circuit.output_size[0]; index++) {
+  //           qubitsPlacement[index] = 0;
+  //         }
+  //         for (let index = minQubit; index <= maxQubit; index++) {
+  //           qubitsPlacement[index] = 1;
+  //         }
+  //         ifOverlap = false;
+  //       } else {
+  //         for (let index = minQubit; index <= maxQubit; index++) {
+  //           qubitsPlacement[index] = 1;
+  //         }
+  //       }
+  //       new_all_gates.push([gateInfo[0], [currentLayer], gateInfo[2]]);
+  //     });
+  //   }
+  //   const noOverlapCircuit = {
+  //     output_size: [circuit.output_size[0], newLayerPosition.length],
+  //     op_map: circuit.op_map,
+  //     qubits: circuit.qubits,
+  //     gate_format: "",
+  //     all_gates: new_all_gates,
+  //   };
+  //   return { noOverlapCircuit, newLayerPosition };
+  // };
+
+  const calculateIndexMap = (circuit: {
     output_size: number[];
     op_map: {};
     qubits: string[];
     gate_format: string;
     all_gates: ((number | number[])[] | (number | number[])[])[];
   }) => {
-    const layerPosition: number[] = [];
-    for (let index = subLayer[0]; index <= subLayer[1]; index++) {
-      layerPosition.push(index);
+    const gatesInLayers: any[][] = [];
+    const posLayerMap: number[] = [];
+    const layerPosMap: number[] = [];
+    circuit.all_gates.forEach((gateInfo: any) => {
+      const layerIndex = gateInfo[1][0];
+
+      if (gatesInLayers.length <= layerIndex) {
+        gatesInLayers.push([gateInfo]);
+      } else {
+        gatesInLayers[layerIndex].push(gateInfo);
+      }
+    });
+
+    const new_all_gates: any[] = [];
+    let currentLayer = -1;
+    for (
+      let originLayerIndex = 0;
+      originLayerIndex < gatesInLayers.length;
+      originLayerIndex++
+    ) {
+      let ifOverlap = false;
+      let qubitsPlacement = new Array(circuit.output_size[0]).fill(0);
+      currentLayer++;
+      layerPosMap.push(posLayerMap.length);
+      posLayerMap.push(originLayerIndex);
+
+      gatesInLayers[originLayerIndex].forEach((gateInfo: any) => {
+        const qubitsIndex = gateInfo[2];
+        let minQubit = Math.min(...qubitsIndex);
+        let maxQubit = Math.max(...qubitsIndex);
+
+        for (let index = minQubit; index <= maxQubit; index++) {
+          if (qubitsPlacement[index] === 1) {
+            ifOverlap = true;
+            break;
+          }
+        }
+        if (ifOverlap) {
+          currentLayer++;
+          posLayerMap.push(originLayerIndex);
+          for (let index = 0; index < circuit.output_size[0]; index++) {
+            qubitsPlacement[index] = 0;
+          }
+          for (let index = minQubit; index <= maxQubit; index++) {
+            qubitsPlacement[index] = 1;
+          }
+          ifOverlap = false;
+        } else {
+          for (let index = minQubit; index <= maxQubit; index++) {
+            qubitsPlacement[index] = 1;
+          }
+        }
+        new_all_gates.push([gateInfo[0], [currentLayer], gateInfo[2]]);
+      });
     }
 
-    // setLayerPosition(layerPosition);
-    // console.log("layer pos", layerPosition);
-    return;
-  };
+    let layerWidth = new Array(circuit.output_size[0]).fill(0);
+    posLayerMap.forEach((item) => {
+      layerWidth[item]++;
+    });
 
+    const noOverlapCircuit = {
+      output_size: [circuit.output_size[0], posLayerMap.length],
+      op_map: circuit.op_map,
+      qubits: circuit.qubits,
+      gate_format: "",
+      all_gates: new_all_gates,
+    };
+
+    return { noOverlapCircuit, layerPosMap, posLayerMap, layerWidth };
+  };
   return (
     <div className="panel parallelismPanel">
       <div className="panelHeader">
@@ -545,10 +718,10 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           onClick={handleParaBarClick}
         ></svg>
         <div className="selectRange">
-          Qubit Range: {qubitRangeStart} to {qubitRangeStart + 6}{" "}
+          Qubit Range: {qubitRangeStart} to {qubitRangeStart + gridNumber - 1}{" "}
         </div>
         <div className="selectRange">
-          Layer Range: {layerRangeStart} to {layerRangeStart + 6}{" "}
+          Layer Range: {layerRangeStart} to {layerRangeStart + gridNumber - 1}{" "}
         </div>
       </div>
     </div>
@@ -557,14 +730,14 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
 const generateCircuit = () => {
   return {
-    output_size: [7, 7],
+    output_size: [10, 10],
     op_map: { null: 0, h: 1, cx: 2, cz: 3, ry: 4, rz: 5 },
     qubits: ["0", "1", "2", "3", "4", "5", "6"],
     gate_format: "[op_idx, x_range, y_range]",
     all_gates: [
       [1, [0], [0]],
       [1, [0], [1]],
-      [1, [0], [2]],
+      [2, [0], [2, 8]],
       [1, [0], [3]],
       [1, [0], [4]],
       [1, [0], [5]],
