@@ -195,7 +195,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
 
   useEffect(() => {
     //
-    console.log("qubitData", qubitData);
+    // console.log("qubitData", qubitData);
     const minInterval = 10;
     const svgWidth = 640;
     const gateWidth = 20;
@@ -210,7 +210,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
         };
       });
       setQubitPos(qubitPosition);
-      console.log("qubitPosition", qubitPosition);
+      // console.log("qubitPosition", qubitPosition);
     }
   }, [qubitData]);
 

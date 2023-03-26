@@ -27,7 +27,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
     var svg = d3.select("#matrixSVG");
     svg.selectAll("rect").remove();
     var rects = svg.selectAll("rect").data(matrix);
-    console.log(matrix);
+    console.log("matrix", matrix);
     for (let index = 0; index < matrix.length; index++) {
       rects
         .enter()
@@ -123,6 +123,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         case "context.setMatrix":
           setMatrix(message.data.matrix);
           console.log("curEntGroup", message.data.curEntGroup);
+          console.log("preEntGroup", message.data.preEntGroup);
 
           setCurEntGroup(message.data.curEntGroup);
           setPreEntGroup(message.data.preEntGroup);

@@ -186,7 +186,7 @@ class ContextualCircuit {
     const { curEntGroup, preEntGroup } = this._updateConnectivity();
     return {
       matrix: this._connectivityMatrix,
-      title: this._treeStructure[index].name,
+      title: this._treeStructure[this._connectivityComponentIndex].name,
       curEntGroup: curEntGroup,
       preEntGroup: preEntGroup,
     };

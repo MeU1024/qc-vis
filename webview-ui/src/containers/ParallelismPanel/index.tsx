@@ -355,8 +355,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
           setIdlePosition(message.data.idlePosition);
           setAverageIdleValue(message.data.averageIdleValue);
-          // console.log("context", message.data);
-          console.log("circuit", message.data.originalCircuit);
+
           if (message.data.originalCircuit !== undefined) {
             const { noOverlapCircuit, layerPosMap, posLayerMap, layerWidth } =
               calculateIndexMap(message.data.originalCircuit);
@@ -444,7 +443,6 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     const gatesInLayers: any[][] = [];
     const posLayerMap: number[] = [];
     const layerPosMap: number[] = [];
-    console.log("all_gates", circuit.all_gates);
 
     circuit.all_gates.forEach((gateInfo: any) => {
       const layerIndex = gateInfo[1][0];
@@ -511,7 +509,6 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       gate_format: "",
       all_gates: new_all_gates,
     };
-    console.log("noOverlapCircuit", noOverlapCircuit);
 
     return { noOverlapCircuit, layerPosMap, posLayerMap, layerWidth };
   };
