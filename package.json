@@ -99,7 +99,7 @@
     ],
     "configuration": {
       "type": "object",
-      "title": "Quantum Circiut Visualization",
+      "title": "Quantivine",
       "properties": {
         "quantivine.python.outDir": {
           "scope": "resource",
@@ -124,7 +124,7 @@
         "quantivine.view.qcv.tab.editorGroup": {
           "scope": "window",
           "type": "string",
-          "default": "right",
+          "default": "current",
           "enum": [
             "current",
             "left",
