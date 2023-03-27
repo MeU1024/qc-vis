@@ -300,6 +300,7 @@ export class ComponentCircuit {
   getLayers(): Layer[] {
     return this._layers;
   }
+
   private _importGatesFromFile(dataFile: vscode.Uri) {
     logger.log("Load layer data from: " + dataFile.fsPath);
     let data = require(dataFile.fsPath);
@@ -1247,6 +1248,13 @@ export class ComponentCircuit {
     return componentRegion;
   }
 
+  getHighlightComponents() {
+    return this._highlightedComponent;
+  }
+
+  getTreeChildrenList() {
+    return this._treeChildrenList;
+  }
   get layers() {
     return this._layers;
   }

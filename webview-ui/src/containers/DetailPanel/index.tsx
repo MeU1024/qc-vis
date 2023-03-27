@@ -6,6 +6,7 @@ import Circuit2GridData from "../../utilities/Circuit2GridData";
 
 import data from "../../../data/vqc-10-detail-abstract.json";
 import { BOLD_LINE_WIDTH, LINE_WIDTH, WIRE_STROKE } from "../../const";
+import { HighlightFrameRender } from "../../utilities/HighlightFrameRender";
 export interface DetailPanelProps {
   theme: any;
   highlightGate: string | null;
@@ -28,6 +29,14 @@ const DetailPanel = (props: DetailPanelProps) => {
   const [scale, setScale] = useState(1);
   const [widthScale, setWidthScale] = useState(1);
   const [originalGridWidth, setOriginalGridWidth] = useState(25);
+  const [highlightRegions, setHighlightRegions] = useState<
+    {
+      layer: number[];
+      qubit: number[];
+      name: string;
+      weight: number;
+    }[]
+  >([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const canvasStyle = {
@@ -120,6 +129,14 @@ const DetailPanel = (props: DetailPanelProps) => {
             (canvas as HTMLCanvasElement).width,
             (canvas as HTMLCanvasElement).height
           );
+
+          HighlightFrameRender({
+            highlightRegions,
+            ctx,
+            gridWidth,
+            gridHeight,
+          });
+
           CircuitRender({ graph, ctx, gridWidth, gridHeight });
           CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
 
@@ -142,7 +159,7 @@ const DetailPanel = (props: DetailPanelProps) => {
         }
       }
     }
-  }, [gridWidth, theme, circuit, canvasHeight, canvasWidth]);
+  }, [gridWidth, theme, circuit, canvasHeight, canvasWidth, highlightRegions]);
 
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
@@ -150,6 +167,7 @@ const DetailPanel = (props: DetailPanelProps) => {
       switch (message.command) {
         case "abstraction.setCircuit":
           setCircuit(message.data);
+          setHighlightRegions(message.data.componentRegion);
           console.log("abs", message.data);
           break;
         case "abstraction.setCanvasSize":
@@ -158,6 +176,10 @@ const DetailPanel = (props: DetailPanelProps) => {
           break;
         case "abstraction.setTitle":
           setPanelTitle(message.data.title);
+          break;
+        case "abstraction.setRegion":
+          setHighlightRegions(message.data);
+          console.log("highlightRegions in abs", message.data);
           break;
       }
     };

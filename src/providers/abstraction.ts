@@ -43,6 +43,35 @@ export class AbstractionDataProvider {
     this._data = data;
   }
 
+  setFocus(index: number) {
+    const data = this._data?.setFocus(index);
+    if (data !== undefined) {
+      this._postHighlightData(data);
+    }
+  }
+  private async _postHighlightData(
+    data: {
+      layer: number[];
+      qubit: number[];
+      name: string;
+      weight: number;
+    }[]
+  ) {
+    if (data !== undefined) {
+      let message = {
+        command: "abstraction.setRegion",
+        data: data,
+      };
+
+      let panelSet = QCViewerManagerService.getPanelSet(this._dataFile);
+
+      panelSet?.forEach((panel) => {
+        panel.postMessage(message);
+        logger.log(`Sent Message: ${panel.dataFileUri}`);
+      });
+    }
+  }
+
   async updateData() {
     this._data = await this.abstractQcData();
     this._postData();
@@ -95,22 +124,70 @@ class AbstractedCircuit {
   // private _cached: boolean;
   private _drawableCircuit: DrawableCircuit;
   // private _visibilityMatrix: boolean[][]; // Matrix of gate visibility
-
+  private _absGates: ComponentGate[];
+  private _gateToRealLayerIndex: Map<ComponentGate, number>;
+  private _treeStructure: {
+    name: string;
+    parentIndex: number;
+    index: number;
+    type: string;
+  }[];
+  private _highlightedComponent: number[];
+  private _qubitMap: Map<Qubit, number>;
   constructor(dataFile: vscode.Uri) {
     this._componentCircuit = this._importCircuitFromFile(dataFile);
     this._semanticsList = this._importSemanticsFromFile(dataFile);
-
+    const algorithmName = path.basename(dataFile.fsPath, ".py");
+    const file = vscode.Uri.file(
+      vscode.Uri.joinPath(
+        getExtensionUri(),
+        `/resources/data/${algorithmName}-json-data.json`
+      ).fsPath
+    );
+    logger.log(`Build component circuit from ${file.fsPath}`);
     this._qubits = [];
     this._isIdleQubit = [];
     this._gates = [];
     this._layers = [];
     this._isIdleLayer = [];
     this._abstractions = [];
+    this._absGates = [];
+    this._highlightedComponent = [];
+
     this._cachedGates = new Map<ComponentGate, number>();
+    this._gateToRealLayerIndex = new Map<ComponentGate, number>();
+    this._qubitMap = new Map<Qubit, number>();
+    this._treeStructure = this._importStructureFromFile(file);
     // this._cached = false;
     this._drawableCircuit = new DrawableCircuit();
 
     this._newBuild();
+  }
+
+  private _importStructureFromFile(file?: vscode.Uri): {
+    name: string;
+    parentIndex: number;
+    index: number;
+    type: string;
+  }[] {
+    const algorithm = qv.manager.algorithm;
+    let dataSource = vscode.Uri.joinPath(
+      getExtensionUri(),
+      `/resources/data/${algorithm}-structure.json`
+    ).fsPath;
+    let data = require(dataSource);
+    // if (file) {
+    //   data = require(file.fsPath);
+    // }
+    let treeStructure = data.map((tree: any) => {
+      return {
+        name: tree.name,
+        parentIndex: tree.parentIndex,
+        index: tree.index,
+        type: tree.type,
+      };
+    });
+    return treeStructure;
   }
 
   private _importCircuitFromFile(dataFile: vscode.Uri): ComponentCircuit {
@@ -307,10 +384,21 @@ class AbstractedCircuit {
     });
     newLayers = this._markAbstraction(newQubits, newLayers, qubitMap, layerMap);
     const pushedNewLayers = this._checkOverlap(newLayers, qubitMap);
+    this._qubitMap = qubitMap;
+    this._mapGateToRealLayers(pushedNewLayers);
     this._drawableCircuit.loadFromLayers(pushedNewLayers, newQubits, qubitMap);
+
     // this._drawableCircuit.loadFromLayers(newLayers, newQubits, qubitMap);
 
     // this._cached = false;
+  }
+  private _mapGateToRealLayers(pushedNewLayers: Layer[]) {
+    pushedNewLayers.forEach((layer, layerIndex) => {
+      layer.gates.forEach((gate) => {
+        this._absGates.push(gate);
+        this._gateToRealLayerIndex.set(gate, layerIndex);
+      });
+    });
   }
 
   private _markAbstraction(
@@ -373,13 +461,13 @@ class AbstractedCircuit {
         if (isIdelNewQubit[i] && isIdelNewLayer[j]) {
           const checkIn = checkInAbstraction(i, j, "diagonal");
           if (checkIn) {
-            ret[j].gates.push(new ComponentGate('...', [curQubit], [], 0, []));
+            ret[j].gates.push(new ComponentGate("...", [curQubit], [], 0, []));
           }
         }
         if (isIdelNewQubit[i]) {
           const checkIn = checkInAbstraction(i, j, "vertical");
           if (checkIn) {
-            ret[j].gates.push(new ComponentGate('...', [curQubit], [], 0, []));
+            ret[j].gates.push(new ComponentGate("...", [curQubit], [], 0, []));
           }
         } else if (isIdelNewLayer[j]) {
           const checkIn = checkInAbstraction(i, j, "horizontal");
@@ -390,7 +478,7 @@ class AbstractedCircuit {
             // }
 
             ret[j].gates.push(
-              new ComponentGate('colDots', [curQubit], [], 0, [])
+              new ComponentGate("colDots", [curQubit], [], 0, [])
             );
           }
         }
@@ -510,8 +598,112 @@ class AbstractedCircuit {
     // this._layerMap = layerMap;
     return newLayers;
   }
+  setFocus(index: number) {
+    this._highlightedComponent.push(index);
+    const regions = this.getComponentRegion();
+
+    return regions;
+  }
+
+  getNodeDepth(treeIndex: number) {
+    let depth = 0;
+    let node = this._treeStructure[treeIndex];
+    while (node.index !== 0) {
+      if (node.type !== "rep") {
+        depth++;
+      }
+      node = this._treeStructure[node.parentIndex];
+    }
+    return depth;
+  }
+
+  getComponentRegion() {
+    const gateGroupDictList: {
+      dict: { [key: number]: ComponentGate[] };
+      index: number;
+    }[] = [];
+    this._highlightedComponent.forEach((componentIndex) => {
+      let gatesDict: { [key: number]: ComponentGate[] } = {};
+      this._absGates.forEach((gate, index) => {
+        if (
+          this._componentCircuit
+            .getTreeChildrenList()
+            [componentIndex].includes(gate.treeIndex)
+        ) {
+          const uni_index = gate.treePath[this.getNodeDepth(componentIndex)];
+          const gates = gatesDict[uni_index];
+          if (gates !== undefined) {
+            gatesDict[uni_index] = [...gates, gate];
+          } else {
+            gatesDict[uni_index] = [gate];
+          }
+        }
+      });
+      gateGroupDictList.push({ dict: gatesDict, index: componentIndex });
+    });
+
+    const componentRegion: {
+      layer: number[];
+      qubit: number[];
+      name: string;
+      weight: number;
+    }[] = [];
+
+    gateGroupDictList.forEach(
+      (
+        groupInfo: {
+          dict: { [key: number]: ComponentGate[] };
+          index: number;
+        },
+        gateIndex
+      ) => {
+        const allGatesIndex = Object.values(groupInfo.dict);
+
+        allGatesIndex.forEach((gatesIndex: ComponentGate[]) => {
+          let regionLayer = [-1, -1];
+          let regionQubit = [
+            this._componentCircuit.getOriginalQubits().length + 1,
+            -1,
+          ];
+          gatesIndex.forEach((cmpgate: ComponentGate) => {
+            const layer = this._gateToRealLayerIndex.get(cmpgate);
+            const qubits = cmpgate.qubits.map((qubit) => {
+              const qubitIndex = this._qubitMap.get(qubit);
+              if (qubitIndex !== undefined) {
+                regionQubit = [
+                  Math.min(qubitIndex, regionQubit[0]),
+                  Math.max(qubitIndex, regionQubit[1]),
+                ];
+              }
+            });
+
+            if (layer !== undefined) {
+              if (regionLayer[0] === -1) {
+                regionLayer = [layer, layer];
+              } else {
+                regionLayer = [
+                  Math.min(layer, regionLayer[0]),
+                  Math.max(layer, regionLayer[1]),
+                ];
+              }
+            }
+          });
+
+          componentRegion.push({
+            layer: regionLayer,
+            qubit: regionQubit,
+            name: this._treeStructure[groupInfo.index].name,
+            weight: gateIndex / gateGroupDictList.length,
+          });
+        });
+      }
+    );
+    return componentRegion;
+  }
   exportJson(): any {
-    return this._drawableCircuit.exportJson();
+    const data = this._drawableCircuit.exportJson();
+    data["componentRegion"] = this.getComponentRegion();
+    return data;
   }
 
   get width(): number {

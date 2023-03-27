@@ -70,6 +70,7 @@ export class QCViewerPanel {
   }
   setFocus(index: number) {
     this._componentData?.setFocus(index);
+    this._abstractionData?.setFocus(index);
   }
   postMessage(message: any) {
     this.webviewPanel.webview.postMessage(message);
