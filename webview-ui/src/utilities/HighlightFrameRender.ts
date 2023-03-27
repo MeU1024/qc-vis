@@ -38,9 +38,15 @@ export const HighlightFrameRender = (props: HighlightFrameRenderProp) => {
 
     //add text
     ctx.textBaseline = "bottom";
+
     ctx.font =
       (gridWidth * 0.4 < 16 ? gridWidth * 0.4 : 16).toString() + "px system-ui";
     ctx.fillStyle = CUSTOM_GATE_STROKE;
-    ctx.fillText(region.name, xCoord, (region.qubit[1] + 1) * gridHeight);
+    const text = ctx.measureText(region.name);
+    ctx.fillText(
+      region.name,
+      xCoord + width / 2 - text.width / 2,
+      yCoord == 0 ? gridHeight / 2 : yCoord
+    );
   });
 };

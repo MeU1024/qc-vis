@@ -223,12 +223,14 @@ const Circuit2GridData = (circuitData: {
                 }
               } else if (op == "_CAdder") {
                 graph[xRange[0]][end] = opDict["custom_ctrl_bottom"];
-                if (graph[xRange[0]][end - 1] == opDict["empty"]) {
-                  graph[xRange[0]][end - 1] =
-                    opDict["single_gate_bottom_empty_bg"];
-                } else {
-                  graph[xRange[0]][end - 1] = opDict["single_gate_bottom"];
-                }
+                graph[xRange[0]][end - 2] =
+                  graph[xRange[0]][end - 2] == opDict["empty"]
+                    ? opDict["single_gate_bottom_empty_bg"]
+                    : opDict["single_gate_bottom"];
+                graph[xRange[0]][end - 1] =
+                  graph[xRange[0]][end - 1] == opDict["empty"]
+                    ? opDict["custom_vertical_line_empty_bg"]
+                    : opDict["custom_vertical_line"];
               }
               break;
           }

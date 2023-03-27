@@ -403,6 +403,27 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
 
       break;
+    case "custom_vertical_line":
+      ctx.strokeStyle = CUSTOM_GATE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord);
+      ctx.lineTo(xCoord + width / 2, yCoord + height);
+      ctx.stroke();
+
+      ctx.strokeStyle = WIRE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord, yCoord + height / 2);
+      ctx.lineTo(xCoord + width, yCoord + height / 2);
+      ctx.stroke();
+      break;
+    case "custom_vertical_line_empty_bg":
+      ctx.strokeStyle = CUSTOM_GATE_STROKE;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord);
+      ctx.lineTo(xCoord + width / 2, yCoord + height);
+      ctx.stroke();
+
+      break;
     case "cx_up":
       //gate
       ctx.strokeStyle = MULTI_GATE_STROKE;
