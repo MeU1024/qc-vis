@@ -36,10 +36,10 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
   const [qubitData, setQubitData] = useState<
     | undefined
     | {
-        gateName: string;
-        qubits: string[];
-        layer: number;
-      }[]
+      gateName: string;
+      qubits: string[];
+      layer: number;
+    }[]
   >(generateQubitData());
   const [qubitPos, setQubitPos] = useState<
     {
@@ -208,7 +208,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
 
     console.log("qubitData", qubitData);
 
-    const minInterval = 10; //layerMinInterval
+    const minInterval = 0; //layerMinInterval
 
     const svgWidth = 640;
     const gateWidth = 20;
@@ -217,7 +217,8 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
     if (qubitData !== undefined) {
       //TODO:calculation the interval
       let n = qubitData.length;
-      let unitInterval = (svgWidth - n * gateWidth) / layerNum;
+      let unitInterval = Math.floor((svgWidth - n * gateWidth) / layerNum);
+      unitInterval = Math.max(1, unitInterval);
 
       let pos: number[]; // layer index
       let pre: number[]; // pre[pos] : before pos, there are pre[pos] gates
@@ -248,9 +249,9 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
           gateName: item.gateName,
           qubits: item.qubits,
           x:
-            (item.layer + num) * unitInterval +
-            gateWidth / 2 +
-            pre[item.layer] * gateWidth,
+            Math.ceil((item.layer + num) * unitInterval +
+              gateWidth / 2 +
+              pre[item.layer] * gateWidth),
         };
       });
       console.log("totlength", totlength);
