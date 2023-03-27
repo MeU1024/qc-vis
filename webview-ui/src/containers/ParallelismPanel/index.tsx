@@ -96,20 +96,23 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     const new_gates: any[] = [];
     originalCircuit.all_gates.forEach((gateInfo: any) => {
       const qubitRange = gateInfo[2];
+      const minQubit = Math.min(qubitRange);
+      const maxQubit = Math.max(qubitRange);
       const layerRange = gateInfo[1];
 
-      let index;
-      for (index = 0; index < qubitRange.length; index++) {
-        const element = qubitRange[index];
-        if (
-          element >= qubitRangeStart &&
-          element < qubitRangeStart + gridNumber
-        ) {
-          break;
-        }
-      }
+      // let index;
+      // for (index = 0; index < qubitRange.length; index++) {
+      //   const element = qubitRange[index];
+      //   if (
+      //     element >= qubitRangeStart &&
+      //     element < qubitRangeStart + gridNumber
+      //   ) {
+      //     break;
+      //   }
+      // }
       if (
-        index < qubitRange.length &&
+        !(maxQubit < qubitRangeStart) &&
+        !(minQubit > qubitRangeStart + gridNumber) &&
         layerRange[0] >= layerRangeStart &&
         layerRange[0] < layerRangeStart + gridNumber
       ) {
@@ -379,7 +382,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
           setIdlePosition(message.data.idlePosition);
           setAverageIdleValue(message.data.averageIdleValue);
-
+          console.log("original circuit", message.data.originalCircuit);
           if (message.data.originalCircuit !== undefined) {
             const { noOverlapCircuit, layerPosMap, posLayerMap, layerWidth } =
               calculateIndexMap(message.data.originalCircuit);
@@ -388,6 +391,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             setPosLayerMap(posLayerMap);
             setOriginalCircuit(noOverlapCircuit);
             setLayerWidth(layerWidth);
+
+            console.log("noOverlapCircuit", noOverlapCircuit);
           }
           break;
         case "context.setTitle":

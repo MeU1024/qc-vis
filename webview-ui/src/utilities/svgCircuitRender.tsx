@@ -315,6 +315,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
           .attr("cy", qubits[1] * gridSize + gridSize / 2 + offsetY)
           .attr("r", gridSize / 20)
           .attr("fill", colorDict[gateType]);
+        break;
       case "csw":
         shape = d3.select(gates.nodes()[index]).append("line");
         shape

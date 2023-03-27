@@ -691,12 +691,12 @@ class ContextualCircuit {
     const focusGates: { gate: ComponentGate; layer: number[] }[] = [];
     layers.forEach((layer: Layer, layerIndex) => {
       layer.gates.forEach((gate: ComponentGate) => {
-        if (gate.qubits.includes(focusQubit)) {
-          if (this._treeStructure[gate.index].type === "rep_item") {
-            focusGates.push({ gate: gate, layer: [layerIndex, layerIndex] });
-          } else {
-          }
-        }
+        // if (gate.qubits.includes(focusQubit)) {
+        //   if (this._treeStructure[gate.treeIndex].type === "rep_item") {
+        //     focusGates.push({ gate: gate, layer: [layerIndex, layerIndex] });
+        //   } else {
+        //   }
+        // }
       });
     });
 

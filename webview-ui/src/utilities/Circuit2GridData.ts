@@ -197,9 +197,22 @@ const Circuit2GridData = (circuitData: {
                   graph[xRange[0]][index] = opDict["single_gate_middle"];
                 }
               }
-              graph[xRange[0]][start] = opDict["single_gate_up"];
-              graph[xRange[0]][yRange[yRange.length - 1]] =
-                opDict["single_gate_bottom"];
+              if (graph[xRange[0]][start] == opDict["empty"]) {
+                graph[xRange[0]][start] = opDict["single_gate_up_empty_bg"];
+              } else {
+                graph[xRange[0]][start] = opDict["single_gate_up"];
+              }
+
+              if (
+                graph[xRange[0]][yRange[yRange.length - 1]] == opDict["empty"]
+              ) {
+                graph[xRange[0]][yRange[yRange.length - 1]] =
+                  opDict["single_gate_bottom_empty_bg"];
+              } else {
+                graph[xRange[0]][yRange[yRange.length - 1]] =
+                  opDict["single_gate_bottom"];
+              }
+
               if (op[1] == "c") {
                 graph[xRange[0]][start] = opDict["custom_ctrl_up"];
                 if (graph[xRange[0]][start + 1] == opDict["empty"]) {
