@@ -209,51 +209,45 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
 
     console.log("qubitData", qubitData);
 
-    const minInterval = 0; //layerMinInterval
+    // const minInterval = 0; //layerMinInterval
 
     const svgWidth = 640;
     const gateWidth = 20;
-
+    console.log("layerNumUndefined", layerNum === undefined);
     if (qubitData !== undefined && layerNum !== undefined) {
       //TODO:calculation the interval
       console.log("layerNum", layerNum);
       let n = qubitData.length;
-      let unitInterval = Math.floor((svgWidth - n * gateWidth) / layerNum);
-      unitInterval = Math.max(1, unitInterval);
-
-      let pos: number[]; // layer index
-      let pre: number[]; // pre[pos] : before pos, there are pre[pos] gates
-      pos = [];
-      pre = [];
+      let totIntervalLayer = layerNum - 1;
       for (let i = 0; i < n; ++i) {
-        pos[i] = qubitData[i].layer[0];
+        totIntervalLayer -= qubitData[i].layer[1] - qubitData[i].layer[0];
       }
-      sort(pos);
-      for (let i = 0; i < n; ++i) {
-        pre[pos[i]] = i;
-      }
-      let mnNum = Math.max(pos[0], 1);
+      let preIntervalNum: number[]; // preInterval[pos] : before pos, there are preInterval[pos] interval numbers
+      preIntervalNum = [];
+      preIntervalNum[0] = qubitData[0].layer[0];
       for (let i = 1; i < n; ++i) {
-        mnNum = Math.min(mnNum, pos[i] - pos[i - 1]);
+        preIntervalNum[i] =
+          preIntervalNum[i - 1] +
+          qubitData[i].layer[0] -
+          qubitData[i - 1].layer[1];
       }
-      // console.log("mnNum : ", mnNum);
-      if (minInterval > unitInterval * mnNum) {
-        unitInterval = (unitInterval * minInterval) / (unitInterval * mnNum);
-      }
+      console.log("totIntervalLayer", totIntervalLayer);
+      let unitInterval = Math.floor(
+        (svgWidth - n * gateWidth) / totIntervalLayer
+      );
+      unitInterval = Math.max(1, unitInterval);
       //TODO:return
       let totlength = 0; // real width
-      totlength = Math.ceil(gateWidth * n + unitInterval * (layerNum + 1));
+      totlength = Math.ceil(gateWidth * n + unitInterval * totIntervalLayer);
       console.log("unitInterval : ", unitInterval);
-      let num = pos[0] == 0 ? 0.5 : 0;
-      const qubitPosition = qubitData?.map((item) => {
+      const qubitPosition = qubitData?.map((item, index) => {
         return {
           gateName: item.gateName,
           qubits: item.qubits,
-          x: Math.ceil(
-            (item.layer[0] + num) * unitInterval +
-              gateWidth / 2 +
-              pre[item.layer[0]] * gateWidth
-          ),
+          x:
+            preIntervalNum[index] * unitInterval +
+            gateWidth / 2 +
+            index * gateWidth,
         };
       });
       console.log("totlength", totlength);
