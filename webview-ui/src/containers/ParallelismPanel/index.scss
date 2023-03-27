@@ -19,8 +19,6 @@
     margin-right: 1px;
     border-right: 1px solid #cccccc;
   }
-  #parallelismSVG {
-  }
   #parallelismBar {
     margin-top: 10px;
     margin-left: 10px;
@@ -29,25 +27,55 @@
     margin-top: 10px;
     margin-left: 20px;
   }
-  .parallelismHori {
+  .parallelism-legend {
+    padding: 0 10px;
     margin: 5px;
     display: flex;
     flex-direction: row;
-  }
-  .parallelismSvgBlow {
-    margin-left: 10px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  }
-  .parallelismSvgAbove {
-    margin-left: 10px;
-    display: flex;
-  }
-  .contentLow {
-    margin: 5px;
-  }
-  .contentHigh {
-    margin: 5px;
+    justify-content: space-between;
+
+    .legend-title {
+      justify-items: center;
+      text-align: center;
+      div {
+        height: 1.5rem;
+      }
+    }
+
+    .legend-content {
+      margin-right: 10px;
+      width: 250px;
+      display: grid;
+
+      .row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .one-row {
+        height: 1.5rem;
+        justify-content: center;
+      }
+
+      .two-row {
+        height: 3rem;
+
+        .two-row-legend {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: center;
+          svg {
+            height: 1.5rem;
+          }
+        }
+      }
+      
+      .legend-svg {
+        height: 1.5rem;
+      }
+    }
   }
 }

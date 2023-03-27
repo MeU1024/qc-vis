@@ -547,15 +547,15 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         <span className="title">{panelTitle}</span>
       </div>
 
-      <div className="parallelismHori">
-        <div className="parallelismTitle">
-          <div style={{ margin: "5px" }}>Idle Wire Extent:</div>
-          <div style={{ margin: "5px" }}>Parallelism Level:</div>
-          <div style={{ margin: "5px" }}>Idle Level:</div>
+      <div className="parallelism-legend">
+        <div className="legend-title">
+          <div>Idle Wire Extent:</div>
+          <div>Parallelism Level:</div>
+          <div>Idle Level:</div>
         </div>
-        <div className="parallelismSvg">
-          <div className="parallelismSvgAbove" style={{ margin: "2px" }}>
-            <div style={{ margin: "5px" }}>To Left</div>
+        <div className="legend-content">
+          <div className="row one-row">
+            <div>To Left</div>
             <svg width="15" height="15" viewBox={"0 0 " + 15 + " " + 15}>
               <rect
                 x="0"
@@ -567,12 +567,12 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
                 fill="#FFFFFF"
               />
             </svg>
-            <div style={{ margin: "5px" }}>To Right</div>
+            <div>To Right</div>
           </div>
-          <div className="parallelismSvgBlow">
+          <div className="row two-row">
             <div className="contentLow"> Low </div>
-            <div>
-              <div>
+            <div className="two-row-legend">
+              <div className="legend-svg">
                 <svg width="150" height="15" viewBox={"0 0 " + 150 + " " + 15}>
                   <defs>
                     <linearGradient id="Gradient1">
@@ -591,7 +591,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
                   />
                 </svg>
               </div>
-              <div>
+              <div className="legend-svg">
                 <svg width="150" height="15" viewBox={"0 0 " + 150 + " " + 15}>
                   <defs>
                     <linearGradient id="Gradient2">
@@ -613,6 +613,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             </div>
             <div className="contentHigh"> High </div>
           </div>
+          <div className="idel-level-legend"></div>
         </div>
       </div>
 
