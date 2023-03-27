@@ -47,9 +47,9 @@
       "quantivine-activitybar": [
         {
           "id": "quantivine-treeview",
-          "name": "TV",
+          "name": "Structure View",
           "icon": "media/dep.svg",
-          "contextualTitle": "Quantivine Tree View"
+          "contextualTitle": "Quantivine"
         }
       ]
     },

@@ -27,6 +27,9 @@ export class QCViewerPanel {
   constructor(dataFileUri: vscode.Uri, panel: vscode.WebviewPanel) {
     this.dataFileUri = dataFileUri;
     this.webviewPanel = panel;
+    // set name of the panel
+    const algorithmName = qv.algorithmNameDict[path.basename(dataFileUri.fsPath, ".py")];
+    this.webviewPanel.title = 'Visualization: ' + algorithmName;
     panel.webview.onDidReceiveMessage((msg: PanelRequest) => {
       switch (msg.type) {
         case "state": {

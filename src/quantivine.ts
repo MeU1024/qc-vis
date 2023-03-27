@@ -83,3 +83,11 @@ export function getCurrentDataFile() {
       .fsPath
   );
 }
+
+
+export const algorithmNameDict: { [key: string]: string } = {
+  "vqc": "Variational Quantum Circuit",
+  "qaoa": "Quantum Approximate Optimization Algorithm",
+  "qugan": "Quantum Generative Adversarial Network",
+  "mul": "Quantum Multiplier"
+}
