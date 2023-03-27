@@ -25,7 +25,7 @@ export class SemanticLayout {
     let curDepth = maxDepth;
     let upperLayouts = new Map<number, Layout>();
 
-    while (curDepth > 0) {
+    while (curDepth >= 0) {
       let curLayouts: Layout[] = Array.from(upperLayouts.values());
       upperLayouts = new Map<number, Layout>();
       treeLayers[curDepth]?.forEach((gate) => {
