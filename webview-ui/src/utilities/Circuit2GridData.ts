@@ -202,7 +202,7 @@ const Circuit2GridData = (circuitData: {
               graph[xRange[0]][start] = opDict["single_gate_up"];
               graph[xRange[0]][yRange[yRange.length - 1]] =
                 opDict["single_gate_bottom"];
-              if (op[1] == "c") {
+              if (op[1] == "c" || op == "_CAdder") {
                 graph[xRange[0]][start] = opDict["custom_ctrl_up"];
                 graph[xRange[0]][start + 1] = opDict["single_gate_up"];
               }

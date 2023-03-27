@@ -21,7 +21,14 @@ export function registerDisposable(...items: vscode.Disposable[]) {
 
 export * as commander from "./commander";
 
-export const supportedAlgorithms = ["vqc", "qaoa", "qugan", "mul"];
+export const supportedAlgorithms = [
+  "vqc",
+  "qaoa",
+  "qugan",
+  "mul",
+  "mul-50",
+  "mul-bug",
+];
 export const extensionRoot = path.resolve(`${__dirname}/../../`);
 export const eventBus = new EventBus();
 export const manager = new Manager();
@@ -84,10 +91,11 @@ export function getCurrentDataFile() {
   );
 }
 
-
 export const algorithmNameDict: { [key: string]: string } = {
-  "vqc": "Variational Quantum Circuit",
-  "qaoa": "Quantum Approximate Optimization Algorithm",
-  "qugan": "Quantum Generative Adversarial Network",
-  "mul": "Quantum Multiplier"
-}
+  vqc: "Variational Quantum Circuit",
+  qaoa: "Quantum Approximate Optimization Algorithm",
+  qugan: "Quantum Generative Adversarial Network",
+  mul: "Quantum Multiplier",
+  "mul-50": "Quantum Multiplier 50bits",
+  "mul-bug": "Quantum Multiplier with bugs",
+};
