@@ -36,10 +36,10 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
   const [qubitData, setQubitData] = useState<
     | undefined
     | {
-      gateName: string;
-      qubits: string[];
-      layer: number;
-    }[]
+        gateName: string;
+        qubits: string[];
+        layer: number;
+      }[]
   >(generateQubitData());
   const [qubitPos, setQubitPos] = useState<
     {
@@ -51,6 +51,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
 
   const [focusQubit, setFocusQubit] = useState(0);
   const [svgWidth, setSVGWidth] = useState(1200);
+  const [layerNum, setLayerNum] = useState<number | undefined>(undefined);
   // const width = 650;
   const height = 80;
   const gridSize = height / 2;
@@ -212,10 +213,10 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
 
     const svgWidth = 640;
     const gateWidth = 20;
-    //TODO: layerNum(need fix)
-    let layerNum = 76;
-    if (qubitData !== undefined) {
+
+    if (qubitData !== undefined && layerNum !== undefined) {
       //TODO:calculation the interval
+      console.log("layerNum", layerNum);
       let n = qubitData.length;
       let unitInterval = Math.floor((svgWidth - n * gateWidth) / layerNum);
       unitInterval = Math.max(1, unitInterval);
@@ -248,10 +249,11 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
         return {
           gateName: item.gateName,
           qubits: item.qubits,
-          x:
-            Math.ceil((item.layer + num) * unitInterval +
+          x: Math.ceil(
+            (item.layer + num) * unitInterval +
               gateWidth / 2 +
-              pre[item.layer] * gateWidth),
+              pre[item.layer] * gateWidth
+          ),
         };
       });
       console.log("totlength", totlength);
@@ -259,7 +261,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
       setQubitPos(qubitPosition);
       console.log("qubitPosition : ", qubitPosition);
     }
-  }, [qubitData]);
+  }, [qubitData, layerNum]);
 
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
@@ -268,7 +270,11 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
       switch (message.command) {
         case "context.setCircuit":
           setQubitData(message.data.focusQubitGates);
-
+          console.log("size", message.data.originalCircuitSize);
+          setLayerNum(message.data.originalCircuitSize[1]);
+          break;
+        case "context.setProvenance":
+          setQubitData(message.data.focusQubitGates);
           break;
         case "context.setTitle":
           // setPanelTitle(message.data.title);

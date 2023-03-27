@@ -113,5 +113,16 @@ export const extentRender = (props: extentRenderProps) => {
     .attr("height", 1)
     .style("fill", (d, i) => colorScale(leftColor[i]));
 
-
+  var svg = d3.select("#rightExtentSVG");
+  svg.selectAll("*").remove();
+  var rects = svg.selectAll("rect").data(rightLength).enter();
+  rects
+    .append("rect")
+    .attr("x", 0)
+    .attr("y", function (d, i) {
+      return i * gridSize + gridSize / 2;
+    })
+    .attr("width", (d) => d)
+    .attr("height", 1)
+    .style("fill", (d, i) => colorScale(rightColor[i]));
 };

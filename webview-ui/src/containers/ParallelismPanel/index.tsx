@@ -144,10 +144,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
       const layerPositionList = posLayerMap.slice(
         layerPosMap[layerRangeStart],
-        layerPosMap[layerRangeStart + gridNumber]
+        layerPosMap[layerRangeStart] + gridNumber
       );
 
       setSubCircuit(subCircuit);
+      console.log(layerPositionList);
       setLayerPosition(layerPositionList);
     }
   }, [qubitRangeStart, layerRangeStart, originalCircuit, gridNumber]);

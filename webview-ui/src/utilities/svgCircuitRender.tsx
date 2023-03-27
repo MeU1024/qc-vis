@@ -102,7 +102,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
         .attr("fill", IDLE_FILL)
         .attr("fill-opacity", (d) => d / 1.2);
     }
-    if (idlePosition[layerPosition[focusIndex]].length !== 0) {
+    if (idlePosition[focusLayer].length !== 0) {
       // console.log(idlePosition[layerPosition[focusIndex]]);
       const slicedIdlePosition = idlePosition[focusLayer].slice(
         qubitRangeStart,
@@ -140,7 +140,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       .attr("offset", (i / wiresData.length).toString())
       .attr("stop-color", colorScale(wiresData[i]));
   }
-
+  console.log("wiresData", wiresData);
   //wire
   var wires = wiresLayer.selectAll("rect").data(wiresData).enter();
   wires
@@ -359,9 +359,6 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   //focusLayer frame
   if (focusLayer !== undefined) {
     var frame = focusFrameLayer.selectAll("rect").data([focusLayer]).enter();
-
-    console.log("focusLayer", focusLayer);
-    console.log("layerPosMap", layerPosMap);
     frame
       .append("rect")
       .attr("x", (d) => layerPosMap[d] * gridSize + offsetX)

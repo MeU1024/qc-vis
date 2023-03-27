@@ -52,9 +52,9 @@ export class ContextDataProvider {
   private async _postFocusData(
     data:
       | {
-        idlePosition: number[][][];
-        averageIdleValue: number[][];
-      }
+          idlePosition: number[][][];
+          averageIdleValue: number[][];
+        }
       | undefined
   ) {
     if (data !== undefined) {
@@ -224,10 +224,10 @@ class ContextualCircuit {
     index: number;
     type: string;
   }[] {
+    const algorithm = qv.manager.algorithm;
     let dataSource = vscode.Uri.joinPath(
       getExtensionUri(),
-      "/resources/data/qugan-structure.json"
-      // "/resources/data/mul-structure.json"
+      `/resources/data/${algorithm}-structure.json`
     ).fsPath;
     let data = require(dataSource);
     let treeStructure = data.map((tree: any) => {
