@@ -20,12 +20,12 @@ export interface ProvenancePanelProps {
 }
 const generateQubitData = () => {
   return [
-    { gateName: "_HA", qubits: ["0"], layer: 0 },
-    { gateName: "rz", qubits: ["0"], layer: 1 },
-    { gateName: "rz", qubits: ["0"], layer: 2 },
-    { gateName: "cx", qubits: ["0", "1"], layer: 3 },
-    { gateName: "cx", qubits: ["1", "0"], layer: 6 },
-    { gateName: "_Ent", qubits: ["0"], layer: 7 },
+    { gateName: "_HA", qubits: ["0"], layer: [0, 0] },
+    { gateName: "rz", qubits: ["0"], layer: [1, 1] },
+    { gateName: "rz", qubits: ["0"], layer: [2, 2] },
+    { gateName: "cx", qubits: ["0", "1"], layer: [3, 3] },
+    { gateName: "cx", qubits: ["1", "0"], layer: [6, 6] },
+    { gateName: "_Ent", qubits: ["0"], layer: [7, 7] },
   ];
 };
 
@@ -38,7 +38,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
     | {
         gateName: string;
         qubits: string[];
-        layer: number;
+        layer: number[];
       }[]
   >(generateQubitData());
   const [qubitPos, setQubitPos] = useState<
@@ -226,7 +226,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
       pos = [];
       pre = [];
       for (let i = 0; i < n; ++i) {
-        pos[i] = qubitData[i].layer;
+        pos[i] = qubitData[i].layer[0];
       }
       sort(pos);
       for (let i = 0; i < n; ++i) {
@@ -250,9 +250,9 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
           gateName: item.gateName,
           qubits: item.qubits,
           x: Math.ceil(
-            (item.layer + num) * unitInterval +
+            (item.layer[0] + num) * unitInterval +
               gateWidth / 2 +
-              pre[item.layer] * gateWidth
+              pre[item.layer[0]] * gateWidth
           ),
         };
       });
