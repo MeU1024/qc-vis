@@ -190,8 +190,6 @@ const Circuit2GridData = (circuitData: {
               break;
             default:
               for (let index = start; index < end; index++) {
-                // graph[xRange[0]][index] = opDict["single_gate_middle"];
-                // console.log("middle", graph[xRange[0]][index]);
                 if (graph[xRange[0]][index] == opDict["empty"]) {
                   graph[xRange[0]][index] =
                     opDict["single_gate_middle_empty_bg"];
@@ -202,9 +200,22 @@ const Circuit2GridData = (circuitData: {
               graph[xRange[0]][start] = opDict["single_gate_up"];
               graph[xRange[0]][yRange[yRange.length - 1]] =
                 opDict["single_gate_bottom"];
-              if (op[1] == "c" || op == "_CAdder") {
+              if (op[1] == "c") {
                 graph[xRange[0]][start] = opDict["custom_ctrl_up"];
-                graph[xRange[0]][start + 1] = opDict["single_gate_up"];
+                if (graph[xRange[0]][start + 1] == opDict["empty"]) {
+                  graph[xRange[0]][start + 1] =
+                    opDict["single_gate_up_empty_bg"];
+                } else {
+                  graph[xRange[0]][start + 1] = opDict["single_gate_up"];
+                }
+              } else if (op == "_CAdder") {
+                graph[xRange[0]][end] = opDict["custom_ctrl_bottom"];
+                if (graph[xRange[0]][end - 1] == opDict["empty"]) {
+                  graph[xRange[0]][end - 1] =
+                    opDict["single_gate_bottom_empty_bg"];
+                } else {
+                  graph[xRange[0]][end - 1] = opDict["single_gate_bottom"];
+                }
               }
               break;
           }
