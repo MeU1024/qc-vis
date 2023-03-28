@@ -6,6 +6,7 @@ import { Manager } from "./components/manager";
 import { Viewer } from "./components/viewer";
 import { QuantivineFileSystem } from "./components/qvfs";
 import { SemanticTreeViewer } from "./providers/structure";
+import { QubitTreeViewer } from "./providers/qubits";
 
 let disposables: { dispose(): any }[] = [];
 let context: vscode.ExtensionContext;
@@ -35,6 +36,7 @@ export const manager = new Manager();
 export const qvfs = new QuantivineFileSystem();
 export const viewer = new Viewer();
 export const semanticTreeViewer = new SemanticTreeViewer();
+export const qubitTreeViewer = new QubitTreeViewer();
 
 const logger = getLogger("Extension");
 

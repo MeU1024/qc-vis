@@ -50,6 +50,12 @@
           "name": "Structure View",
           "icon": "media/dep.svg",
           "contextualTitle": "Quantivine"
+        },
+        {
+          "id": "quantivine-qubitview",
+          "name": "Qubit View",
+          "icon": "media/dep.svg",
+          "contextualTitle": "Quantivine"
         }
       ]
     },
@@ -90,6 +96,15 @@
       {
         "command": "quantivine.focus",
         "title": "Focus",
+        "icon": {
+          "light": "resources/light/focus.svg",
+          "dark": "resources/dark/focus.svg"
+        },
+        "category": "Quantivine"
+      },
+      {
+        "command": "quantivine.selectQubit",
+        "title": "SelectQubit",
         "icon": {
           "light": "resources/light/focus.svg",
           "dark": "resources/dark/focus.svg"
@@ -202,6 +217,11 @@
         {
           "command": "quantivine.focus",
           "when": "viewItem == component ||viewItem == highlightcomponent",
+          "group": "inline"
+        },
+        {
+          "command": "quantivine.selectQubit",
+          "when": "viewItem == qubit",
           "group": "inline"
         }
       ]

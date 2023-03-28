@@ -75,3 +75,7 @@ export async function setFocus(index: number) {
 export async function refreshView() {
   qv.viewer.refreshView();
 }
+
+export async function selectQubit(index: number) {
+  throw new Error("Not implemented");
+}
