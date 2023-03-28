@@ -52,9 +52,9 @@ export class ContextDataProvider {
   private async _postFocusData(
     data:
       | {
-          idlePosition: number[][][];
-          averageIdleValue: number[][];
-        }
+        idlePosition: number[][][];
+        averageIdleValue: number[][];
+      }
       | undefined
   ) {
     if (data !== undefined) {
@@ -722,16 +722,25 @@ class ContextualCircuit {
             let gateList: number[];
             gateList = [];
             this._originalGates.forEach((ogate: ComponentGate) => {
-              ogate.repTimes.forEach((num: number) => {
-                if (num === gate.index) {
-                  const layerIndex = this._originalGateToLayerMap.get(ogate);
-                  if (layerIndex !== undefined) {
-                    gateList.push(layerIndex);
-                  } else {
-                    throw new Error("gate layer undefined.");
-                  }
+              let flag = false;
+              // console.log("qubits", ogate.qubits)
+              ogate.qubits.forEach((qubit: Qubit) => {
+                if (qubit.index === this._focusQubitIndex) {
+                  flag = true;
                 }
               });
+              if (flag) {
+                ogate.repTimes.forEach((num: number) => {
+                  if (num === gate.index) {
+                    const layerIndex = this._originalGateToLayerMap.get(ogate);
+                    if (layerIndex !== undefined) {
+                      gateList.push(layerIndex);
+                    } else {
+                      throw new Error("gate layer undefined.");
+                    }
+                  }
+                });
+              }
             });
             gateList.sort((a: number, b: number) => {
               return a - b;
