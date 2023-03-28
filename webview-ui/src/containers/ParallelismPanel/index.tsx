@@ -12,6 +12,7 @@ import Circuit2GridData from "../../utilities/Circuit2GridData";
 import { svgCircuitRender } from "../../utilities/svgCircuitRender";
 import { extentRender } from "../../utilities/extentRender";
 import { vscode } from "../../utilities/vscode";
+import G from "glob";
 export interface ParallelismPanelProps {
   theme: any;
   highlightGate: string | null;
@@ -43,6 +44,9 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [gridSize, setGridSize] = useState(50);
 
   const [paraBarData, setParaBarData] = useState(geneParaData());
+  const [originalParaData, setOriginalParaBarData] = useState<
+    number[] | undefined
+  >(undefined);
   const [originalCircuit, setOriginalCircuit] = useState<
     | {
         output_size: number[];
@@ -315,7 +319,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     svg.selectAll("*").remove();
     const rectNumber = graphSize[0];
     const elementWidth = thresholdBarWidth - 10;
-    const rectWidth = thresholdBarWidth / rectNumber;
+    const rectWidth = elementWidth / rectNumber;
 
     const recsData = new Array<number>(rectNumber).fill(0);
     const rects = svg.selectAll("rect").data(recsData);
@@ -338,9 +342,9 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     lines
       .enter()
       .append("line")
-      .attr("x1", (d) => (d * elementWidth) / graphSize[1] + 5)
+      .attr("x1", (d) => (d * elementWidth) / graphSize[0] + 5)
       .attr("y1", 0)
-      .attr("x2", (d) => (d * elementWidth) / graphSize[1] + 5)
+      .attr("x2", (d) => (d * elementWidth) / graphSize[0] + 5)
       .attr("y2", paraBarheight)
       .attr("stroke-width", "1px")
       .attr("stroke", "black");
@@ -416,6 +420,13 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   };
 
   useEffect(() => {
+    if (originalParaData !== undefined) {
+      const paraData = filterParaData(originalParaData, graphSize[0]);
+      setParaBarData(paraData);
+    }
+  }, [threshold, originalParaData]);
+
+  useEffect(() => {
     const handleMessageEvent = (event: any) => {
       const message = event.data;
 
@@ -430,11 +441,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           setIdlePosition(message.data.idlePosition);
           setAverageIdleValue(message.data.averageIdleValue);
 
-          const paraData = filterParaData(
-            message.data.layerParallelism,
-            message.data.averageIdleValue.length
-          );
-          setParaBarData(paraData);
+          setOriginalParaBarData(message.data.layerParallelism);
 
           // console.log("original circuit", message.data.originalCircuit);
           if (message.data.originalCircuit !== undefined) {
@@ -517,15 +524,16 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   }
 
   function handleThresholdBarClick(event: any) {
-    // const rect =
-    //   event.target.farthestViewportElement !== null
-    //     ? event.target.farthestViewportElement.getBoundingClientRect()
-    //     : event.target.getBoundingClientRect();
-    // const x = event.clientX - rect.left;
-    // let threshold = Math.floor(
-    //   (x - 5) / ((thresholdBarWidth - 10) / graphSize[0])
-    // );
-    // setThreshold(threshold);
+    const rect =
+      event.target.farthestViewportElement !== null
+        ? event.target.farthestViewportElement.getBoundingClientRect()
+        : event.target.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    let threshold = Math.floor(
+      (x - 5) / ((thresholdBarWidth - 10) / graphSize[0])
+    );
+    console.log("threshold", threshold);
+    setThreshold(threshold);
   }
 
   const calculateIndexMap = (circuit: {
@@ -715,14 +723,14 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         </div>
         <div id="thresholdBarArea">
           {" "}
-          {/* <span> threshold</span> */}
-          {/* <svg
+          <span> threshold</span>
+          <svg
             id="thresholdBar"
             viewBox={"0 0 " + thresholdBarWidth + " " + paraBarheight}
             width={thresholdBarWidth}
             height={paraBarheight}
             onClick={handleThresholdBarClick}
-          ></svg> */}
+          ></svg>
         </div>
         <svg
           id="parallelismBar"
