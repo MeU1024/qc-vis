@@ -212,6 +212,69 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
 
       break;
+    case "single_gate_ctrl_bottom":
+      maxWidth = width < 80 ? (width / 4) * 3 : 60;
+      ctx.strokeStyle = WIRE_STROKE;
+      ctx.beginPath();
+      //lines
+      ctx.moveTo(xCoord, yCoord + height / 2);
+      ctx.lineTo(xCoord + (width - maxWidth) / 2, yCoord + height / 2);
+
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width - (width - maxWidth) / 2, yCoord + height / 2);
+      ctx.lineTo(xCoord + width, yCoord + height / 2);
+
+      ctx.stroke();
+      // square
+      ctx.strokeStyle = CUSTOM_GATE_STROKE;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width - maxWidth) / 2, yCoord);
+      ctx.lineTo(
+        xCoord + (width - maxWidth) / 2,
+        yCoord + height - (width - maxWidth) / 2
+      );
+      ctx.lineTo(
+        xCoord + width - (width - maxWidth) / 2,
+        yCoord + height - (width - maxWidth) / 2
+      );
+      ctx.lineTo(xCoord + width - (width - maxWidth) / 2, yCoord);
+      // ctx.closePath();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord + height - (width - maxWidth) / 2);
+      ctx.lineTo(xCoord + width / 2, yCoord + height);
+      ctx.stroke();
+
+      break;
+    case "single_gate_ctrl_bottom_empty_bg":
+      maxWidth = width < 80 ? (width / 4) * 3 : 60;
+
+      // square
+      ctx.strokeStyle = CUSTOM_GATE_STROKE;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(xCoord + (width - maxWidth) / 2, yCoord);
+      ctx.lineTo(
+        xCoord + (width - maxWidth) / 2,
+        yCoord + height - (width - maxWidth) / 2
+      );
+      ctx.lineTo(
+        xCoord + width - (width - maxWidth) / 2,
+        yCoord + height - (width - maxWidth) / 2
+      );
+      ctx.lineTo(xCoord + width - (width - maxWidth) / 2, yCoord);
+      // ctx.closePath();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(xCoord + width / 2, yCoord + height - (width - maxWidth) / 2);
+      ctx.lineTo(xCoord + width / 2, yCoord + height);
+      ctx.stroke();
+
+      break;
     case "ryy_gate_up":
       ctx.strokeStyle = WIRE_STROKE;
       ctx.beginPath();
@@ -355,7 +418,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.fill();
 
       ctx.beginPath();
-      ctx.moveTo(xCoord + width / 2, yCoord - (width - maxWidth) / 2);
+      ctx.moveTo(xCoord + width / 2, yCoord);
       ctx.lineTo(xCoord + width / 2, yCoord + height / 2);
       ctx.stroke();
       break;

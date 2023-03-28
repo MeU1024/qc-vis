@@ -16,6 +16,12 @@ const BitsName = (props: BitsNameProps) => {
   const handleClick = (e: any, index: number) => {
     // console.log(e);
     // console.log("index", index);
+    // let fakeIndex = index;
+    // if (index == 2) {
+    //   fakeIndex = 50;
+    // } else if (index == 1) {
+    //   fakeIndex = 25;
+    // }
     vscode.postMessage({
       type: "focusQubit",
       focusQubit: index,

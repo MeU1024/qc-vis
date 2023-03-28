@@ -42,6 +42,7 @@ const Circuit2GridData = (circuitData: {
     const yRange: number[] = item[2];
     var start = yRange[0];
     var end = yRange[yRange.length - 1];
+    var secondEnd = yRange[yRange.length - 2];
     var gateRole = 0;
     if (end < start) {
       start = yRange[yRange.length - 1];
@@ -223,14 +224,16 @@ const Circuit2GridData = (circuitData: {
                 }
               } else if (op == "_CAdder") {
                 graph[xRange[0]][end] = opDict["custom_ctrl_bottom"];
-                graph[xRange[0]][end - 2] =
-                  graph[xRange[0]][end - 2] == opDict["empty"]
-                    ? opDict["single_gate_bottom_empty_bg"]
-                    : opDict["single_gate_bottom"];
-                graph[xRange[0]][end - 1] =
-                  graph[xRange[0]][end - 1] == opDict["empty"]
-                    ? opDict["custom_vertical_line_empty_bg"]
-                    : opDict["custom_vertical_line"];
+                graph[xRange[0]][secondEnd] =
+                  graph[xRange[0]][secondEnd] == opDict["empty"]
+                    ? opDict["single_gate_ctrl_bottom_empty_bg"]
+                    : opDict["single_gate_ctrl_bottom"];
+                for (let index = secondEnd + 1; index < end; index++) {
+                  graph[xRange[0]][index] =
+                    graph[xRange[0]][index] == opDict["empty"]
+                      ? opDict["custom_vertical_line_empty_bg"]
+                      : opDict["custom_vertical_line"];
+                }
               }
               break;
           }
@@ -238,6 +241,12 @@ const Circuit2GridData = (circuitData: {
             graphText.push({
               x: xRange,
               y: [yRange[1], yRange[yRange.length - 1]],
+              content: op,
+            });
+          } else if (op == "_CAdder") {
+            graphText.push({
+              x: xRange,
+              y: [yRange[0], yRange[yRange.length - 2]],
               content: op,
             });
           } else {

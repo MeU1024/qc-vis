@@ -72,6 +72,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   ]);
 
   const [graphSize, setGraphSize] = useState([10, 10]);
+  const [threshold, setThreshold] = useState(3);
   const paraBarwidth = 380;
   const paraBarheight = 10;
   const svgRef = useRef<SVGSVGElement>(null);
@@ -367,13 +368,20 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     };
   }, [gridNumber, originalCircuit]);
 
+  const filterParaData = (paraBarData: number[], qubitLength: number) => {
+    const filteredData = paraBarData.map((data, index) => {
+      return data * qubitLength > threshold ? 1 : data;
+    });
+
+    return filteredData;
+  };
+
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
       const message = event.data;
 
       switch (message.command) {
         case "context.setCircuit":
-          setParaBarData(message.data.layerParallelism);
           // setCircuit(message.data.subCircuit);
           setAverageIdleValue(message.data.averageIdleValue);
           // setCurQubit(message.data.qubits);
@@ -382,7 +390,14 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
           setIdlePosition(message.data.idlePosition);
           setAverageIdleValue(message.data.averageIdleValue);
-          console.log("original circuit", message.data.originalCircuit);
+
+          const paraData = filterParaData(
+            message.data.layerParallelism,
+            message.data.averageIdleValue.length
+          );
+          setParaBarData(paraData);
+
+          // console.log("original circuit", message.data.originalCircuit);
           if (message.data.originalCircuit !== undefined) {
             const { noOverlapCircuit, layerPosMap, posLayerMap, layerWidth } =
               calculateIndexMap(message.data.originalCircuit);

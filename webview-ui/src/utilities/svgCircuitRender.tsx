@@ -102,21 +102,29 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
         .attr("fill", IDLE_FILL)
         .attr("fill-opacity", (d) => d / 1.2);
     }
+
     if (idlePosition[focusLayer].length !== 0) {
       // console.log(idlePosition[layerPosition[focusIndex]]);
+
       const slicedIdlePosition = idlePosition[focusLayer].slice(
         qubitRangeStart,
         qubitRangeStart + gridNumber
       );
+      console.log("slicedIdlePosition", slicedIdlePosition);
+
       const idleBackground = averageLayer
         .selectAll("g")
         .data(slicedIdlePosition)
         .enter()
         .append("g");
+
+      console.log("layerWidth", layerWidth);
+
       idleBackground.each((d, index) => {
         const rectWidth = d.reduce((sum, curIndex) => {
-          return sum + layerWidth[d[curIndex]];
+          return sum + layerWidth[curIndex];
         }, 0);
+        console.log("rectWidth", rectWidth);
         let bg = d3.select(idleBackground.nodes()[index]).append("rect");
         bg.attr("x", layerPosMap[d[0]] * gridSize + offsetX)
           .attr("y", index * gridSize)
@@ -133,14 +141,14 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     .append("defs")
     .append("linearGradient")
     .attr("id", "myWireGradient");
-
+  console.log("wiresData", wiresData);
   for (let i = 0; i < wiresData.length; i++) {
     gradient
       .append("stop")
       .attr("offset", (i / wiresData.length).toString())
       .attr("stop-color", colorScale(wiresData[i]));
   }
-  console.log("wiresData", wiresData);
+
   //wire
   var wires = wiresLayer.selectAll("rect").data(wiresData).enter();
   wires
@@ -188,6 +196,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       gateType === "customized" ||
       (gateType === "multi" && op !== "cz" && op !== "cp") ||
       op == "ccx"
+      // op == "ryy"
     ) {
       shape = d3.select(gates.nodes()[index]).append("rect");
       shape

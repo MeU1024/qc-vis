@@ -101,7 +101,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
       .attr("cx", function (d, i) {
         return rectSize / 2 + i * rectSize;
       })
-      .attr("cy", (rectSize / 4) * 3)
+      .attr("cy", (rectSize / 8) * 7)
       .attr("r", rectSize / 4)
       .attr("fill", function (d, i) {
         return colorGroup[d];

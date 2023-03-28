@@ -315,10 +315,19 @@ class AbstractedCircuit {
     } else if (gate.gateName[0] === "_") {
       let firstQubitIndex = this._qubits.indexOf(gate.qubits[0]);
       this._isIdleQubit[firstQubitIndex] = false;
-      let lastQubitIndex = this._qubits.indexOf(
-        gate.qubits[gate.qubits.length - 1]
-      );
-      this._isIdleQubit[lastQubitIndex] = false;
+
+      if (gate.qubits.length > 1) {
+        let secondQubitIndex = this._qubits.indexOf(gate.qubits[1]);
+        this._isIdleQubit[secondQubitIndex] = false;
+        let secondLastQubitIndex = this._qubits.indexOf(
+          gate.qubits[gate.qubits.length - 2]
+        );
+        this._isIdleQubit[secondLastQubitIndex] = false;
+        let lastQubitIndex = this._qubits.indexOf(
+          gate.qubits[gate.qubits.length - 1]
+        );
+        this._isIdleQubit[lastQubitIndex] = false;
+      }
     } else {
       let firstQubitIndex = this._qubits.indexOf(gate.qubits[0]);
       this._isIdleQubit[firstQubitIndex] = false;

@@ -81,7 +81,7 @@ export const extentRender = (props: extentRenderProps) => {
     averageIdleValue !== undefined &&
     idlePosition !== undefined
   ) {
-    if (idlePosition[layerPosition[focusIndex]].length !== 0) {
+    if (idlePosition[focusLayer].length !== 0) {
       const slicedIdlePosition = idlePosition[focusLayer].slice(
         qubitRangeStart,
         qubitRangeStart + gridNumber

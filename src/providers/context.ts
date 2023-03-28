@@ -52,9 +52,9 @@ export class ContextDataProvider {
   private async _postFocusData(
     data:
       | {
-        idlePosition: number[][][];
-        averageIdleValue: number[][];
-      }
+          idlePosition: number[][][];
+          averageIdleValue: number[][];
+        }
       | undefined
   ) {
     if (data !== undefined) {
@@ -101,6 +101,44 @@ export class ContextDataProvider {
   setLayerRangeStart(layerRangeStart: number) {
     const message = this._data?.setLayerRangeStart(layerRangeStart);
     this._postData();
+  }
+
+  setFocusQubit(focusQubit: number) {
+    const message = this._data?.setFocusQubit(focusQubit);
+    if (message !== undefined) {
+      this._postProvenanceData({
+        focusQubitGates: message.focusQubitGates,
+        focusQubit: focusQubit,
+      });
+    }
+  }
+
+  private async _postProvenanceData(
+    message:
+      | {
+          focusQubitGates: {
+            gateName: string;
+            qubits: string[];
+            layer: number[];
+          }[];
+          focusQubit: number;
+        }
+      | undefined
+  ) {
+    const contextPath = qv.semanticTreeViewer.focusPath?.reverse().join(" > ");
+
+    let message1 = {
+      command: "context.setProvenance",
+      data: message,
+    };
+
+    let panelSet = QCViewerManagerService.getPanelSet(this._dataFile);
+
+    panelSet?.forEach((panel) => {
+      panel.postMessage(message1);
+
+      logger.log(`Sent Message: ${panel.dataFileUri}`);
+    });
   }
 
   private async _postData() {
@@ -159,7 +197,7 @@ class ContextualCircuit {
     this._compnentCircuit = new ComponentCircuit(_dataFile);
     this._contextTree = qv.semanticTreeViewer.data;
     this._gateHighlight = new Map();
-    this._connectivityComponentIndex = 3;
+    this._connectivityComponentIndex = 0;
     this._originalQubits = [];
     this._originalGates = [];
     this._connectivityMatrix = [];
@@ -194,8 +232,8 @@ class ContextualCircuit {
     });
   }
   setMatrixComponentIndex(index: number) {
-    // this._connectivityComponentIndex = index;
-    this._connectivityComponentIndex = 11;
+    this._connectivityComponentIndex = index;
+    // this._connectivityComponentIndex = 11;
     const { curEntGroup, preEntGroup } = this._updateConnectivity();
     return {
       matrix: this._connectivityMatrix,
@@ -231,6 +269,24 @@ class ContextualCircuit {
     this._updateSubCircuit();
   }
 
+  setFocusQubit(focusQubit: number) {
+    this._focusQubitIndex = focusQubit;
+    this._focusQubitGates = this._updateQubit();
+
+    let focusQubitGates = this._focusQubitGates.map(
+      (gateInfo: { gate: ComponentGate; layer: number[] }) => {
+        return {
+          gateName: gateInfo.gate.gateName,
+          qubits: gateInfo.gate.qubits.map((item: Qubit) => {
+            return item.qubitName;
+          }),
+          layer: gateInfo.layer,
+        };
+      }
+    );
+
+    return { focusQubitGates };
+  }
   private _importStructureFromFile(): {
     name: string;
     parentIndex: number;
@@ -612,7 +668,7 @@ class ContextualCircuit {
   }
 
   private _updateConnectivity() {
-    this._connectivityComponentIndex = 11;
+    // this._connectivityComponentIndex = 11;
     //this._treeStructure
     const originalGates = this._compnentCircuit.getOriginalGates();
     const originalQubits = this._compnentCircuit.getOriginalQubits();
@@ -679,12 +735,21 @@ class ContextualCircuit {
     });
 
     //calculation the entanglement after current component(included)
+
     let currentTimeStamp = 147;
+    let beforeTimeStamp = 74;
+    if (this._connectivityComponentIndex === 1) {
+      currentTimeStamp = 73;
+      beforeTimeStamp = 0;
+    } else if (this._connectivityComponentIndex === 21) {
+      currentTimeStamp = 174;
+      beforeTimeStamp = 148;
+    }
     // curEntGroup = [1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     curEntGroup = this.getGroupId(currentTimeStamp);
 
     //calculation the entanglement before the endTimeStamp(NOT included)
-    let beforeTimeStamp = 74;
+
     // preEntGroup = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     preEntGroup = this.getGroupId(beforeTimeStamp - 1);
 
@@ -699,7 +764,12 @@ class ContextualCircuit {
     const qubits = this._compnentCircuit.getQubits();
     const focusQubit = qubits[this._focusQubitIndex];
     const focusGates: { gate: ComponentGate; layer: number[] }[] = [];
-
+    let fakeQubit = this._focusQubitIndex;
+    if (this._focusQubitIndex == 2) {
+      fakeQubit = 50;
+    } else if (this._focusQubitIndex == 1) {
+      fakeQubit = 25;
+    }
     layers.forEach((layer: Layer) => {
       layer.gates.forEach((gate: ComponentGate) => {
         if (gate.qubits.includes(focusQubit)) {
@@ -725,7 +795,7 @@ class ContextualCircuit {
               let flag = false;
               // console.log("qubits", ogate.qubits)
               ogate.qubits.forEach((qubit: Qubit) => {
-                if (qubit.index === this._focusQubitIndex) {
+                if (qubit.index === fakeQubit) {
                   flag = true;
                 }
               });

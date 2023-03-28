@@ -28,8 +28,9 @@ export class QCViewerPanel {
     this.dataFileUri = dataFileUri;
     this.webviewPanel = panel;
     // set name of the panel
-    const algorithmName = qv.algorithmNameDict[path.basename(dataFileUri.fsPath, ".py")];
-    this.webviewPanel.title = 'Visualization: ' + algorithmName;
+    const algorithmName =
+      qv.algorithmNameDict[path.basename(dataFileUri.fsPath, ".py")];
+    this.webviewPanel.title = "Visualization: " + algorithmName;
     panel.webview.onDidReceiveMessage((msg: PanelRequest) => {
       switch (msg.type) {
         case "state": {
@@ -53,6 +54,12 @@ export class QCViewerPanel {
           {
             this._contextData?.setLayerRangeStart(msg.layerRangeStart);
             logger.log(msg.layerRangeStart.toString());
+          }
+          break;
+        case "focusQubit":
+          {
+            this._contextData?.setFocusQubit(msg.focusQubit);
+            logger.log(msg.focusQubit.toString());
           }
           break;
         default: {

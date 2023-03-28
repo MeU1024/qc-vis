@@ -40,6 +40,8 @@ export const opDict = {
   custom_ctrl_bottom: 34,
   custom_vertical_line: 35,
   custom_vertical_line_empty_bg: 36,
+  single_gate_ctrl_bottom_empty_bg: 37,
+  single_gate_ctrl_bottom: 38,
 };
 
 // export const

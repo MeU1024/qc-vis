@@ -21,6 +21,10 @@ export type PanelRequest =
   | {
       type: "layerRangeStart";
       layerRangeStart: number;
+    }
+  | {
+      type: "focusQubit";
+      focusQubit: number;
     };
 
 export type QCViewerState = {
