@@ -6,7 +6,12 @@ import { ComponentCircuit } from "./component";
 import { QCViewerManagerService } from "../components/viewerlib/qcviewermanager";
 import { QuantumTreeNode } from "./structurelib/quantumgate";
 import { GateNodeProvider } from "./structure";
-import { ComponentGate, Layer, Qubit } from "./structurelib/qcmodel";
+import {
+  ComponentGate,
+  Layer,
+  Qubit,
+  SuperQubit,
+} from "./structurelib/qcmodel";
 import { getExtensionUri } from "../quantivine";
 
 const logger = getLogger("DataProvider", "Context");
@@ -762,14 +767,23 @@ class ContextualCircuit {
     // this._originalGates
     const layers = this._compnentCircuit.getLayers();
     const qubits = this._compnentCircuit.getQubits();
-    const focusQubit = qubits[this._focusQubitIndex];
+    let focusQubit: Qubit;
     const focusGates: { gate: ComponentGate; layer: number[] }[] = [];
     let fakeQubit = this._focusQubitIndex;
-    // if (this._focusQubitIndex == 2) {
-    //   fakeQubit = 50;
-    // } else if (this._focusQubitIndex == 1) {
-    //   fakeQubit = 25;
-    // }
+
+    qubits.forEach((qubit) => {
+      if (qubit instanceof SuperQubit) {
+        qubit.qubits.forEach((originalQubit) => {
+          if (originalQubit.index === this._focusQubitIndex) {
+            focusQubit = qubit;
+          }
+        });
+      } else {
+        if (qubit.index === this._focusQubitIndex) {
+          focusQubit = qubit;
+        }
+      }
+    });
     layers.forEach((layer: Layer) => {
       layer.gates.forEach((gate: ComponentGate) => {
         if (gate.qubits.includes(focusQubit)) {
