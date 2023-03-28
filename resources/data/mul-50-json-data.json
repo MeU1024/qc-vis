@@ -346,7 +346,7 @@
     },
     {
       "type": "diagonal",
-      "range": [29, 53, 3],
+      "range": [29, 53, 5],
       "treeIndex": 21
     },
     {
@@ -366,7 +366,7 @@
     },
     {
       "type": "diagonal",
-      "range": [82, 106, 3],
+      "range": [82, 106, 5],
       "treeIndex": 21
     },
     {
@@ -386,7 +386,7 @@
     },
     {
       "type": "diagonal",
-      "range": [133, 157, 3],
+      "range": [133, 157, 5],
       "treeIndex": 21
     },
     {
@@ -406,7 +406,7 @@
     },
     {
       "type": "diagonal",
-      "range": [182, 206, 3],
+      "range": [182, 206, 5],
       "treeIndex": 21
     },
     {
@@ -426,7 +426,7 @@
     },
     {
       "type": "diagonal",
-      "range": [229, 253, 3],
+      "range": [229, 253, 5],
       "treeIndex": 21
     },
     {
@@ -446,7 +446,7 @@
     },
     {
       "type": "diagonal",
-      "range": [274, 298, 3],
+      "range": [274, 298, 5],
       "treeIndex": 21
     },
     {
