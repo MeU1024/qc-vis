@@ -72,7 +72,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   ]);
 
   const [graphSize, setGraphSize] = useState([10, 10]);
-  const [threshold, setThreshold] = useState(3);
+  const [threshold, setThreshold] = useState(10);
+  const thresholdBarWidth = 250;
   const paraBarwidth = 380;
   const paraBarheight = 10;
   const svgRef = useRef<SVGSVGElement>(null);
@@ -310,6 +311,42 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   }, [paraBarData, layerRangeStart, gridNumber]);
 
   useEffect(() => {
+    var svg = d3.select("#thresholdBar");
+    svg.selectAll("*").remove();
+    const rectNumber = graphSize[0];
+    const elementWidth = thresholdBarWidth - 10;
+    const rectWidth = thresholdBarWidth / rectNumber;
+
+    const recsData = new Array<number>(rectNumber).fill(0);
+    const rects = svg.selectAll("rect").data(recsData);
+
+    rects
+      .enter()
+      .append("rect")
+      .attr("x", (d, i) => 5 + i * rectWidth)
+      .attr("y", paraBarheight / 4)
+      .attr("width", rectWidth)
+      .attr("height", paraBarheight / 2)
+      .style("stroke", IDLE_STROKE)
+      .style("stroke-width", 1)
+      .style("fill", "white");
+
+    //lines for range vis
+
+    const thresholdRange = [threshold];
+    var lines = svg.selectAll("line").data(thresholdRange);
+    lines
+      .enter()
+      .append("line")
+      .attr("x1", (d) => (d * elementWidth) / graphSize[1] + 5)
+      .attr("y1", 0)
+      .attr("x2", (d) => (d * elementWidth) / graphSize[1] + 5)
+      .attr("y2", paraBarheight)
+      .attr("stroke-width", "1px")
+      .attr("stroke", "black");
+  }, [threshold]);
+
+  useEffect(() => {
     const canvas = svgRef.current;
 
     const handleWheelEvent = (e: any) => {
@@ -371,7 +408,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
   const filterParaData = (paraBarData: number[], qubitLength: number) => {
     const filteredData = paraBarData.map((data, index) => {
-      return data * qubitLength > threshold ? 1 : data;
+      const newValue = (data * qubitLength) / threshold;
+      return newValue > 1 ? 1 : newValue;
     });
 
     return filteredData;
@@ -476,6 +514,18 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     //   type: "layerRangeStart",
     //   layerRangeStart: layerStart,
     // });
+  }
+
+  function handleThresholdBarClick(event: any) {
+    // const rect =
+    //   event.target.farthestViewportElement !== null
+    //     ? event.target.farthestViewportElement.getBoundingClientRect()
+    //     : event.target.getBoundingClientRect();
+    // const x = event.clientX - rect.left;
+    // let threshold = Math.floor(
+    //   (x - 5) / ((thresholdBarWidth - 10) / graphSize[0])
+    // );
+    // setThreshold(threshold);
   }
 
   const calculateIndexMap = (circuit: {
@@ -662,6 +712,17 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             height={idleBarheight}
             onClick={handleIdleBarClick}
           ></svg>
+        </div>
+        <div id="thresholdBarArea">
+          {" "}
+          {/* <span> threshold</span> */}
+          {/* <svg
+            id="thresholdBar"
+            viewBox={"0 0 " + thresholdBarWidth + " " + paraBarheight}
+            width={thresholdBarWidth}
+            height={paraBarheight}
+            onClick={handleThresholdBarClick}
+          ></svg> */}
         </div>
         <svg
           id="parallelismBar"

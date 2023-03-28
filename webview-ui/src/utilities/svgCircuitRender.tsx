@@ -100,7 +100,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
         .attr("width", gridSize * layerWidth[focusLayer])
         .attr("height", gridSize)
         .attr("fill", IDLE_FILL)
-        .attr("fill-opacity", (d) => d / 1.2);
+        .attr("fill-opacity", (d) => d);
     }
 
     if (idlePosition[focusLayer].length !== 0) {
@@ -132,7 +132,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
           .attr("height", gridSize)
           .attr("rx", gridSize / 20)
           .attr("fill", IDLE_FILL)
-          .attr("fill-opacity", 0.15);
+          .attr("fill-opacity", 0.3);
       });
     }
   }
