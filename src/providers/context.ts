@@ -57,9 +57,9 @@ export class ContextDataProvider {
   private async _postFocusData(
     data:
       | {
-          idlePosition: number[][][];
-          averageIdleValue: number[][];
-        }
+        idlePosition: number[][][];
+        averageIdleValue: number[][];
+      }
       | undefined
   ) {
     if (data !== undefined) {
@@ -121,13 +121,13 @@ export class ContextDataProvider {
   private async _postProvenanceData(
     message:
       | {
-          focusQubitGates: {
-            gateName: string;
-            qubits: string[];
-            layer: number[];
-          }[];
-          focusQubit: number;
-        }
+        focusQubitGates: {
+          gateName: string;
+          qubits: string[];
+          layer: number[];
+        }[];
+        focusQubit: number;
+      }
       | undefined
   ) {
     const contextPath = qv.semanticTreeViewer.focusPath?.reverse().join(" > ");
@@ -673,7 +673,7 @@ class ContextualCircuit {
   }
 
   private _updateConnectivity() {
-    // this._connectivityComponentIndex = 11;
+    //this._connectivityComponentIndex = 11;
     //this._treeStructure
     const originalGates = this._compnentCircuit.getOriginalGates();
     const originalQubits = this._compnentCircuit.getOriginalQubits();
@@ -695,23 +695,29 @@ class ContextualCircuit {
       }
     }
 
+    let currentTimeStamp = -1;
+    let beforeTimeStamp = -1;
+
     //iterate all gates
     originalGates.forEach((gate: ComponentGate) => {
-      // let node = this._treeStructure[gate.treeIndex];
-      // while (node.type !== "fun") {
-      //   node = this._treeStructure[node.parentIndex];
-      // }
 
       let num = this.isInComponent(gate, this._connectivityComponentIndex)
         ? 2
         : 1;
 
-      // if (node.index === this._connectivityComponentIndex) {
+      if (num === 2) {
+        gate.range.forEach((time: number) => {
+          if (beforeTimeStamp === -1) beforeTimeStamp = time;
+          else beforeTimeStamp = Math.min(beforeTimeStamp, time);
+          if (currentTimeStamp === -1) currentTimeStamp = time;
+          else currentTimeStamp = Math.max(currentTimeStamp, time);
+        });
+      }
+
       const qubits = gate.qubits.map((qubit: Qubit) => {
         return parseInt(qubit.qubitName);
       });
 
-      //TODO:cswap ryy cry cx
       if (qubits.length >= 2) {
         for (let start = 0; start < qubits.length; start++) {
           for (let end = start + 1; end < qubits.length; end++) {
@@ -739,10 +745,9 @@ class ContextualCircuit {
       }
     });
 
-    //calculation the entanglement after current component(included)
+    console.log("currenttimestamp", currentTimeStamp);
+    console.log("beforetimestamp", beforeTimeStamp);
 
-    let currentTimeStamp = 147;
-    let beforeTimeStamp = 74;
     if (this._connectivityComponentIndex === 1) {
       currentTimeStamp = 73;
       beforeTimeStamp = 0;
@@ -750,12 +755,10 @@ class ContextualCircuit {
       currentTimeStamp = 174;
       beforeTimeStamp = 148;
     }
-    // curEntGroup = [1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     curEntGroup = this.getGroupId(currentTimeStamp);
 
     //calculation the entanglement before the endTimeStamp(NOT included)
 
-    // preEntGroup = [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     preEntGroup = this.getGroupId(beforeTimeStamp - 1);
 
     return { curEntGroup, preEntGroup };
