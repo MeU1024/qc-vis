@@ -765,11 +765,11 @@ class ContextualCircuit {
     const focusQubit = qubits[this._focusQubitIndex];
     const focusGates: { gate: ComponentGate; layer: number[] }[] = [];
     let fakeQubit = this._focusQubitIndex;
-    if (this._focusQubitIndex == 2) {
-      fakeQubit = 50;
-    } else if (this._focusQubitIndex == 1) {
-      fakeQubit = 25;
-    }
+    // if (this._focusQubitIndex == 2) {
+    //   fakeQubit = 50;
+    // } else if (this._focusQubitIndex == 1) {
+    //   fakeQubit = 25;
+    // }
     layers.forEach((layer: Layer) => {
       layer.gates.forEach((gate: ComponentGate) => {
         if (gate.qubits.includes(focusQubit)) {

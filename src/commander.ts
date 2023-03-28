@@ -77,5 +77,11 @@ export async function refreshView() {
 }
 
 export async function selectQubit(index: number) {
-  throw new Error("Not implemented");
+  const sourceFile = qv.manager.sourceFile;
+  if (sourceFile !== undefined) {
+    const panelSet = QCViewerManagerService.getPanelSet(sourceFile);
+    panelSet?.forEach((panel) => {
+      panel.setFocusQubit(index);
+    });
+  }
 }

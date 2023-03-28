@@ -22,10 +22,10 @@ const BitsName = (props: BitsNameProps) => {
     // } else if (index == 1) {
     //   fakeIndex = 25;
     // }
-    vscode.postMessage({
-      type: "focusQubit",
-      focusQubit: index,
-    });
+    // vscode.postMessage({
+    //   type: "focusQubit",
+    //   focusQubit: index,
+    // });
   };
   return (
     <div

@@ -55,7 +55,7 @@ const GridText = (props: GridTextProps) => {
   } else if (content == "cry" || content == "ccx") {
     ctx.fillStyle = MULTI_GATE_STROKE;
   } else if (content == "···" || content == "...") {
-    ctx.fillStyle = "#afafaf";
+    ctx.fillStyle = "black";
   }
   ctx.textBaseline = "middle";
 

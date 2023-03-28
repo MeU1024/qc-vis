@@ -152,13 +152,14 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       );
 
       setSubCircuit(subCircuit);
-      console.log(layerPositionList);
+      console.log("layerPosition", layerPositionList);
       setLayerPosition(layerPositionList);
     }
   }, [qubitRangeStart, layerRangeStart, originalCircuit, gridNumber]);
 
   useEffect(() => {
     if (focusIndex !== undefined) {
+      console.log(layerPosition[focusIndex]);
       setFocusLayer(layerPosition[focusIndex]);
     }
   }, [focusIndex]);
@@ -541,7 +542,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       });
     }
 
-    let layerWidth = new Array(circuit.output_size[0]).fill(0);
+    let layerWidth = new Array(circuit.output_size[1]).fill(0);
     posLayerMap.forEach((item) => {
       layerWidth[item]++;
     });

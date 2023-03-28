@@ -141,7 +141,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     .append("defs")
     .append("linearGradient")
     .attr("id", "myWireGradient");
-  console.log("wiresData", wiresData);
+  // console.log("wiresData", wiresData);
   for (let i = 0; i < wiresData.length; i++) {
     gradient
       .append("stop")

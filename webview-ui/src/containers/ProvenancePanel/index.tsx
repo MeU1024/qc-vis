@@ -290,14 +290,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
           break;
         case "context.setProvenance":
           setQubitData(message.data.focusQubitGates);
-
-          if (message.data.focusQubit == 1) {
-            setFocusQubit(25);
-          } else if (message.data.focusQubit == 2) {
-            setFocusQubit(50);
-          } else {
-            setFocusQubit(message.data.focusQubit);
-          }
+          setFocusQubit(message.data.focusQubit);
 
           break;
         case "context.setTitle":

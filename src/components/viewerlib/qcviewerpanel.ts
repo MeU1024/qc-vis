@@ -79,6 +79,10 @@ export class QCViewerPanel {
     this._componentData?.setFocus(index);
     this._abstractionData?.setFocus(index);
   }
+
+  setFocusQubit(index: number) {
+    this._contextData?.setFocusQubit(index);
+  }
   postMessage(message: any) {
     this.webviewPanel.webview.postMessage(message);
   }
