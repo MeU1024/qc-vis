@@ -6,6 +6,7 @@ import {
   IDLE_STROKE,
   PARA_HIGH_FILL,
   PARA_LOW_FILL,
+  WIRE_STROKE,
 } from "../../const";
 import overviewData_abs from "../../../data/vqc-10-detail-abstract.json";
 import Circuit2GridData from "../../utilities/Circuit2GridData";
@@ -27,10 +28,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [panelTitle, setPanelTitle] = useState("Placement");
   const [idleBarwidth, setIdleBarwidth] = useState(30);
   const [idleBarheight, setIdleBarheight] = useState(360);
-  const [canvasWidth, setCanvasWidth] = useState(320);
+  const [canvasWidth, setCanvasWidth] = useState(512);
   const [canvasHeight, setCanvasHeight] = useState(320);
   const [extentWidth, setExtentWidth] = useState(40);
   const [gridNumber, setGridNumber] = useState(10);
+  const [layerNumber, setLayerNumber] = useState(16);
   const [focusIndex, setFocusIndex] = useState<number | undefined>(undefined);
   const [focusLayer, setFocusLayer] = useState<number | undefined>(undefined);
   const [qubitRangeStart, setQubitRangeStart] = useState<number>(0);
@@ -76,10 +78,10 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     [0, 1, 0.5, 0.2, 0.4, 0.2, 0.1, 1, 1, 1, 1, 1],
   ]);
 
-  const [graphSize, setGraphSize] = useState([10, 10]);
-  const [threshold, setThreshold] = useState(10);
+  const [graphSize, setGraphSize] = useState([10, 16]);
+  const [threshold, setThreshold] = useState(5);
   const thresholdBarWidth = 150;
-  const paraBarwidth = 380;
+  const paraBarwidth = 577;
   const paraBarheight = 10;
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -98,7 +100,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       gate_format: string;
       all_gates: ((number | number[])[] | (number | number[])[])[];
     },
-    gridNumber: number
+    gridNumber: number,
+    layerNumber: number
   ) => {
     const new_gates: any[] = [];
     originalCircuit.all_gates.forEach((gateInfo: any) => {
@@ -107,28 +110,18 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       const maxQubit = Math.max(qubitRange);
       const layerRange = gateInfo[1];
 
-      // let index;
-      // for (index = 0; index < qubitRange.length; index++) {
-      //   const element = qubitRange[index];
-      //   if (
-      //     element >= qubitRangeStart &&
-      //     element < qubitRangeStart + gridNumber
-      //   ) {
-      //     break;
-      //   }
-      // }
       if (
         !(maxQubit < qubitRangeStart) &&
         !(minQubit > qubitRangeStart + gridNumber) &&
         layerRange[0] >= layerRangeStart &&
-        layerRange[0] < layerRangeStart + gridNumber
+        layerRange[0] < layerRangeStart + layerNumber
       ) {
         new_gates.push(gateInfo);
       }
     });
 
     return {
-      output_size: [gridNumber, gridNumber],
+      output_size: [gridNumber, layerNumber],
       op_map: originalCircuit.op_map,
       qubits: originalCircuit.qubits.slice(
         qubitRangeStart,
@@ -139,7 +132,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     };
   };
   useEffect(() => {
-    setGridSize(canvasWidth / gridNumber);
+    setGridSize(canvasHeight / gridNumber);
   }, [gridNumber]);
 
   useEffect(() => {
@@ -149,19 +142,26 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         qubitRangeStart,
         layerPosMap[layerRangeStart],
         originalCircuit,
-        gridNumber
+        gridNumber,
+        layerNumber
       );
 
       const layerPositionList = posLayerMap.slice(
         layerPosMap[layerRangeStart],
-        layerPosMap[layerRangeStart] + gridNumber
+        layerPosMap[layerRangeStart] + layerNumber
       );
 
       setSubCircuit(subCircuit);
       console.log("layerPosition", layerPositionList);
       setLayerPosition(layerPositionList);
     }
-  }, [qubitRangeStart, layerRangeStart, originalCircuit, gridNumber]);
+  }, [
+    qubitRangeStart,
+    layerRangeStart,
+    originalCircuit,
+    gridNumber,
+    layerNumber,
+  ]);
 
   useEffect(() => {
     if (focusIndex !== undefined) {
@@ -191,6 +191,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           return paraBarData[index];
         }),
         gridNumber: gridNumber,
+        layerNumber: layerNumber,
         posLayerMap: posLayerMap,
         layerPosMap: layerPosMap,
         layerWidth: layerWidth,
@@ -209,7 +210,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         layerRangeStart: layerPosMap[layerRangeStart],
         qubitRangeStart: qubitRangeStart,
         layerPosition: layerPosition,
-
+        layerNumber: layerNumber,
         paraBarData: paraBarData,
         gridNumber: gridNumber,
         posLayerMap: posLayerMap,
@@ -227,6 +228,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     focusLayer,
     // layerPosition,
     gridNumber,
+    layerNumber,
   ]);
 
   useEffect(() => {
@@ -302,7 +304,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
     //lines for range vis
 
-    const layerRange = [layerRangeStart, layerRangeStart + gridNumber];
+    const layerRange = [layerRangeStart, layerRangeStart + layerNumber];
     var lines = svg.selectAll("line").data(layerRange);
     lines
       .enter()
@@ -313,7 +315,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
       .attr("y2", paraBarheight)
       .attr("stroke-width", "1px")
       .attr("stroke", "black");
-  }, [paraBarData, layerRangeStart, gridNumber]);
+  }, [paraBarData, layerRangeStart, gridNumber, layerNumber]);
 
   useEffect(() => {
     var svg = d3.select("#thresholdBar");
@@ -343,17 +345,17 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
     //lines for range vis
 
-    const thresholdRange = new Array<number>(rectNumber).fill(0);
-    var lines = svg.selectAll("line").data(thresholdRange);
-    lines
-      .enter()
-      .append("line")
-      .attr("x1", (d, i) => (i * elementWidth) / graphSize[0])
-      .attr("y1", paraBarheight / 4)
-      .attr("x2", (d, i) => (i * elementWidth) / graphSize[0])
-      .attr("y2", (paraBarheight / 4) * 3)
-      .attr("stroke-width", "1px")
-      .attr("stroke", IDLE_STROKE);
+    // const thresholdRange = new Array<number>(rectNumber).fill(0);
+    // var lines = svg.selectAll("line").data(thresholdRange);
+    // lines
+    //   .enter()
+    //   .append("line")
+    //   .attr("x1", (d, i) => (i * elementWidth) / graphSize[0])
+    //   .attr("y1", paraBarheight / 4)
+    //   .attr("x2", (d, i) => (i * elementWidth) / graphSize[0])
+    //   .attr("y2", (paraBarheight / 4) * 3)
+    //   .attr("stroke-width", "1px")
+    //   .attr("stroke", IDLE_STROKE);
 
     var circles = svg.selectAll("circle").data([threshold]);
     circles
@@ -379,15 +381,29 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             Math.min(
               Math.max(gridNumber + 1, 7),
               // originalCircuit?.output_size[0] || 20
-              50
+              100
+            )
+          );
+          setLayerNumber((layerNumber) =>
+            Math.min(
+              Math.max(layerNumber + 1, 13),
+              // originalCircuit?.output_size[0] || 20
+              100
             )
           );
         } else {
           setGridNumber((gridNumber) =>
             Math.min(
               Math.max(gridNumber - 1, 7),
-              50
+              100
               // originalCircuit?.output_size[0] || 20
+            )
+          );
+          setLayerNumber((layerNumber) =>
+            Math.min(
+              Math.max(layerNumber - 1, 13),
+              // originalCircuit?.output_size[0] || 20
+              100
             )
           );
         }
@@ -423,7 +439,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         canvas.removeEventListener("wheel", handleWheelEvent);
       }
     };
-  }, [gridNumber, originalCircuit]);
+  }, [gridNumber, layerNumber, originalCircuit]);
 
   const filterParaData = (paraBarData: number[], qubitLength: number) => {
     const filteredData = paraBarData.map((data, index) => {
@@ -526,9 +542,9 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
     let layerStart = Math.floor((x - 5) / ((paraBarwidth - 10) / graphSize[1]));
     layerStart =
-      layerStart + gridNumber <= graphSize[1]
+      layerStart + layerNumber <= graphSize[1]
         ? layerStart
-        : graphSize[1] - gridNumber;
+        : graphSize[1] - layerNumber;
     layerStart = layerStart < 0 ? 0 : layerStart;
     setLayerRangeStart(layerStart);
 
@@ -638,9 +654,47 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         <span className="idleWireExtent">
           <span className="legendTitle">Idle Wire Extent:</span>
           <span className="legendContent">To Left</span>
+          <svg width="20" height="10" viewBox={"0 0 " + 10 + " " + 10}>
+            <rect
+              x="0"
+              y="5"
+              rx="0"
+              ry="0"
+              width="15"
+              height="2"
+              fill={WIRE_STROKE}
+            />
+            <line
+              x1="15"
+              x2="15"
+              y1="0"
+              y2="10"
+              stroke={IDLE_STROKE}
+              strokeWidth="2px"
+            />
+          </svg>
           <span className="legendContent">To Right</span>
+          <svg width="20" height="10" viewBox={"0 0 " + 10 + " " + 10}>
+            <rect
+              x="2"
+              y="5"
+              rx="0"
+              ry="0"
+              width="15"
+              height="2"
+              fill={WIRE_STROKE}
+            />
+            <line
+              x1="1"
+              x2="1"
+              y1="0"
+              y2="10"
+              stroke={IDLE_STROKE}
+              strokeWidth="2px"
+            />
+          </svg>
         </span>
-        <span className="idlePosition">
+        <span className="idlePosition" style={{ paddingLeft: "10px" }}>
           <span className="legendTitle">Idle Position:</span>
           <svg
             id="idlePos"
@@ -659,13 +713,21 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             />
           </svg>
         </span>
+        <span className="rangeView">
+          <span className="selectRange">
+            Qubit: {qubitRangeStart} - {qubitRangeStart + gridNumber - 1}{" "}
+          </span>
+          <span className="selectRange">
+            Layer: {layerRangeStart} - {layerRangeStart + layerNumber - 1}{" "}
+          </span>
+        </span>
       </div>
 
       <div className="parallelismLevel">
         <span className="legendTitle">Parallelism Level:</span>
         <span className="contentLow"> Low </span>
         <span className="legend-svg">
-          <svg width="60" height="10" viewBox={"0 0 " + 60 + " " + 5}>
+          <svg width="85" height="10" viewBox={"0 0 " + 60 + " " + 5}>
             <defs>
               <linearGradient id="Gradient1">
                 <stop offset="0%" stop-color="#3FA9F5" />
@@ -781,14 +843,6 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           height={paraBarheight}
           onClick={handleParaBarClick}
         ></svg>
-        <div className="rangeView">
-          <div className="selectRange">
-            Qubit Range: {qubitRangeStart} to {qubitRangeStart + gridNumber - 1}{" "}
-          </div>
-          <div className="selectRange">
-            Layer Range: {layerRangeStart} to {layerRangeStart + gridNumber - 1}{" "}
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -796,7 +850,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
 const generateCircuit = () => {
   return {
-    output_size: [10, 10],
+    output_size: [10, 16],
     op_map: { null: 0, h: 1, cx: 2, cz: 3, ry: 4, rz: 5, csw: 6 },
     qubits: ["0", "1", "2", "3", "4", "5", "6"],
     gate_format: "[op_idx, x_range, y_range]",

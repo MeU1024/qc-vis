@@ -36,6 +36,7 @@ export interface svgCircuitRenderProps {
   layerPosition: number[];
   wiresData: number[];
   gridNumber: number;
+  layerNumber: number;
   posLayerMap: number[];
   layerPosMap: number[];
   layerWidth: number[];
@@ -63,6 +64,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     wiresData,
     focusLayer,
     gridNumber,
+    layerNumber,
     posLayerMap,
     layerPosMap,
     layerWidth,

@@ -11,6 +11,8 @@ import {
   WIRE_STROKE,
   opTypeDict,
   colorDict,
+  IDLE_FILL,
+  IDLE_STROKE,
 } from "../../const";
 import { sort } from "d3";
 
@@ -21,11 +23,14 @@ export interface ProvenancePanelProps {
 const generateQubitData = () => {
   return [
     { gateName: "_HA", qubits: ["0"], layer: [0, 0] },
-    { gateName: "rz", qubits: ["0"], layer: [1, 1] },
-    { gateName: "rz", qubits: ["0"], layer: [2, 2] },
-    { gateName: "cx", qubits: ["0", "1"], layer: [3, 3] },
-    { gateName: "cx", qubits: ["1", "0"], layer: [6, 6] },
-    { gateName: "_Ent", qubits: ["0"], layer: [7, 7] },
+    // { gateName: "rz", qubits: ["0"], layer: [1, 1] },
+    // { gateName: "rz", qubits: ["0"], layer: [2, 2] },
+    // { gateName: "cx", qubits: ["0", "1"], layer: [3, 3] },
+    // { gateName: "cx", qubits: ["1", "0"], layer: [4, 4] },
+    // { gateName: "cx", qubits: ["2", "1"], layer: [5, 5] },
+    // { gateName: "cx", qubits: ["1", "2"], layer: [6, 6] },
+    // { gateName: "_Ent", qubits: ["0"], layer: [7, 7] },
+    // { gateName: "_Ent", qubits: ["0"], layer: [7, 7] },
   ];
 };
 
@@ -50,8 +55,9 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
   >([]);
   const offset = 35;
   const [focusQubit, setFocusQubit] = useState(0);
-  const [svgWidth, setSVGWidth] = useState(1000);
-  const [layerNum, setLayerNum] = useState<number | undefined>(undefined);
+  const [svgWidth, setSVGWidth] = useState(1040);
+  const [realLength, setRealLength] = useState(1040);
+  const [layerNum, setLayerNum] = useState<number | undefined>(20);
   // const width = 650;
   const height = 80;
   const gridSize = height / 2;
@@ -64,11 +70,27 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
 
       let wire = svg.append("line");
       wire
-        .attr("x1", offset)
+        .attr("x1", 0)
         .attr("y1", gridSize)
         .attr("x2", svgWidth)
         .attr("y2", gridSize)
         .attr("stroke", WIRE_STROKE);
+
+      let start = svg.append("line");
+      start
+        .attr("x1", (offset / 4) * 3)
+        .attr("y1", (gridSize / 4) * 3)
+        .attr("x2", (offset / 4) * 3)
+        .attr("y2", (gridSize / 4) * 5)
+        .attr("stroke", IDLE_STROKE);
+
+      let end = svg.append("line");
+      end
+        .attr("x1", realLength + (offset / 4) * 4)
+        .attr("y1", (gridSize / 4) * 3)
+        .attr("x2", realLength + (offset / 4) * 4)
+        .attr("y2", (gridSize / 4) * 5)
+        .attr("stroke", IDLE_STROKE);
 
       var shapes = svg.selectAll("g").data(qubitPos).enter().append("g");
 
@@ -89,6 +111,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
         let gateName = d.gateName;
         //TODO:3bit
         let diff = parseInt(d.qubits[0]) - parseInt(d.qubits[1]) > 0 ? -1 : 1;
+        // let diff_2 =
         let entQubit = "";
         //draw wire
 
@@ -153,14 +176,18 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
               .style("fill", colorDict[gateType]);
           }
         }
-        if (gateType === "control" || gateType === "target") {
+
+        //qubit text
+        if (gateType === "control") {
           shape = d3.select(this).append("text");
           shape
             .style("font-size", (height / 8).toString() + "px")
             .attr("x", xPos)
             .attr(
               "y",
-              (gridSize / 2) * 3 + (parseInt(shape.style("font-size")) * 4) / 3
+              gridSize +
+                ((diff > 0 ? 1 : -1) * parseInt(shape.style("font-size"))) / 2 +
+                ((diff > 0 ? 1 : -1) * gridSize) / 2
             )
             .text("q")
             .attr("text-anchor", "end")
@@ -170,11 +197,49 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
           shape
             .style("font-size", (height / 12).toString() + "px")
             .attr("x", xPos)
-            .attr("y", (gridSize / 2) * 3 + height / 6 + height / 40)
+            .attr(
+              "y",
+              gridSize +
+                ((diff > 0 ? 1 : -1) * gridSize) / 2 +
+                ((diff > 0 ? 1 : 0) * height) / 10
+            )
+            // height / 20
+
+            .text(entQubit)
+            .attr("text-anchor", "start")
+            .style("fill", colorDict[gateType]);
+        } else if (gateType === "target") {
+          shape = d3.select(this).append("text");
+          shape
+            .style("font-size", (height / 8).toString() + "px")
+            .attr("x", xPos)
+            .attr(
+              "y",
+              gridSize +
+                ((diff < 0 ? 1 : -1) * parseInt(shape.style("font-size"))) / 2 +
+                ((diff < 0 ? 1 : -1) * gridSize) / 2
+            )
+            .text("q")
+            .attr("text-anchor", "end")
+            .style("fill", colorDict[gateType]);
+
+          shape = d3.select(this).append("text");
+          shape
+            .style("font-size", (height / 12).toString() + "px")
+            .attr("x", xPos)
+            .attr(
+              "y",
+              gridSize +
+                ((diff < 0 ? 1 : -1) * gridSize) / 2 +
+                ((diff < 0 ? 1 : 0) * height) / 10
+            )
+            // height / 20
+
             .text(entQubit)
             .attr("text-anchor", "start")
             .style("fill", colorDict[gateType]);
         }
+
         switch (gateType) {
           case "single":
             break;
@@ -200,7 +265,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
             shape = d3.select(this).append("circle");
             shape
               .attr("cx", xPos)
-              .attr("cy", gridSize - (diff * gridSize) / 2)
+              .attr("cy", gridSize - diff * (gridSize / 2 - gridSize / 15))
               .attr("r", gridSize / 15)
               .attr("fill", colorDict[gateType]);
 
@@ -227,7 +292,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
 
     // const minInterval = 0; //layerMinInterval
 
-    const svgWidth = 1000 - offset * 2;
+    const posWidth = svgWidth - offset * 2;
     const gateWidth = 20;
     console.log("layerNumUndefined", layerNum === undefined);
     if (qubitData !== undefined && layerNum !== undefined) {
@@ -253,7 +318,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
         unitInterval = 1;
       } else {
         unitInterval = Math.floor(
-          (svgWidth - n * gateWidth) / totIntervalLayer
+          (posWidth - n * gateWidth) / totIntervalLayer
         );
       }
       unitInterval = Math.max(1, unitInterval);
@@ -272,7 +337,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
         };
       });
       console.log("totlength", totlength);
-      // setSVGWidth(totlength);
+      setRealLength(totlength);
       setQubitPos(qubitPosition);
       console.log("qubitPosition : ", qubitPosition);
     }
@@ -284,7 +349,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
 
       switch (message.command) {
         case "context.setCircuit":
-          setQubitData(message.data.focusQubitGates);
+          // setQubitData(message.data.focusQubitGates);
           console.log("size", message.data.originalCircuitSize);
           setLayerNum(message.data.originalCircuitSize[1]);
           break;

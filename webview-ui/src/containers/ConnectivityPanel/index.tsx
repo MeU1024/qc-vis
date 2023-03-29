@@ -13,15 +13,11 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
   const [panelTitle, setPanelTitle] = useState("Connectivity");
   const [componentTitle, setComponentTitle] = useState("");
   const [matrix, setMatrix] = useState(matrixData());
-  const [svgWidth, setSvgWidth] = useState(400);
-  const [svgHeight, setSvgHeight] = useState(400);
+  const [svgWidth, setSvgWidth] = useState(360);
+  const [svgHeight, setSvgHeight] = useState(360);
   const [rectSize, setRectSize] = useState(20);
-  const [curEntGroup, setCurEntGroup] = useState<number[]>([
-    1, 1, 1, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  ]);
-  const [preEntGroup, setPreEntGroup] = useState<number[]>([
-    1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  ]);
+  const [curEntGroup, setCurEntGroup] = useState<number[]>([]);
+  const [preEntGroup, setPreEntGroup] = useState<number[]>([]);
 
   useEffect(() => {
     var svg = d3.select("#matrixSVG");
@@ -153,15 +149,10 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
           <rect width="8" height="8" fill={MATRIX_BG} stroke={MATRIX_STROKE} />
         </svg>
         <span className="legendName">Unlinked</span>
-        <svg
-          viewBox="0 0 8 8"
-          width="8"
-          height="8"
-          fill="white"
-          stroke={MATRIX_STROKE}
-        >
-          <rect width="8" height="8" />
+        <svg viewBox="0 0 8 8" width="8" height="8">
+          <rect width="8" height="8" fill="white" stroke={"black"} />
         </svg>
+        <span className="componentTitle">Component: {componentTitle}</span>
       </div>
       <div className="matrix">
         <svg
@@ -179,25 +170,24 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
           height={30}
         ></svg>
       </div>
-      <div className="componentTitle">Component: {componentTitle}</div>
     </div>
   );
 };
 
 const matrixData = () => {
   const connectivityMatrix: number[][] = [];
-  for (let row = 0; row < 20; row++) {
+  for (let row = 0; row < 99; row++) {
     connectivityMatrix[row] = new Array();
-    for (let col = 0; col < 20; col++) {
+    for (let col = 0; col < 99; col++) {
       connectivityMatrix[row].push(0);
     }
   }
-  for (let row = 0; row < 20; row++) {
-    for (let col = row + 1; col < 20; col++) {
-      connectivityMatrix[row][col] = 1;
-      connectivityMatrix[col][row] = 1;
-    }
-  }
+  // for (let row = 0; row < 20; row++) {
+  //   for (let col = row + 1; col < 20; col++) {
+  //     connectivityMatrix[row][col] = 1;
+  //     connectivityMatrix[col][row] = 1;
+  //   }
+  // }
   return connectivityMatrix;
 };
 

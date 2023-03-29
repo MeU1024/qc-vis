@@ -741,14 +741,14 @@ class ContextualCircuit {
 
     //calculation the entanglement after current component(included)
 
-    let currentTimeStamp = 147;
-    let beforeTimeStamp = 74;
+    let currentTimeStamp = 291;
+    let beforeTimeStamp = 146;
     if (this._connectivityComponentIndex === 1) {
-      currentTimeStamp = 73;
+      currentTimeStamp = 145;
       beforeTimeStamp = 0;
     } else if (this._connectivityComponentIndex === 21) {
-      currentTimeStamp = 174;
-      beforeTimeStamp = 148;
+      currentTimeStamp = 342;
+      beforeTimeStamp = 292;
     }
     // curEntGroup = [1, 1, 1, 1, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     curEntGroup = this.getGroupId(currentTimeStamp);

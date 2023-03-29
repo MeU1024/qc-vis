@@ -33,6 +33,7 @@ export interface extentRenderProps {
   layerRangeStart: number;
   qubitRangeStart: number;
   layerPosition: number[];
+  layerNumber: number;
   paraBarData: number[];
   gridNumber: number;
   posLayerMap: number[];
@@ -62,6 +63,7 @@ export const extentRender = (props: extentRenderProps) => {
     paraBarData,
     focusLayer,
     gridNumber,
+    layerNumber,
     posLayerMap,
     layerPosMap,
     layerWidth,
