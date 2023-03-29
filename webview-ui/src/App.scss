@@ -8,12 +8,12 @@ main {
     display: grid;
     grid-template-rows: 45% 55%;
     height: 962px;
-    width: 1734px;
+    width: 1800px;
 
     .BottomContent {
       margin-top: 10px;
       display: grid;
-      grid-template-columns: 35% 3px auto;
+      grid-template-columns: 37% 3px auto;
       // height: 522px;
       .BottomLeft {
         display: grid;
@@ -29,7 +29,7 @@ main {
         overflow: hidden;
         .ContextBottom {
           display: grid;
-          grid-template-columns: 60% 40%;
+          grid-template-columns: 64% 36%;
         }
       }
     }

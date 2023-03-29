@@ -78,6 +78,7 @@ export class QCViewerPanel {
   setFocus(index: number) {
     this._componentData?.setFocus(index);
     this._abstractionData?.setFocus(index);
+    // this._contextData?.setFocus(index);
   }
 
   setFocusQubit(index: number) {

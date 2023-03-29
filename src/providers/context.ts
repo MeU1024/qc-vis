@@ -103,6 +103,9 @@ export class ContextDataProvider {
       this._postMatrixData(data);
     }
   }
+  // setFocus(index:number){
+
+  // }
   setLayerRangeStart(layerRangeStart: number) {
     const message = this._data?.setLayerRangeStart(layerRangeStart);
     this._postData();

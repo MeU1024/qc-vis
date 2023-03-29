@@ -28,11 +28,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [panelTitle, setPanelTitle] = useState("Placement");
   const [idleBarwidth, setIdleBarwidth] = useState(30);
   const [idleBarheight, setIdleBarheight] = useState(360);
-  const [canvasWidth, setCanvasWidth] = useState(512);
-  const [canvasHeight, setCanvasHeight] = useState(320);
+  const [canvasWidth, setCanvasWidth] = useState(600);
+  const [canvasHeight, setCanvasHeight] = useState(300);
   const [extentWidth, setExtentWidth] = useState(40);
   const [gridNumber, setGridNumber] = useState(10);
-  const [layerNumber, setLayerNumber] = useState(16);
+  const [layerNumber, setLayerNumber] = useState(20);
   const [focusIndex, setFocusIndex] = useState<number | undefined>(undefined);
   const [focusLayer, setFocusLayer] = useState<number | undefined>(undefined);
   const [qubitRangeStart, setQubitRangeStart] = useState<number>(0);
@@ -77,11 +77,11 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [averageIdleValue, setAverageIdleValue] = useState<number[][]>([
     [0, 1, 0.5, 0.2, 0.4, 0.2, 0.1, 1, 1, 1, 1, 1],
   ]);
-
-  const [graphSize, setGraphSize] = useState([10, 16]);
+  const [focusQubit, setFocusQubit] = useState<number | undefined>(undefined);
+  const [graphSize, setGraphSize] = useState([10, 20]);
   const [threshold, setThreshold] = useState(5);
   const thresholdBarWidth = 150;
-  const paraBarwidth = 577;
+  const paraBarwidth = 670;
   const paraBarheight = 10;
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -381,12 +381,12 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             Math.min(
               Math.max(gridNumber + 1, 7),
               // originalCircuit?.output_size[0] || 20
-              100
+              50
             )
           );
           setLayerNumber((layerNumber) =>
             Math.min(
-              Math.max(layerNumber + 1, 13),
+              Math.max(layerNumber + 2, 14),
               // originalCircuit?.output_size[0] || 20
               100
             )
@@ -395,13 +395,13 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           setGridNumber((gridNumber) =>
             Math.min(
               Math.max(gridNumber - 1, 7),
-              100
+              50
               // originalCircuit?.output_size[0] || 20
             )
           );
           setLayerNumber((layerNumber) =>
             Math.min(
-              Math.max(layerNumber - 1, 13),
+              Math.max(layerNumber - 2, 14),
               // originalCircuit?.output_size[0] || 20
               100
             )
@@ -490,7 +490,8 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         case "context.setTitle":
           // setPanelTitle(message.data.title);
           break;
-        case "context.setFocusData":
+        case "context.setProvenance":
+          setQubitRangeStart(message.data.focusQubit);
           break;
       }
     };
@@ -654,13 +655,13 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         <span className="idleWireExtent">
           <span className="legendTitle">Idle Wire Extent:</span>
           <span className="legendContent">To Left</span>
-          <svg width="20" height="10" viewBox={"0 0 " + 10 + " " + 10}>
+          <svg width="22" height="10" viewBox={"0 0 " + 10 + " " + 10}>
             <rect
               x="0"
               y="5"
               rx="0"
               ry="0"
-              width="15"
+              width="13"
               height="2"
               fill={WIRE_STROKE}
             />

@@ -134,7 +134,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
           .attr("height", gridSize)
           .attr("rx", gridSize / 20)
           .attr("fill", IDLE_FILL)
-          .attr("fill-opacity", 0.3);
+          .attr("fill-opacity", 0.15);
       });
     }
   }
