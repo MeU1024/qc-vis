@@ -44,11 +44,14 @@ function App() {
         <div className="BottomContent">
           <div className="BottomLeft">
             <DetailPanel highlightGate={highlightGate} theme={theme} />
-            <ProvenancePanel highlightGate={highlightGate} theme={theme} />
           </div>
+          <div className="rightDivider"></div>
           <div className="BottomRight">
-            <ParallelismPanel theme={theme} highlightGate={highlightGate} />
-            <ConnectivityPanel theme={theme} highlightGate={highlightGate} />
+            <ProvenancePanel highlightGate={highlightGate} theme={theme} />
+            <div className="ContextBottom">
+              <ParallelismPanel theme={theme} highlightGate={highlightGate} />
+              <ConnectivityPanel theme={theme} highlightGate={highlightGate} />
+            </div>
           </div>
         </div>
       </div>

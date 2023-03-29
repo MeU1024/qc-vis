@@ -8,6 +8,7 @@ import {
   opList,
   SINGLE_GATE_STROKE,
   STROKE_STYLE,
+  TRIPLE_GATE_STROKE,
   WIRE_STROKE,
 } from "../../const";
 //import { vscode } from "../../utilities/vscode";
@@ -738,7 +739,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
       break;
     case "swap_middle":
-      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.strokeStyle = TRIPLE_GATE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 2, yCoord);
       ctx.lineTo(xCoord + width / 2, yCoord + height);
@@ -762,7 +763,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
       break;
     case "swap_up":
-      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.strokeStyle = TRIPLE_GATE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 2, yCoord + height / 2);
       ctx.lineTo(xCoord + width / 2, yCoord + height);
@@ -784,7 +785,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.stroke();
       break;
     case "swap_down":
-      ctx.strokeStyle = MULTI_GATE_STROKE;
+      ctx.strokeStyle = TRIPLE_GATE_STROKE;
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 2, yCoord);
       ctx.lineTo(xCoord + width / 2, yCoord + height / 2);

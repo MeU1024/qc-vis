@@ -17,7 +17,7 @@ const DetailPanel = (props: DetailPanelProps) => {
   const [gridWidth, setGridWidth] = useState<number>(25);
   const [gridHeight, setGridHeight] = useState<number>(25);
   const [canvasWidth, setCanvasWidth] = useState(650);
-  const [canvasHeight, setCanvasHeight] = useState(350);
+  const [canvasHeight, setCanvasHeight] = useState(525);
   const [circuit, setCircuit] = useState<{
     output_size: number[];
     op_map: {};
@@ -75,7 +75,7 @@ const DetailPanel = (props: DetailPanelProps) => {
         } else {
           const scaleChange = Math.min(Math.max(scale + deltaScale, 0.1), 10);
           // console.log("scaleChange", scaleChange);
-          if (scaleChange * canvasHeight < 350) {
+          if (scaleChange * canvasHeight < 650) {
             setWidthScale((widthScale) =>
               Math.min(Math.max(widthScale + deltaScale * 0.1, 0.35), 1)
             );
@@ -215,7 +215,7 @@ const DetailPanel = (props: DetailPanelProps) => {
           style={canvasStyle}
         ></canvas>
       </div>
-      <div className="divider"></div>
+      {/* <div className="divider"></div> */}
     </div>
   );
 };

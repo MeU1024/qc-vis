@@ -258,8 +258,8 @@ export default OverviewPanel;
 
 const generateData = () => {
   var data = {
-    output_size: [10, 30],
-    op_map: { _h: 0, _PA: 1, _Ent: 2, rz: 3, cx: 4 },
+    output_size: [10, 31],
+    op_map: { _h: 0, _PA: 1, _Ent: 2, rz: 3, cx: 4, csw: 5 },
     qubits: ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
     gate_format: "[op_idx, num_qubits, x_range, y_range]",
     all_gates: [[0, [0], [0, 9]]],
@@ -273,6 +273,7 @@ const generateData = () => {
     data.all_gates.push([4, [4 + index * 3], [index, index + 1]]);
   }
   data.all_gates.push([2, [29], [0, 9]]);
+  data.all_gates.push([5, [30], [0, 1, 3]]);
 
   return data;
 };

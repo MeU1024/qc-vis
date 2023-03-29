@@ -50,7 +50,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
   >([]);
   const offset = 35;
   const [focusQubit, setFocusQubit] = useState(0);
-  const [svgWidth, setSVGWidth] = useState(640);
+  const [svgWidth, setSVGWidth] = useState(1000);
   const [layerNum, setLayerNum] = useState<number | undefined>(undefined);
   // const width = 650;
   const height = 80;
@@ -227,7 +227,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
 
     // const minInterval = 0; //layerMinInterval
 
-    const svgWidth = 640 - offset * 2;
+    const svgWidth = 1000 - offset * 2;
     const gateWidth = 20;
     console.log("layerNumUndefined", layerNum === undefined);
     if (qubitData !== undefined && layerNum !== undefined) {
@@ -304,11 +304,11 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
     };
   }, []);
   return (
-    <div className="panel">
+    <div className="panel" id="provenancePanel">
       <div className="panelHeader">
         <span className="title">{panelTitle}</span>
       </div>
-      <div className="qubitView" style={{ overflow: "scroll" }}>
+      <div className="qubitView" style={{ overflow: "hidden" }}>
         {/* <div className="qubitTitle">Qubit {focusQubit}</div> */}
         <div>
           {" "}
@@ -337,6 +337,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
           height={height}
         ></svg>
       </div>
+      {/* <div className="divider"></div> */}
     </div>
   );
 };

@@ -8,23 +8,28 @@ main {
     display: grid;
     grid-template-rows: 45% 55%;
     height: 1040px;
-    width: 1600px;
+    width: 1760px;
 
     .BottomContent {
       margin-top: 10px;
       display: grid;
-      grid-template-columns: 45% 55%;
+      grid-template-columns: 35% 3px auto;
       height: 100%;
       .BottomLeft {
         display: grid;
-        grid-template-rows: 75% 25%;
+        // grid-template-rows: 75% 25%;
         margin-right: 20px;
         height: 572px;
       }
       .BottomRight {
+        margin-left: 15px;
         display: grid;
-        grid-template-columns: 50% 50%;
+        grid-template-rows: 20% 80%;
         height: 100%;
+        .ContextBottom {
+          display: grid;
+          grid-template-columns: 60% 40%;
+        }
       }
     }
     .panel {
@@ -69,6 +74,12 @@ main {
 .divider {
   margin-top: 2px;
   border-bottom: 2px solid #d4d4d4;
+}
+
+.rightDivider {
+  margin-left: 2px;
+  margin-right: 2px;
+  border-right: 2px solid #d4d4d4;
 }
 
 .circuit {

@@ -1,24 +1,41 @@
 .parallelismPanel {
-  display: flex;
-  flex-direction: column;
-
+  grid-template-rows: 40px 30px 30px auto !important;
   margin-top: 10px;
   margin-bottom: 10px;
   margin-left: 10px;
-  .firstRow {
-    align-self: center;
-    display: flex;
-    flex-direction: row;
+  // .firstRow {
+  //   align-self: center;
+  //   display: flex;
+  //   flex-direction: row;
+  // }
+
+  .idle {
+    margin-top: 5px;
   }
-  #rightExtentSVG {
-    margin-right: 10px;
-    margin-left: 1px;
-    border-left: 1px solid #cccccc;
+  .parallelismLevel {
+    // margin-bottom: 10px;
+    .contentLow {
+      color: gray;
+      font-size: 12px;
+    }
+    .contentHigh {
+      color: gray;
+      font-size: 12px;
+    }
   }
-  #leftExtentSVG {
-    margin-right: 1px;
-    border-right: 1px solid #cccccc;
+  .parallelismView {
+    margin-top: 10px;
+    #rightExtentSVG {
+      margin-right: 10px;
+      margin-left: 1px;
+      border-left: 1px solid #cccccc;
+    }
+    #leftExtentSVG {
+      margin-right: 1px;
+      border-right: 1px solid #cccccc;
+    }
   }
+
   #parallelismBar {
     margin-top: 10px;
     margin-left: 10px;
@@ -26,15 +43,36 @@
   #thresholdBarArea {
     margin-top: 10px;
     margin-left: 10px;
+    width: 310px;
+    display: inline-flex;
+    flex-direction: row;
+    // grid-template-columns: 90px 30px 160px 30px;
+    #thresholdBar {
+      // margin-top: 10px;
+      padding-top: 5px;
+      margin-right: 10px;
+    }
   }
-  #thresholdBar {
-    margin-top: 10px;
-    margin-left: 10px;
+
+  .rangeView {
+    .selectRange {
+      margin-top: 10px;
+      margin-left: 20px;
+      display: inline-block;
+    }
   }
-  .selectRange {
-    margin-top: 10px;
-    margin-left: 20px;
+
+  .legendTitle {
+    padding-right: 20px;
+    // color: gray;
   }
+
+  .legendContent {
+    padding-right: 20px;
+    color: gray;
+    font-size: 12px;
+  }
+
   .parallelism-legend {
     padding: 0 10px;
     margin: 5px;

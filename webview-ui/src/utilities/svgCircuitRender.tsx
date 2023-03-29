@@ -124,7 +124,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
         const rectWidth = d.reduce((sum, curIndex) => {
           return sum + layerWidth[curIndex];
         }, 0);
-        console.log("rectWidth", rectWidth);
+        // console.log("rectWidth", rectWidth);
         let bg = d3.select(idleBackground.nodes()[index]).append("rect");
         bg.attr("x", layerPosMap[d[0]] * gridSize + offsetX)
           .attr("y", index * gridSize)

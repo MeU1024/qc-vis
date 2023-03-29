@@ -29,6 +29,7 @@ export const supportedAlgorithms = [
   "mul",
   "mul-50",
   "mul-bug",
+  "mul-20",
 ];
 export const extensionRoot = path.resolve(`${__dirname}/../../`);
 export const eventBus = new EventBus();
@@ -100,4 +101,5 @@ export const algorithmNameDict: { [key: string]: string } = {
   mul: "Quantum Multiplier",
   "mul-50": "Quantum Multiplier 50bits",
   "mul-bug": "Quantum Multiplier with bugs",
+  "mul-20": "Quantum Multiplier 20bits",
 };

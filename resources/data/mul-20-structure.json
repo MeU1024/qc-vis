@@ -1,0 +1,52 @@
+[
+  { "name": "Multiplier", "parentIndex": 0, "index": 0, "type": "fun" },
+  { "name": "_NumA", "parentIndex": 0, "index": 1, "type": "fun" },
+  { "name": "|x|", "parentIndex": 1, "index": 2, "type": "rep" },
+  { "name": "x", "parentIndex": 2, "index": 3, "type": "rep_item" },
+
+  { "name": "_NumB", "parentIndex": 0, "index": 4, "type": "fun" },
+  { "name": "|x|", "parentIndex": 4, "index": 5, "type": "rep" },
+  { "name": "x", "parentIndex": 5, "index": 6, "type": "rep_item" },
+
+  { "name": "_Multiplier", "parentIndex": 0, "index": 7, "type": "fun" },
+  {
+    "name": "|CAdder|",
+    "parentIndex": 7,
+    "index": 8,
+    "type": "rep"
+  },
+  { "name": "_CAdder", "parentIndex": 8, "index": 9, "type": "fun" },
+
+  { "name": "|ccx|", "parentIndex": 9, "index": 10, "type": "rep" },
+  { "name": "ccx", "parentIndex": 10, "index": 11, "type": "rep_item" },
+
+  { "name": "_Adder", "parentIndex": 9, "index": 12, "type": "fun" },
+  { "name": "|Carry|", "parentIndex": 12, "index": 13, "type": "rep" },
+  { "name": "_Carry", "parentIndex": 13, "index": 14, "type": "fun" },
+  { "name": "ccx", "parentIndex": 14, "index": 15, "type": "rep_item" },
+  { "name": "cx", "parentIndex": 14, "index": 16, "type": "rep_item" },
+  { "name": "ccx", "parentIndex": 14, "index": 17, "type": "rep_item" },
+
+  { "name": "_Carry Sum", "parentIndex": 12, "index": 18, "type": "fun" },
+  { "name": "cx", "parentIndex": 18, "index": 19, "type": "rep_item" },
+  { "name": "cx", "parentIndex": 18, "index": 20, "type": "rep_item" },
+
+  {
+    "name": "|Uncarry Ops|",
+    "parentIndex": 12,
+    "index": 21,
+    "type": "rep"
+  },
+  { "name": "_Uncarry Ops", "parentIndex": 21, "index": 22, "type": "fun" },
+  { "name": "_Uncarry", "parentIndex": 22, "index": 23, "type": "fun" },
+  { "name": "ccx", "parentIndex": 23, "index": 24, "type": "rep_item" },
+  { "name": "cx", "parentIndex": 23, "index": 25, "type": "rep_item" },
+  { "name": "ccx", "parentIndex": 23, "index": 26, "type": "rep_item" },
+
+  { "name": "_Carry Sum2", "parentIndex": 22, "index": 27, "type": "fun" },
+  { "name": "cx", "parentIndex": 27, "index": 28, "type": "rep_item" },
+  { "name": "cx", "parentIndex": 27, "index": 29, "type": "rep_item" },
+
+  { "name": "|ccx|", "parentIndex": 9, "index": 30, "type": "rep" },
+  { "name": "ccx", "parentIndex": 30, "index": 31, "type": "rep_item" }
+]

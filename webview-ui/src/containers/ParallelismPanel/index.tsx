@@ -13,6 +13,7 @@ import { svgCircuitRender } from "../../utilities/svgCircuitRender";
 import { extentRender } from "../../utilities/extentRender";
 import { vscode } from "../../utilities/vscode";
 import G from "glob";
+import { style } from "d3";
 export interface ParallelismPanelProps {
   theme: any;
   highlightGate: string | null;
@@ -77,7 +78,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
 
   const [graphSize, setGraphSize] = useState([10, 10]);
   const [threshold, setThreshold] = useState(10);
-  const thresholdBarWidth = 250;
+  const thresholdBarWidth = 150;
   const paraBarwidth = 380;
   const paraBarheight = 10;
   const svgRef = useRef<SVGSVGElement>(null);
@@ -318,36 +319,50 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     var svg = d3.select("#thresholdBar");
     svg.selectAll("*").remove();
     const rectNumber = graphSize[0];
-    const elementWidth = thresholdBarWidth - 10;
+    const elementWidth = thresholdBarWidth - 5;
     const rectWidth = elementWidth / rectNumber;
 
-    const recsData = new Array<number>(rectNumber).fill(0);
+    let recsData = new Array<number>(2).fill(0);
+    recsData[1] = threshold;
+    recsData[0] = rectNumber;
     const rects = svg.selectAll("rect").data(recsData);
 
     rects
       .enter()
       .append("rect")
-      .attr("x", (d, i) => 5 + i * rectWidth)
+      .attr("x", (d, i) => 0)
       .attr("y", paraBarheight / 4)
-      .attr("width", rectWidth)
+      .attr("rx", 4)
+      .attr("width", (d, i) => d * rectWidth)
       .attr("height", paraBarheight / 2)
       .style("stroke", IDLE_STROKE)
       .style("stroke-width", 1)
-      .style("fill", "white");
+      .style("fill", (d, i) => {
+        return i === 0 ? "white" : IDLE_STROKE;
+      });
 
     //lines for range vis
 
-    const thresholdRange = [threshold];
+    const thresholdRange = new Array<number>(rectNumber).fill(0);
     var lines = svg.selectAll("line").data(thresholdRange);
     lines
       .enter()
       .append("line")
-      .attr("x1", (d) => (d * elementWidth) / graphSize[0] + 5)
-      .attr("y1", 0)
-      .attr("x2", (d) => (d * elementWidth) / graphSize[0] + 5)
-      .attr("y2", paraBarheight)
+      .attr("x1", (d, i) => (i * elementWidth) / graphSize[0])
+      .attr("y1", paraBarheight / 4)
+      .attr("x2", (d, i) => (i * elementWidth) / graphSize[0])
+      .attr("y2", (paraBarheight / 4) * 3)
       .attr("stroke-width", "1px")
-      .attr("stroke", "black");
+      .attr("stroke", IDLE_STROKE);
+
+    var circles = svg.selectAll("circle").data([threshold]);
+    circles
+      .enter()
+      .append("circle")
+      .attr("cx", (d) => (d * elementWidth) / graphSize[0])
+      .attr("cy", paraBarheight / 2)
+      .attr("r", paraBarheight / 2)
+      .attr("fill", IDLE_STROKE);
   }, [threshold]);
 
   useEffect(() => {
@@ -529,9 +544,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         ? event.target.farthestViewportElement.getBoundingClientRect()
         : event.target.getBoundingClientRect();
     const x = event.clientX - rect.left;
-    let threshold = Math.floor(
-      (x - 5) / ((thresholdBarWidth - 10) / graphSize[0])
-    );
+    let threshold = Math.floor(x / ((thresholdBarWidth - 5) / graphSize[0]));
     console.log("threshold", threshold);
     setThreshold(threshold);
   }
@@ -621,12 +634,72 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         <span className="title">{panelTitle}</span>
       </div>
 
-      <div className="parallelism-legend">
-        <div className="legend-title">
-          <div>Idle Wire Extent:</div>
-          <div>Parallelism Level:</div>
-          <div>Idle Level:</div>
-        </div>
+      <div className="idle">
+        <span className="idleWireExtent">
+          <span className="legendTitle">Idle Wire Extent:</span>
+          <span className="legendContent">To Left</span>
+          <span className="legendContent">To Right</span>
+        </span>
+        <span className="idlePosition">
+          <span className="legendTitle">Idle Position:</span>
+          <svg
+            id="idlePos"
+            viewBox={"0 0 " + 10 + " " + 10}
+            width={10}
+            height={10}
+          >
+            <rect
+              x="0"
+              y="0"
+              rx="0"
+              ry="0"
+              width="150"
+              height="15"
+              fill={IDLE_FILL}
+            />
+          </svg>
+        </span>
+      </div>
+
+      <div className="parallelismLevel">
+        <span className="legendTitle">Parallelism Level:</span>
+        <span className="contentLow"> Low </span>
+        <span className="legend-svg">
+          <svg width="60" height="10" viewBox={"0 0 " + 60 + " " + 5}>
+            <defs>
+              <linearGradient id="Gradient1">
+                <stop offset="0%" stop-color="#3FA9F5" />
+                <stop offset="100%" stop-color="#FF1D25" />
+              </linearGradient>
+            </defs>
+            <rect
+              x="0"
+              y="0"
+              rx="0"
+              ry="0"
+              width="60"
+              height="10"
+              fill="url(#Gradient1)"
+            />
+          </svg>
+        </span>
+        <span className="contentHigh"> High </span>
+        <span id="thresholdBarArea">
+          <span className="legendTitle"> Threshold:</span>
+          <span style={{ width: "30px" }}> {threshold} </span>
+          <svg
+            id="thresholdBar"
+            viewBox={"0 0 " + thresholdBarWidth + " " + paraBarheight}
+            width={thresholdBarWidth}
+            height={paraBarheight}
+            onClick={handleThresholdBarClick}
+          ></svg>
+          <span> {graphSize[0]} </span>
+        </span>
+      </div>
+
+      {/* <div className="parallelism-legend">
+        <div className="legend-title"></div>
         <div className="legend-content">
           <div className="row one-row">
             <div>To Left</div>
@@ -644,27 +717,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             <div>To Right</div>
           </div>
           <div className="row two-row">
-            <div className="contentLow"> Low </div>
             <div className="two-row-legend">
-              <div className="legend-svg">
-                <svg width="150" height="15" viewBox={"0 0 " + 150 + " " + 15}>
-                  <defs>
-                    <linearGradient id="Gradient1">
-                      <stop offset="0%" stop-color="#3FA9F5" />
-                      <stop offset="100%" stop-color="#FF1D25" />
-                    </linearGradient>
-                  </defs>
-                  <rect
-                    x="0"
-                    y="0"
-                    rx="0"
-                    ry="0"
-                    width="150"
-                    height="15"
-                    fill="url(#Gradient1)"
-                  />
-                </svg>
-              </div>
               <div className="legend-svg">
                 <svg width="150" height="15" viewBox={"0 0 " + 150 + " " + 15}>
                   <defs>
@@ -685,11 +738,10 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
                 </svg>
               </div>
             </div>
-            <div className="contentHigh"> High </div>
           </div>
           <div className="idel-level-legend"></div>
         </div>
-      </div>
+      </div> */}
 
       <div className="parallelismView">
         <div className="firstRow" style={{ marginTop: "10px" }}>
@@ -713,25 +765,15 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             width={extentWidth}
             height={canvasHeight}
           ></svg>
-          <svg
+          {/* <svg
             id="idleBar"
             viewBox={"0 0 " + idleBarwidth + " " + idleBarheight}
             width={idleBarwidth}
             height={idleBarheight}
             onClick={handleIdleBarClick}
-          ></svg>
+          ></svg> */}
         </div>
-        <div id="thresholdBarArea">
-          {" "}
-          <span> threshold</span>
-          <svg
-            id="thresholdBar"
-            viewBox={"0 0 " + thresholdBarWidth + " " + paraBarheight}
-            width={thresholdBarWidth}
-            height={paraBarheight}
-            onClick={handleThresholdBarClick}
-          ></svg>
-        </div>
+
         <svg
           id="parallelismBar"
           viewBox={"0 0 " + paraBarwidth + " " + paraBarheight}
@@ -739,11 +781,13 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
           height={paraBarheight}
           onClick={handleParaBarClick}
         ></svg>
-        <div className="selectRange">
-          Qubit Range: {qubitRangeStart} to {qubitRangeStart + gridNumber - 1}{" "}
-        </div>
-        <div className="selectRange">
-          Layer Range: {layerRangeStart} to {layerRangeStart + gridNumber - 1}{" "}
+        <div className="rangeView">
+          <div className="selectRange">
+            Qubit Range: {qubitRangeStart} to {qubitRangeStart + gridNumber - 1}{" "}
+          </div>
+          <div className="selectRange">
+            Layer Range: {layerRangeStart} to {layerRangeStart + gridNumber - 1}{" "}
+          </div>
         </div>
       </div>
     </div>

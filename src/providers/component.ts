@@ -276,7 +276,10 @@ export class ComponentCircuit {
   }
 
   setFocus(index: number) {
-    this._highlightedComponent.push(index);
+    if (!this._highlightedComponent.includes(index)) {
+      this._highlightedComponent.push(index);
+    }
+
     const regions = this.getComponentRegion();
 
     return regions;
