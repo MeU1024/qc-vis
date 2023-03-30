@@ -19,6 +19,7 @@ function App() {
   }
   const [highlightGate, setHighlightGate] = useState<string | null>(null);
   const [theme, setTheme] = useState<number | null>(null);
+  const [currentLayer, setCurrentLayer] = useState(0);
   const handleMessage = (event: MessageEvent<any>) => {
     const message = event.data; // The JSON data our extension sent
     switch (message.command) {
@@ -29,6 +30,10 @@ function App() {
         setTheme(message.theme);
         break;
     }
+  };
+  const setLayer = (layer: number) => {
+    console.log("in main", currentLayer);
+    setCurrentLayer(layer);
   };
 
   // useEffect(() => {
@@ -47,9 +52,17 @@ function App() {
           </div>
           <div className="rightDivider"></div>
           <div className="BottomRight">
-            <ProvenancePanel highlightGate={highlightGate} theme={theme} />
+            <ProvenancePanel
+              highlightGate={highlightGate}
+              theme={theme}
+              setLayer={setLayer}
+            />
             <div className="ContextBottom">
-              <ParallelismPanel theme={theme} highlightGate={highlightGate} />
+              <ParallelismPanel
+                theme={theme}
+                highlightGate={highlightGate}
+                currentLayer={currentLayer}
+              />
               <ConnectivityPanel theme={theme} highlightGate={highlightGate} />
             </div>
           </div>

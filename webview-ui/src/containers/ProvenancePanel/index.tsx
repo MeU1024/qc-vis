@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, SetStateAction, Dispatch } from "react";
 import "./index.scss";
 import * as d3 from "d3";
 import GridDrawing from "../../components/GridDrawing";
@@ -19,10 +19,11 @@ import { sort } from "d3";
 export interface ProvenancePanelProps {
   theme: any;
   highlightGate: string | null;
+  setLayer: (layer: number) => void;
 }
 const generateQubitData = () => {
   return [
-    { gateName: "_HA", qubits: ["0"], layer: [0, 0] },
+    { gateName: "_HA", qubits: ["0"], layer: [1, 1] },
     // { gateName: "rz", qubits: ["0"], layer: [1, 1] },
     // { gateName: "rz", qubits: ["0"], layer: [2, 2] },
     // { gateName: "cx", qubits: ["0", "1"], layer: [3, 3] },
@@ -35,7 +36,7 @@ const generateQubitData = () => {
 };
 
 const ProvenancePanel = (props: ProvenancePanelProps) => {
-  const { theme, highlightGate } = props;
+  const { theme, highlightGate, setLayer } = props;
 
   const [panelTitle, setPanelTitle] = useState("Qubit Provenance");
   const [qubitData, setQubitData] = useState<
@@ -45,11 +46,12 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
         qubits: string[];
         layer: number[];
       }[]
-  >(generateQubitData());
+  >(undefined);
   const [qubitPos, setQubitPos] = useState<
     {
       gateName: string;
       qubits: string[];
+      layer: number[];
       x: number;
     }[]
   >([]);
@@ -57,13 +59,13 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
   const [focusQubit, setFocusQubit] = useState(0);
   const [svgWidth, setSVGWidth] = useState(1040);
   const [realLength, setRealLength] = useState(1040);
-  const [layerNum, setLayerNum] = useState<number | undefined>(20);
+  const [layerNum, setLayerNum] = useState<number | undefined>(undefined);
   // const width = 650;
   const height = 80;
   const gridSize = height / 2;
 
   useEffect(() => {
-    if (qubitData !== undefined) {
+    if (qubitPos !== undefined) {
       var svg = d3.select("#qubitSVG");
       svg.selectAll("*").remove();
       // Get a reference to the SVG container
@@ -92,7 +94,18 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
         .attr("y2", (gridSize / 4) * 5)
         .attr("stroke", IDLE_STROKE);
 
-      var shapes = svg.selectAll("g").data(qubitPos).enter().append("g");
+      var shapes = svg
+        .selectAll("g")
+        .data(qubitPos)
+        .enter()
+        .append("g")
+        .datum(function (d) {
+          return d;
+        });
+      shapes.on("click", function (event, d) {
+        console.log("current layer", d.layer[0]);
+        setLayer(d.layer[0]);
+      });
 
       shapes.each(function (d, i) {
         var shape;
@@ -151,6 +164,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
             .attr("stroke", colorDict[gateType])
             .attr("fill", GATE_FILL)
             .attr("fill-opacity", GATE_FILL_OPACITY);
+
           if (gateName.length <= 3) {
             shape = d3.select(this).append("text");
             shape
@@ -330,6 +344,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
         return {
           gateName: item.gateName,
           qubits: item.qubits,
+          layer: item.layer,
           x:
             preIntervalNum[index] * unitInterval +
             gateWidth / 2 +
@@ -350,7 +365,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
       switch (message.command) {
         case "context.setCircuit":
           // setQubitData(message.data.focusQubitGates);
-          console.log("size", message.data.originalCircuitSize);
+          // console.log("size", message.data.originalCircuitSize);
           setLayerNum(message.data.originalCircuitSize[1]);
           break;
         case "context.setProvenance":

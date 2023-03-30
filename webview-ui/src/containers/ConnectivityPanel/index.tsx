@@ -137,6 +137,8 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         return colorGroup[d];
       })
       .attr("fill-opacity", "50%");
+
+    //legend
   }, [preEntGroup, curEntGroup, rectSize]);
 
   useEffect(() => {
@@ -181,26 +183,49 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         <span className="title">{panelTitle}</span>
       </div>
       <div className="legend">
+        <span className="legendTitle" style={{ marginRight: "10px" }}>
+          Link State:
+        </span>
         <span className="legendName">New Link</span>
-        <svg viewBox="0 0 8 8" width="8" height="8">
-          <rect width="8" height="8" fill={MATRIX_BG} stroke={MATRIX_STROKE} />
+        <svg viewBox="0 0 10 10" width="10" height="10">
+          <rect
+            width="10"
+            height="10"
+            fill={MATRIX_BG}
+            stroke={MATRIX_STROKE}
+          />
         </svg>
         <span className="legendName">Linked</span>
-        <svg viewBox="0 0 8 8" width="8" height="8">
+        <svg viewBox="0 0 10 10" width="10" height="10">
           <rect
-            width="8"
-            height="8"
+            width="10"
+            height="10"
             fill={MATRIX_BG}
             stroke={MATRIX_STROKE}
             fillOpacity={"30%"}
           />
         </svg>
         <span className="legendName">No Link</span>
-        <svg viewBox="0 0 8 8" width="8" height="8">
+        <svg viewBox="0 0 10 10" width="10" height="10">
           <rect width="8" height="8" fill="white" stroke={"black"} />
         </svg>
-        <span className="componentTitle">Component: </span>
-        <span className="componentName">{componentTitle}</span>
+        <div className="entGroupLegend">
+          <span className="legendTitle" style={{ marginRight: "10px" }}>
+            Entanglement Group:
+          </span>
+          <span className="legendName">Group 1</span>
+          <svg viewBox="0 0 10 10" width="10" height="10">
+            <circle cx="5" cy="5" r="4" fill={colorGroup[1]} />
+          </svg>
+          <span className="legendName">Group 2</span>
+          <svg viewBox="0 0 10 10" width="10" height="10">
+            <circle cx="5" cy="5" r="4" fill={colorGroup[2]} />
+          </svg>
+        </div>
+        <div className="component">
+          <span className="componentTitle">Component: </span>
+          <span className="componentName">{componentTitle}</span>
+        </div>
       </div>
       <div className="matrix">
         <svg

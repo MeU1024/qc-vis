@@ -1,19 +1,30 @@
 #connectivityPanel {
   margin-left: 40px;
-
-  .componentTitle {
-    // margin-left: 20px;
+  .component {
+    // margin-top: 5px;
+    .componentTitle {
+      // margin-left: 5px;
+    }
+    .componentName {
+      font-size: 12px;
+      color: gray;
+    }
   }
-  .componentName {
+
+  .matrix {
+    margin-top: 5px;
+  }
+
+  .legend {
+    margin-top: 5px;
+    align-self: flex-end;
+  }
+  .legendName {
+    font-size: 12px;
+    margin: 5px;
     color: gray;
+    :first {
+      margin-left: 0px;
+    }
   }
-}
-
-.legend {
-  margin: 10px;
-  align-self: flex-end;
-}
-.legendName {
-  margin: 5px;
-  color: gray;
 }

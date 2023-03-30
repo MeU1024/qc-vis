@@ -62,7 +62,10 @@ export const IDLE_FILL = "#BDCCD4";
 export const IDLE_STROKE = "#D4D4D4";
 export const GATE_FILL_OPACITY = "80%";
 export const HIGHLIGHT_FRAME_FILL = "rgba(204,204,204,0.1)";
-export const HIGHLIGHT_FRAME = "#afafaf";
+export const HIGHLIGHT_FRAME = "#4234C6";
+// export const HIGHLIGHT_FRAME = "#4234C6";
+// 2C2060
+export const HIGHLIGHT_GATE_BG = "white";
 export const opTypeDict: { [key: string]: string } = {
   x: "single",
 

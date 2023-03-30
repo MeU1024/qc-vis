@@ -7,7 +7,7 @@ import {
   CUSTOM_GATE_STROKE,
 } from "../const";
 
-export interface HighlightFrameRenderProp {
+export interface HighlightBackgroundRenderProp {
   highlightRegions: {
     layer: number[];
     qubit: number[];
@@ -19,7 +19,9 @@ export interface HighlightFrameRenderProp {
   ctx: CanvasRenderingContext2D;
 }
 
-export const HighlightFrameRender = (props: HighlightFrameRenderProp) => {
+export const HighlightBackgroundRender = (
+  props: HighlightBackgroundRenderProp
+) => {
   const { highlightRegions, gridWidth, gridHeight, ctx } = props;
 
   ctx.strokeStyle = HIGHLIGHT_FRAME;
@@ -32,22 +34,6 @@ export const HighlightFrameRender = (props: HighlightFrameRenderProp) => {
     const yCoord = region.qubit[0] * gridHeight;
     const width = (region.layer[1] - region.layer[0] + 1) * gridWidth;
     const height = (region.qubit[1] - region.qubit[0] + 1) * gridHeight;
-
-    ctx.setLineDash([5, 5]);
-    ctx.strokeRect(xCoord, yCoord, width, height);
-    ctx.setLineDash([]);
-
-    //add text
-    ctx.textBaseline = "bottom";
-
-    ctx.font =
-      (gridWidth * 0.4 < 16 ? gridWidth * 0.4 : 16).toString() + "px system-ui";
-    ctx.fillStyle = HIGHLIGHT_FRAME;
-    const text = ctx.measureText(region.name);
-    ctx.fillText(
-      region.name,
-      xCoord + width / 2 - text.width / 2,
-      yCoord == 0 ? gridHeight / 2 : yCoord
-    );
+    ctx.fillRect(xCoord, yCoord, width, height);
   });
 };

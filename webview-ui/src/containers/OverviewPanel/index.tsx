@@ -8,6 +8,7 @@ import overviewData_abs from "../../../data/vqc-10-detail-abstract.json";
 import Circuit2GridData from "../../utilities/Circuit2GridData";
 import { WIRE_STROKE, LINE_WIDTH, BOLD_LINE_WIDTH } from "../../const";
 import { HighlightFrameRender } from "../../utilities/HighlightFrameRender";
+import { HighlightBackgroundRender } from "../../utilities/HighlightBackgroundRender";
 
 export interface OverviewPanelProps {
   // gridWidth: number;
@@ -40,7 +41,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
       name: string;
       weight: number;
     }[]
-  >([]);
+  >(demoRegion);
   const [scale, setScale] = useState(1);
   const [widthScale, setWidthScale] = useState(1);
   const [originalGridWidth, setOriginalGridWidth] = useState(25);
@@ -93,7 +94,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
             (canvas as HTMLCanvasElement).height
           );
 
-          HighlightFrameRender({
+          HighlightBackgroundRender({
             highlightRegions,
             ctx,
             gridWidth,
@@ -102,6 +103,13 @@ const OverviewPanel = (props: OverviewPanelProps) => {
 
           CircuitRender({ graph, ctx, gridWidth, gridHeight });
           CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
+
+          HighlightFrameRender({
+            highlightRegions,
+            ctx,
+            gridWidth,
+            gridHeight,
+          });
 
           //add wires
           const circuitWidth = circuit.output_size[1] * gridWidth;
@@ -259,12 +267,13 @@ export default OverviewPanel;
 const generateData = () => {
   var data = {
     output_size: [10, 31],
-    op_map: { _h: 0, _PA: 1, _Ent: 2, rz: 3, cx: 4, csw: 5 },
+    op_map: { _h: 0, _PA: 1, _Ent: 2, rz: 3, cx: 4, csw: 5, ryy: 6 },
     qubits: ["1", "1", "1", "1", "1", "1", "1", "1", "1", "1"],
     gate_format: "[op_idx, num_qubits, x_range, y_range]",
     all_gates: [[0, [0], [0, 9]]],
   };
-  for (let index = 0; index < 10; index++) {
+  data.all_gates.push([6, [1], [1, 2]]);
+  for (let index = 4; index < 10; index++) {
     data.all_gates.push([3, [1], [index]]);
   }
   for (let index = 0; index < 9; index++) {
@@ -277,3 +286,12 @@ const generateData = () => {
 
   return data;
 };
+
+const demoRegion = [
+  {
+    layer: [0, 5],
+    qubit: [1, 2],
+    name: "testing",
+    weight: 0.5,
+  },
+];

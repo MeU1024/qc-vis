@@ -18,12 +18,13 @@ import { style } from "d3";
 export interface ParallelismPanelProps {
   theme: any;
   highlightGate: string | null;
+  currentLayer: number;
 }
 const geneParaData = () => {
   return [0.1, 0, 3, 0.8, 0.5, 1, 0, 4, 0.5, 0.9, 0.4, 0.2];
 };
 const ParallelismPanel = (props: ParallelismPanelProps) => {
-  const { theme, highlightGate } = props;
+  const { theme, highlightGate, currentLayer } = props;
 
   const [panelTitle, setPanelTitle] = useState("Placement");
   const [idleBarwidth, setIdleBarwidth] = useState(30);
@@ -36,7 +37,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   const [focusIndex, setFocusIndex] = useState<number | undefined>(undefined);
   const [focusLayer, setFocusLayer] = useState<number | undefined>(undefined);
   const [qubitRangeStart, setQubitRangeStart] = useState<number>(0);
-  const [layerRangeStart, setLayerRangeStart] = useState<number>(0);
+  const [layerRangeStart, setLayerRangeStart] = useState<number>(currentLayer);
   const [subLayer, setSubLayer] = useState([0, 6]);
   const [layerPosition, setLayerPosition] = useState([0, 1, 2, 3, 4, 5, 6]);
   const [posLayerMap, setPosLayerMap] = useState<number[]>([
@@ -132,11 +133,16 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
     };
   };
   useEffect(() => {
+    setLayerRangeStart(currentLayer);
+  }, [currentLayer]);
+
+  useEffect(() => {
     setGridSize(canvasHeight / gridNumber);
   }, [gridNumber]);
 
   useEffect(() => {
     //TODO:REMOVE OVERLAP
+    console.log("layerRangeStart", layerRangeStart);
     if (originalCircuit !== undefined) {
       const subCircuit = getSubCircuit(
         qubitRangeStart,

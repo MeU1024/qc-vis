@@ -75,7 +75,7 @@ const DetailPanel = (props: DetailPanelProps) => {
         } else {
           const scaleChange = Math.min(Math.max(scale + deltaScale, 0.1), 10);
           // console.log("scaleChange", scaleChange);
-          if (scaleChange * canvasHeight < 650) {
+          if (scaleChange * canvasHeight < 525) {
             setWidthScale((widthScale) =>
               Math.min(Math.max(widthScale + deltaScale * 0.1, 0.35), 1)
             );
