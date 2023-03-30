@@ -701,7 +701,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
             />
           </svg>
         </span>
-        <span className="idlePosition" style={{ paddingLeft: "10px" }}>
+        <span className="idlePosition" style={{ paddingLeft: "22px" }}>
           <span className="legendTitle">Idle Position:</span>
           <svg
             id="idlePos"
@@ -734,7 +734,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
         <span className="legendTitle">Parallelism Level:</span>
         <span className="contentLow"> Low </span>
         <span className="legend-svg">
-          <svg width="85" height="10" viewBox={"0 0 " + 60 + " " + 5}>
+          <svg width="80" height="10" viewBox={"0 0 " + 80 + " " + 5}>
             <defs>
               <linearGradient id="Gradient1">
                 <stop offset="0%" stop-color="#3FA9F5" />
@@ -746,7 +746,7 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
               y="0"
               rx="0"
               ry="0"
-              width="60"
+              width="80"
               height="10"
               fill="url(#Gradient1)"
             />

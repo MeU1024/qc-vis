@@ -67,8 +67,8 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         })
         .attr("width", svgWidth)
         .attr("height", rectSize)
-        .attr("stroke-width", 0.5)
-        .attr("stroke", "#969696")
+        .attr("stroke-width", 1)
+        .attr("stroke", "#606060")
         .attr("fill", "white");
 
       frame
@@ -81,8 +81,8 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         })
         .attr("width", rectSize)
         .attr("height", svgWidth)
-        .attr("stroke-width", 0.5)
-        .attr("stroke", "#969696")
+        .attr("stroke-width", 1)
+        .attr("stroke", "#606060")
         .attr("fill", "white");
     }
   }, [matrix, rectSize, focusQubit]);

@@ -100,31 +100,31 @@ export const extentRender = (props: extentRenderProps) => {
         });
       });
     }
+
+    var svg = d3.select("#leftExtentSVG");
+    svg.selectAll("*").remove();
+    var rects = svg.selectAll("rect").data(leftLength).enter();
+    rects
+      .append("rect")
+      .attr("x", (d) => 40 - d)
+      .attr("y", function (d, i) {
+        return i * gridSize + gridSize / 2;
+      })
+      .attr("width", (d) => d)
+      .attr("height", 1)
+      .style("fill", (d, i) => colorScale(leftColor[i]));
+
+    var svg = d3.select("#rightExtentSVG");
+    svg.selectAll("*").remove();
+    var rects = svg.selectAll("rect").data(rightLength).enter();
+    rects
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", function (d, i) {
+        return i * gridSize + gridSize / 2;
+      })
+      .attr("width", (d) => d)
+      .attr("height", 1)
+      .style("fill", (d, i) => colorScale(rightColor[i]));
   }
-
-  var svg = d3.select("#leftExtentSVG");
-  svg.selectAll("*").remove();
-  var rects = svg.selectAll("rect").data(leftLength).enter();
-  rects
-    .append("rect")
-    .attr("x", (d) => 40 - d)
-    .attr("y", function (d, i) {
-      return i * gridSize + gridSize / 2;
-    })
-    .attr("width", (d) => d)
-    .attr("height", 1)
-    .style("fill", (d, i) => colorScale(leftColor[i]));
-
-  var svg = d3.select("#rightExtentSVG");
-  svg.selectAll("*").remove();
-  var rects = svg.selectAll("rect").data(rightLength).enter();
-  rects
-    .append("rect")
-    .attr("x", 0)
-    .attr("y", function (d, i) {
-      return i * gridSize + gridSize / 2;
-    })
-    .attr("width", (d) => d)
-    .attr("height", 1)
-    .style("fill", (d, i) => colorScale(rightColor[i]));
 };
