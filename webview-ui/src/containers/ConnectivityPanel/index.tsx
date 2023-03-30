@@ -207,7 +207,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
         </svg>
         <span className="legendName">No Link</span>
         <svg viewBox="0 0 10 10" width="10" height="10">
-          <rect width="8" height="8" fill="white" stroke={"black"} />
+          <rect width="10" height="10" fill="white" stroke={"gray"} />
         </svg>
         <div className="entGroupLegend">
           <span className="legendTitle" style={{ marginRight: "10px" }}>

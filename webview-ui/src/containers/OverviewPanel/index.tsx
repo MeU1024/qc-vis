@@ -24,6 +24,8 @@ const OverviewPanel = (props: OverviewPanelProps) => {
   const [canvasWidth, setCanvasWidth] = useState(1500);
   const [canvasHeight, setCanvasHeight] = useState(400);
   const [qbitLengths, setQbitLength] = useState<string[]>([]);
+  const [originalQubitLength, setOriginalQubitLength] = useState();
+  const [originalLayerLength, setOriginalLayerLength] = useState(0);
 
   const [circuit, setCircuit] = useState<{
     output_size: number[];
@@ -200,6 +202,8 @@ const OverviewPanel = (props: OverviewPanelProps) => {
         case "component.setCircuit":
           setCircuit(message.data);
           setHighlightRegions(message.data.componentRegion);
+          // setOriginalQubitLength(message.data.originalQubitLength);
+          // setOriginalGateLength(message.data.originalGateLength);
           console.log("in diagram", message.data);
           break;
         case "component.setCanvasSize":
@@ -211,6 +215,8 @@ const OverviewPanel = (props: OverviewPanelProps) => {
           console.log("highlightRegions", message.data);
 
           break;
+        case "context.setCircuit":
+          setOriginalLayerLength(message.data.originalCircuitSize[1]);
       }
     };
     window.addEventListener("message", handleMessageEvent);
@@ -233,7 +239,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
         <div className="info-group">
           <span className="info">#Qubits: {circuit.originalQubitLength}</span>
           <span className="info">#Gates: {circuit.originalQubitLength}</span>
-          <span className="info">#Layer: {circuit.output_size[1]}</span>
+          <span className="info">#Layer: {originalLayerLength}</span>
         </div>
       </div>
       <div

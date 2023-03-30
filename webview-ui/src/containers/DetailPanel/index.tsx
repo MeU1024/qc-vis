@@ -7,6 +7,7 @@ import Circuit2GridData from "../../utilities/Circuit2GridData";
 import data from "../../../data/vqc-10-detail-abstract.json";
 import { BOLD_LINE_WIDTH, LINE_WIDTH, WIRE_STROKE } from "../../const";
 import { HighlightFrameRender } from "../../utilities/HighlightFrameRender";
+import { HighlightBackgroundRender } from "../../utilities/HighlightBackgroundRender";
 export interface DetailPanelProps {
   theme: any;
   highlightGate: string | null;
@@ -130,16 +131,21 @@ const DetailPanel = (props: DetailPanelProps) => {
             (canvas as HTMLCanvasElement).height
           );
 
+          HighlightBackgroundRender({
+            highlightRegions,
+            ctx,
+            gridWidth,
+            gridHeight,
+          });
+          CircuitRender({ graph, ctx, gridWidth, gridHeight });
+          CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
+
           HighlightFrameRender({
             highlightRegions,
             ctx,
             gridWidth,
             gridHeight,
           });
-
-          CircuitRender({ graph, ctx, gridWidth, gridHeight });
-          CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
-
           //add wires
           const circuitWidth = circuit.output_size[1] * gridWidth;
           const qubitNumber = circuit.output_size[0];

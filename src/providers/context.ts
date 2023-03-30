@@ -772,7 +772,7 @@ class ContextualCircuit {
     const qubits = this._compnentCircuit.getQubits();
     let focusQubit: Qubit;
     const focusGates: { gate: ComponentGate; layer: number[] }[] = [];
-    let fakeQubit = this._focusQubitIndex;
+    // let fakeQubit = this._focusQubitIndex;
 
     qubits.forEach((qubit) => {
       if (qubit instanceof SuperQubit) {
@@ -812,7 +812,7 @@ class ContextualCircuit {
               let flag = false;
               // console.log("qubits", ogate.qubits)
               ogate.qubits.forEach((qubit: Qubit) => {
-                if (qubit.index === fakeQubit) {
+                if (qubit.index === this._focusQubitIndex) {
                   flag = true;
                 }
               });

@@ -33,7 +33,7 @@ export const HighlightFrameRender = (props: HighlightFrameRenderProp) => {
     const width = (region.layer[1] - region.layer[0] + 1) * gridWidth;
     const height = (region.qubit[1] - region.qubit[0] + 1) * gridHeight;
 
-    ctx.setLineDash([5, 5]);
+    ctx.setLineDash([4, 6]);
     ctx.strokeRect(xCoord, yCoord, width, height);
     ctx.setLineDash([]);
 
