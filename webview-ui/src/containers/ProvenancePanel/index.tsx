@@ -310,7 +310,6 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
     const gateWidth = 20;
     console.log("layerNumUndefined", layerNum === undefined);
     if (qubitData !== undefined && layerNum !== undefined) {
-      //TODO:calculation the interval
       console.log("layerNum", layerNum);
       let n = qubitData.length;
       let totIntervalLayer = layerNum - 1;
@@ -336,7 +335,7 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
         );
       }
       unitInterval = Math.max(1, unitInterval);
-      //TODO:return
+
       let totlength = 0; // real width
       totlength = Math.ceil(gateWidth * n + unitInterval * totIntervalLayer);
       console.log("unitInterval : ", unitInterval);

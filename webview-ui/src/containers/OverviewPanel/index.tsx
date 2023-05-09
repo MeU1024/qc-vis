@@ -4,29 +4,30 @@ import { CircuitAnnotator } from "../../components/CircuitAnnotator";
 import { CircuitRender } from "../../components/CircuitRender";
 import "./index.scss";
 import overviewData from "../../../data/vqc-10-overview.json";
-import overviewData_abs from "../../../data/vqc-10-detail-abstract.json";
+// import overviewData_abs from "../../../data/vqc-10-detail-abstract.json";
 import Circuit2GridData from "../../utilities/Circuit2GridData";
 import { WIRE_STROKE, LINE_WIDTH, BOLD_LINE_WIDTH } from "../../const";
 import { HighlightFrameRender } from "../../utilities/HighlightFrameRender";
 import { HighlightBackgroundRender } from "../../utilities/HighlightBackgroundRender";
+import { generateKey } from "crypto";
 
 export interface OverviewPanelProps {
-  // gridWidth: number;
-  // gridHeight: number;
   theme: any;
-  highlightGate: string | null;
+  // highlightGate: string | null;
 }
 const OverviewPanel = (props: OverviewPanelProps) => {
-  const { theme, highlightGate } = props;
+  const { theme } = props;
 
   const [gridWidth, setGridWidth] = useState<number>(25);
   const [gridHeight, setGridHeight] = useState<number>(25);
   const [canvasWidth, setCanvasWidth] = useState(1500);
   const [canvasHeight, setCanvasHeight] = useState(400);
   const [qbitLengths, setQbitLength] = useState<string[]>([]);
-  const [originalQubitLength, setOriginalQubitLength] = useState();
-  const [originalLayerLength, setOriginalLayerLength] = useState(0);
-
+  const [originalData, setOriginalData] = useState<{
+    qubit: number;
+    layer: number;
+    gate: number;
+  }>({ qubit: 0, layer: 0, gate: 0 });
   const [circuit, setCircuit] = useState<{
     output_size: number[];
     op_map: {};
@@ -35,7 +36,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
     all_gates: (number | number[])[][];
     originalQubitLength?: number;
     originalGateLength?: number;
-  }>(overviewData_abs);
+  } | null>(generateData());
   const [highlightRegions, setHighlightRegions] = useState<
     {
       layer: number[];
@@ -43,45 +44,46 @@ const OverviewPanel = (props: OverviewPanelProps) => {
       name: string;
       weight: number;
     }[]
-  >(demoRegion);
+  >([]);
   const [scale, setScale] = useState(1);
   const [widthScale, setWidthScale] = useState(1);
   const [originalGridWidth, setOriginalGridWidth] = useState(25);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const canvasFixedWidth = 32000;
-
   const canvasStyle = {
     transform: `scale(${scale})`,
     transformOrigin: "0 0",
   };
 
+  //Set Gird and Canvas Size
   useEffect(() => {
     setGridWidth(originalGridWidth * widthScale);
   }, [widthScale]);
 
   useEffect(() => {
-    var gridSize = canvasHeight / circuit.output_size[0];
-    gridSize = gridSize < 25 ? 25 : gridSize;
-    gridSize = gridSize > 200 ? 200 : gridSize;
+    if (circuit) {
+      var gridSize = canvasHeight / circuit.output_size[0];
+      gridSize = gridSize < 25 ? 25 : gridSize;
+      gridSize = gridSize > 200 ? 200 : gridSize;
 
-    setGridWidth(gridSize);
-    setGridHeight(gridSize);
-    setOriginalGridWidth(gridSize);
-    setCanvasHeight(gridSize * circuit.output_size[0]);
-    setCanvasWidth(
-      gridSize * circuit.output_size[1] < 32000
-        ? gridSize * circuit.output_size[1]
-        : 32000
-    );
-    // if (gridSize * circuit.output_size[0] < canvasWidth) {
-    //   setGridHeight(canvasHeight / circuit.output_size[0]);
-    // }
-    setQbitLength(circuit.qubits);
+      setGridWidth(gridSize);
+      setGridHeight(gridSize);
+      setOriginalGridWidth(gridSize);
+      setCanvasHeight(gridSize * circuit.output_size[0]);
+      setCanvasWidth(
+        gridSize * circuit.output_size[1] < 32000
+          ? gridSize * circuit.output_size[1]
+          : 32000
+      );
+
+      setQbitLength(circuit.qubits);
+    }
   }, [circuit]);
 
+  //Render circuit on canvas
   useEffect(() => {
-    if (gridHeight !== null && gridWidth !== null) {
+    if (gridHeight && gridWidth && circuit) {
       const { graph, graphText } = Circuit2GridData(circuit);
       const canvas = document.getElementById("overviewCanvas");
 
@@ -96,16 +98,15 @@ const OverviewPanel = (props: OverviewPanelProps) => {
             (canvas as HTMLCanvasElement).height
           );
 
+          //Render Highlighted Regions and Circuit
           HighlightBackgroundRender({
             highlightRegions,
             ctx,
             gridWidth,
             gridHeight,
           });
-
           CircuitRender({ graph, ctx, gridWidth, gridHeight });
           CircuitAnnotator({ graphText, ctx, gridWidth, gridHeight });
-
           HighlightFrameRender({
             highlightRegions,
             ctx,
@@ -113,13 +114,11 @@ const OverviewPanel = (props: OverviewPanelProps) => {
             gridHeight,
           });
 
-          //add wires
+          //Render Wires on Blank Region
           const circuitWidth = circuit.output_size[1] * gridWidth;
           const qubitNumber = circuit.output_size[0];
-
           ctx.strokeStyle = WIRE_STROKE;
           ctx.lineWidth = gridWidth < 50 ? LINE_WIDTH : BOLD_LINE_WIDTH;
-
           for (let index = 0; index < qubitNumber; index++) {
             ctx.beginPath();
             ctx.moveTo(circuitWidth, index * gridHeight + gridHeight / 2);
@@ -129,8 +128,6 @@ const OverviewPanel = (props: OverviewPanelProps) => {
             );
             ctx.stroke();
           }
-
-          //highlight
         }
       }
     }
@@ -143,14 +140,13 @@ const OverviewPanel = (props: OverviewPanelProps) => {
     highlightRegions,
   ]);
 
+  //Canvas Scaling
   useEffect(() => {
     const canvas = canvasRef.current;
-
     const handleWheelEvent = (e: any) => {
       if (e.ctrlKey) {
         e.preventDefault();
         let deltaScale = e.deltaY * -0.001;
-        // console.log(widthScale);
         if (deltaScale > 0) {
           if (widthScale < 1) {
             setWidthScale((widthScale) =>
@@ -163,7 +159,6 @@ const OverviewPanel = (props: OverviewPanelProps) => {
           }
         } else {
           const scaleChange = Math.min(Math.max(scale + deltaScale, 0.1), 10);
-          // console.log("scaleChange", scaleChange);
           if (scaleChange * canvasHeight < 350) {
             setWidthScale((widthScale) =>
               Math.min(Math.max(widthScale + deltaScale * 0.3, 0.35), 1)
@@ -187,14 +182,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
     };
   }, [widthScale, scale]);
 
-  useEffect(() => {
-    if (highlightGate == "PA") {
-      setCircuit(generateData());
-    } else {
-      setCircuit(generateData());
-    }
-  }, [highlightGate]);
-
+  //Message Passing
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
       const message = event.data;
@@ -202,9 +190,12 @@ const OverviewPanel = (props: OverviewPanelProps) => {
         case "component.setCircuit":
           setCircuit(message.data);
           setHighlightRegions(message.data.componentRegion);
-          // setOriginalQubitLength(message.data.originalQubitLength);
-          // setOriginalGateLength(message.data.originalGateLength);
-          console.log("in diagram", message.data);
+          //TODO:layer
+          setOriginalData({
+            qubit: message.data.originalQubitLength,
+            layer: 0,
+            gate: message.data.originalLayerLength,
+          });
           break;
         case "component.setCanvasSize":
           setCanvasWidth(message.data.width);
@@ -212,11 +203,10 @@ const OverviewPanel = (props: OverviewPanelProps) => {
           break;
         case "component.setRegion":
           setHighlightRegions(message.data);
-          console.log("highlightRegions", message.data);
 
           break;
         case "context.setCircuit":
-          setOriginalLayerLength(message.data.originalCircuitSize[1]);
+        // setOriginalLayerLength(message.data.originalCircuitSize[1]);
       }
     };
     window.addEventListener("message", handleMessageEvent);
@@ -228,18 +218,11 @@ const OverviewPanel = (props: OverviewPanelProps) => {
   return (
     <div className="panel" id="overviewPanel">
       <div className="panelHeader">
-        <span
-          className="title"
-          onClick={() => {
-            setCircuit(circuit == overviewData ? generateData() : overviewData);
-          }}
-        >
-          Quantum Circuit Diagram
-        </span>
+        <span className="title">Quantum Circuit Diagram</span>
         <div className="info-group">
-          <span className="info">#Qubits: {circuit.originalQubitLength}</span>
-          <span className="info">#Gates: {circuit.originalQubitLength}</span>
-          <span className="info">#Layer: {originalLayerLength}</span>
+          <span className="info">#Qubits: {originalData.qubit}</span>
+          <span className="info">#Gates: {originalData.gate}</span>
+          <span className="info">#Layer: {originalData.layer}</span>
         </div>
       </div>
       <div
@@ -269,7 +252,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
 };
 
 export default OverviewPanel;
-
+//TODO: for testing
 const generateData = () => {
   var data = {
     output_size: [10, 31],

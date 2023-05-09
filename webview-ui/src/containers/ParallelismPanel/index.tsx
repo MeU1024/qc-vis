@@ -141,8 +141,6 @@ const ParallelismPanel = (props: ParallelismPanelProps) => {
   }, [gridNumber]);
 
   useEffect(() => {
-    //TODO:REMOVE OVERLAP
-    console.log("layerRangeStart", layerRangeStart);
     if (originalCircuit !== undefined) {
       const subCircuit = getSubCircuit(
         qubitRangeStart,

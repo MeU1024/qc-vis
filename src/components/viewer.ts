@@ -13,7 +13,6 @@ export class Viewer {
     tabEditorGroup: string,
     preserveFocus: boolean
   ): Promise<void> {
-    // TODO: Get data file from source file
     const dataUri = qv.manager.sourceFile || qv.getDefaultDataFile();
     return this.visualizeQCircuitInTab(dataUri, tabEditorGroup, preserveFocus);
   }

@@ -217,7 +217,6 @@ export class ComponentCircuit {
         return qubits.indexOf(qubit) === index;
       });
 
-      //TODO: cswap...
       if (gateName[0] === "_" && gateName[1] !== "c") {
         qubits.sort((a, b) => {
           return parseInt(a.qubitName) - parseInt(b.qubitName);

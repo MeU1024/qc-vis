@@ -14,12 +14,13 @@ main {
       margin-top: 10px;
       display: grid;
       grid-template-columns: 37% 3px auto;
-      // height: 530px;
+      height: 530px;
+      width: 1800px;
       .BottomLeft {
         display: grid;
         // grid-template-rows: 75% 25%;
         margin-right: 20px;
-        // height: 530px;
+        height: 530px;
       }
       .BottomRight {
         margin-left: 15px;
@@ -82,10 +83,6 @@ main {
   margin-left: 2px;
   margin-right: 2px;
   border-right: 2px solid #d4d4d4;
-}
-
-.circuit {
-  // border: 2px solid #d4d4d4;
 }
 
 ::-webkit-scrollbar {

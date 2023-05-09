@@ -49,7 +49,6 @@ export class QcStructure {
       return [];
     }
 
-    // TODO: ast parser
     let ast: any;
 
     let gates: QuantumTreeNode[] = [];

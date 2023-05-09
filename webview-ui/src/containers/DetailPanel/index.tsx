@@ -10,15 +10,13 @@ import { HighlightFrameRender } from "../../utilities/HighlightFrameRender";
 import { HighlightBackgroundRender } from "../../utilities/HighlightBackgroundRender";
 export interface DetailPanelProps {
   theme: any;
-  highlightGate: string | null;
 }
-
 const DetailPanel = (props: DetailPanelProps) => {
   const [qbitLengths, setQbitLength] = useState<string[]>([]);
   const [gridWidth, setGridWidth] = useState<number>(25);
   const [gridHeight, setGridHeight] = useState<number>(25);
   const [canvasWidth, setCanvasWidth] = useState(650);
-  const [canvasHeight, setCanvasHeight] = useState(525);
+  const [canvasHeight, setCanvasHeight] = useState(450);
   const [circuit, setCircuit] = useState<{
     output_size: number[];
     op_map: {};
@@ -26,7 +24,6 @@ const DetailPanel = (props: DetailPanelProps) => {
     gate_format: string;
     all_gates: (number | number[])[][];
   }>(data);
-
   const [scale, setScale] = useState(1);
   const [widthScale, setWidthScale] = useState(1);
   const [originalGridWidth, setOriginalGridWidth] = useState(25);
@@ -39,17 +36,13 @@ const DetailPanel = (props: DetailPanelProps) => {
     }[]
   >([]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [panelTitle, setPanelTitle] = useState("Abstraction");
 
   const canvasStyle = {
     transform: `scale(${scale})`,
     transformOrigin: "0 0",
   };
-
-  const [panelTitle, setPanelTitle] = useState("Abstraction");
-
   const canvasFixedWidth = 32000;
-
-  const { theme, highlightGate } = props;
 
   useEffect(() => {
     setGridWidth(originalGridWidth * widthScale);
@@ -57,13 +50,13 @@ const DetailPanel = (props: DetailPanelProps) => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
-
     const handleWheelEvent = (e: any) => {
       if (e.ctrlKey) {
         e.preventDefault();
         let deltaScale = e.deltaY * -0.001;
         // console.log(widthScale);
         if (deltaScale > 0) {
+          console.log("deltaScale ", deltaScale);
           if (widthScale < 1) {
             setWidthScale((widthScale) =>
               Math.min(Math.max(widthScale + deltaScale * 0.1, 0.35), 1)
@@ -75,15 +68,16 @@ const DetailPanel = (props: DetailPanelProps) => {
           }
         } else {
           const scaleChange = Math.min(Math.max(scale + deltaScale, 0.1), 10);
-          // console.log("scaleChange", scaleChange);
-          if (scaleChange * canvasHeight < 525) {
+          console.log("scale a ", scale);
+          if (scaleChange * canvasHeight < 450) {
             setWidthScale((widthScale) =>
               Math.min(Math.max(widthScale + deltaScale * 0.1, 0.35), 1)
             );
           } else {
-            setScale((scale) =>
-              Math.min(Math.max(scale + deltaScale, 0.1), 10)
-            );
+            setScale((scale) => {
+              console.log("scale b ", scale);
+              return Math.min(Math.max(scale + deltaScale, 0.1), 10);
+            });
           }
         }
       }
@@ -165,7 +159,7 @@ const DetailPanel = (props: DetailPanelProps) => {
         }
       }
     }
-  }, [gridWidth, theme, circuit, canvasHeight, canvasWidth, highlightRegions]);
+  }, [gridWidth, circuit, canvasHeight, canvasWidth, highlightRegions]);
 
   useEffect(() => {
     const handleMessageEvent = (event: any) => {
@@ -196,7 +190,7 @@ const DetailPanel = (props: DetailPanelProps) => {
   }, []);
 
   return (
-    <div className="panel abstraction-view">
+    <div className="panel abstraction-view BottomLeft">
       <div className="panelHeader">
         <span className="title">{panelTitle}</span>
       </div>

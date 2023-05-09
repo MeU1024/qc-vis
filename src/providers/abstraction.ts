@@ -302,7 +302,6 @@ class AbstractedCircuit {
     let layerIndex = this._componentCircuit.getGateLayer(gate);
     this._isIdleLayer[layerIndex!] = false;
 
-    // TODO: Implement for multi-qubit gates
     if (gate.qubits.length > 2 && gate.gateName[0] !== "_") {
       let firstQubitIndex = this._qubits.indexOf(gate.qubits[0]);
       this._isIdleQubit[firstQubitIndex] = false;
@@ -515,7 +514,6 @@ class AbstractedCircuit {
       return false;
     }
 
-    // TODO: Implement for multi-qubit gates
     // if (gate.qubits.length > 2 && gate.gateName[0] !== "_") {
     if (gate.qubits.length > 2 && gate.gateName[0] !== "_") {
       let secondQubitIndex = this._qubits.indexOf(gate.qubits[1]);

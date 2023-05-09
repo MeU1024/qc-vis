@@ -35,7 +35,6 @@ export class ContextDataProvider {
     this._data = data;
   }
   async updateData() {
-    // TODO: Update Data
     this._data = await this.contextualQcData();
     this._postData();
   }
@@ -344,7 +343,6 @@ class ContextualCircuit {
     this._layerParallelism = layerPara;
   }
 
-  //TODO:update averageIdleValue & _idleQubit
   private _updateIdle() {
     const qubitsNum = this._originalQubits.length;
     const layerNum = this._originalLayers.length;
@@ -423,7 +421,7 @@ class ContextualCircuit {
 
     // update pre
     for (let col = 0; col < this._originalLayers.length; ++col) {
-      if (col != 0) {
+      if (col !== 0) {
         for (let row = 0; row < qubitsNum; ++row) {
           pre[row][col] = Math.max(pre[row][col], pre[row][col - 1]);
         }
@@ -588,7 +586,9 @@ class ContextualCircuit {
   private isInComponent(chiGate: ComponentGate, ComponentIdx: number) {
     let nwidx = chiGate.treeIndex;
     while (nwidx != 0) {
-      if (nwidx === ComponentIdx) return true;
+      if (nwidx === ComponentIdx) {
+        return true;
+      }
       nwidx = this._treeStructure[nwidx].parentIndex;
     }
     return nwidx === ComponentIdx;
@@ -714,7 +714,6 @@ class ContextualCircuit {
         return parseInt(qubit.qubitName);
       });
 
-      //TODO:cswap ryy cry cx
       if (qubits.length >= 2) {
         for (let start = 0; start < qubits.length; start++) {
           for (let end = start + 1; end < qubits.length; end++) {
@@ -835,7 +834,7 @@ class ContextualCircuit {
             focusGates.push({
               gate: gate,
               layer: [gateList[0], gateList[gateList.length - 1]],
-            }); //TODO: check
+            });
           }
         }
       });
