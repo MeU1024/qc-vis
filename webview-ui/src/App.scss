@@ -14,14 +14,16 @@ main {
       margin-top: 10px;
       display: grid;
       grid-template-columns: 37% 3px auto;
-      height: 530px;
+      height: 600px;
       width: 1800px;
+
       .BottomLeft {
         display: grid;
         // grid-template-rows: 75% 25%;
         margin-right: 20px;
-        height: 530px;
+        height: 600px;
       }
+
       .BottomRight {
         margin-left: 15px;
         display: grid;
@@ -29,12 +31,14 @@ main {
         // height: 100%;
         // height: 530px;
         overflow: hidden;
+
         .ContextBottom {
           display: grid;
           grid-template-columns: 64% 36%;
         }
       }
     }
+
     .panel {
       display: grid;
       grid-template-rows: 40px auto;
@@ -43,10 +47,12 @@ main {
 
       .circuit {
         margin-top: 15px;
+
         padding: {
           left: 15px;
           right: 15px;
         }
+
         display: grid;
         grid-template-columns: 25px auto;
         overflow: scroll;
@@ -63,6 +69,7 @@ main {
     .info-group {
       margin-left: auto;
       margin-right: 10px;
+
       .info {
         margin-left: 10px;
         font-weight: 600;
@@ -91,15 +98,18 @@ main {
 
   background-color: none;
 }
+
 ::-webkit-scrollbar-thumb {
   background-color: #d6dee1;
   border-radius: 15px;
   border: 6px solid transparent;
   background-clip: content-box;
 }
+
 ::-webkit-scrollbar-track {
   background-color: transparent;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background-color: #a8bbbf;
 }
