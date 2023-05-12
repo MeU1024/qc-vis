@@ -1,6 +1,6 @@
-import {EventEmitter} from 'events';
-import type {QCViewerState} from '../../types/quantivine-protocol-type';
-import type {Disposable} from 'vscode';
+import { EventEmitter } from 'events';
+import type { QCViewerState } from '../../types/quantivine-protocol-type';
+import type { Disposable } from 'vscode';
 
 export const BuildDone = 'BUILD_DONE';
 export const AutoBuildInitiated = 'AUTO_BUILD_INITIATED';
@@ -16,7 +16,7 @@ export const StructureUpdated = 'STRUCTURE_UPDATED';
 export const AutoCleaned = 'AUTO_CLEANED';
 
 export type EventArgs = {
-  [AutoBuildInitiated]: {type: 'onChange' | 'onSave'; file: string};
+  [AutoBuildInitiated]: { type: 'onChange' | 'onSave'; file: string };
   [SourceFileChanged]: string;
   [FileParsed]: string;
   [ViewerStatusChanged]: QCViewerState;

@@ -348,63 +348,59 @@ class ContextualCircuit {
 
   //TODO:update averageIdleValue & _idleQubit
   private _updateIdle() {
-    const qubitsNum = this._originalQubits.length;
-    const layerNum = this._originalLayers.length;
     const idlePosition: number[][][] = [];
 
-    let pre: number[][] = []; // pre[row][col] : at row, the last qubit position before col
+    let pre: number[][] = []; // pre[qubitIdx][layerIdx] : at qubitIdx（qubit wire）, the last qubit layer_idx before this layerIdx
     let suf: number[][] = [];
 
-    for (let row = 0; row < qubitsNum; ++row) {
-      pre[row] = [];
-      suf[row] = [];
-      for (let col = 0; col < layerNum; ++col) {
-        pre[row][col] = -1;
-        suf[row][col] = layerNum + 1;
+    for (let qubitIdx = 0; qubitIdx < this._originalQubits.length; ++qubitIdx) {
+      pre[qubitIdx] = [];
+      suf[qubitIdx] = [];
+      for (let layerIdx = 0; layerIdx < this._originalLayers.length; ++layerIdx) {
+        pre[qubitIdx][layerIdx] = -1;
+        suf[qubitIdx][layerIdx] = this._originalLayers.length + 1;
       }
     }
 
     // update pre
-    for (let col = 0; col < this._originalLayers.length; ++col) {
-      if (col != 0) {
-        for (let row = 0; row < qubitsNum; ++row) {
-          pre[row][col] = Math.max(pre[row][col], pre[row][col - 1]);
+    for (let layerIdx = 0; layerIdx < this._originalLayers.length; ++layerIdx) {
+      if (layerIdx != 0) {
+        for (let qubitIdx = 0; qubitIdx < this._originalQubits.length; ++qubitIdx) {
+          pre[qubitIdx][layerIdx] = Math.max(pre[qubitIdx][layerIdx], pre[qubitIdx][layerIdx - 1]);
         }
       }
-      if (col === this._originalLayers.length - 1) {
-        let layerGate = this._originalLayers[col];
+      if (layerIdx === this._originalLayers.length - 1) {
+        let layerGate = this._originalLayers[layerIdx];
         layerGate.forEach((gate: ComponentGate) => {
           if (gate.qubits.length === 1) {
           } else {
             let mx = -1;
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
-              let row = parseInt(gate.qubits[idx].qubitName);
-              mx = Math.max(mx, pre[row][col]);
+              let qubitIdx = parseInt(gate.qubits[idx].qubitName);
+              mx = Math.max(mx, pre[qubitIdx][layerIdx]);
             }
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
-              let row = parseInt(gate.qubits[idx].qubitName);
-              pre[row][col] = Math.max(pre[row][col], mx);
+              let qubitIdx = parseInt(gate.qubits[idx].qubitName);
+              pre[qubitIdx][layerIdx] = Math.max(pre[qubitIdx][layerIdx], mx);
             }
           }
         });
       } else {
-        let layerGate = this._originalLayers[col];
+        let layerGate = this._originalLayers[layerIdx];
         layerGate.forEach((gate: ComponentGate) => {
           if (gate.qubits.length === 1) {
-            // one
-            let row = parseInt(gate.qubits[0].qubitName);
-            pre[row][col + 1] = Math.max(pre[row][col + 1], col);
+            let qubitIdx = parseInt(gate.qubits[0].qubitName);
+            pre[qubitIdx][layerIdx + 1] = Math.max(pre[qubitIdx][layerIdx + 1], layerIdx);
           } else {
-            // control gate
             let mx = -1;
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
-              let row = parseInt(gate.qubits[idx].qubitName);
-              pre[row][col + 1] = Math.max(pre[row][col + 1], col);
-              mx = Math.max(mx, pre[row][col]);
+              let qubitIdx = parseInt(gate.qubits[idx].qubitName);
+              pre[qubitIdx][layerIdx + 1] = Math.max(pre[qubitIdx][layerIdx + 1], layerIdx);
+              mx = Math.max(mx, pre[qubitIdx][layerIdx]);
             }
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
-              let row = parseInt(gate.qubits[idx].qubitName);
-              pre[row][col] = Math.max(pre[row][col], mx);
+              let qubitIdx = parseInt(gate.qubits[idx].qubitName);
+              pre[qubitIdx][layerIdx] = Math.max(pre[qubitIdx][layerIdx], mx);
             }
           }
         });
@@ -412,44 +408,44 @@ class ContextualCircuit {
     }
 
     // update suf
-    for (let col = this._originalLayers.length - 1; col >= 0; --col) {
-      if (col != this._originalLayers.length - 1) {
-        for (let row = 0; row < qubitsNum; ++row) {
-          suf[row][col] = Math.min(suf[row][col], suf[row][col + 1]);
+    for (let layerIdx = this._originalLayers.length - 1; layerIdx >= 0; --layerIdx) {
+      if (layerIdx != this._originalLayers.length - 1) {
+        for (let qubitIdx = 0; qubitIdx < this._originalQubits.length; ++qubitIdx) {
+          suf[qubitIdx][layerIdx] = Math.min(suf[qubitIdx][layerIdx], suf[qubitIdx][layerIdx + 1]);
         }
       }
-      if (col === 0) {
-        let layerGate = this._originalLayers[col];
+      if (layerIdx === 0) {
+        let layerGate = this._originalLayers[layerIdx];
         layerGate.forEach((gate: ComponentGate) => {
           if (gate.qubits.length === 1) {
           } else {
-            let mn = layerNum + 1;
+            let mn = this._originalLayers.length + 1;
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
-              let row = parseInt(gate.qubits[idx].qubitName);
-              mn = Math.min(mn, suf[row][col]);
+              let qubitIdx = parseInt(gate.qubits[idx].qubitName);
+              mn = Math.min(mn, suf[qubitIdx][layerIdx]);
             }
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
-              let row = parseInt(gate.qubits[idx].qubitName);
-              suf[row][col] = Math.min(suf[row][col], mn);
+              let qubitIdx = parseInt(gate.qubits[idx].qubitName);
+              suf[qubitIdx][layerIdx] = Math.min(suf[qubitIdx][layerIdx], mn);
             }
           }
         });
       } else {
-        let layerGate = this._originalLayers[col];
+        let layerGate = this._originalLayers[layerIdx];
         layerGate.forEach((gate: ComponentGate) => {
           if (gate.qubits.length === 1) {
-            let row = parseInt(gate.qubits[0].qubitName);
-            suf[row][col - 1] = Math.min(suf[row][col - 1], col);
+            let qubitIdx = parseInt(gate.qubits[0].qubitName);
+            suf[qubitIdx][layerIdx - 1] = Math.min(suf[qubitIdx][layerIdx - 1], layerIdx);
           } else {
-            let mn = layerNum + 1;
+            let mn = this._originalLayers.length + 1;
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
-              let row = parseInt(gate.qubits[idx].qubitName);
-              suf[row][col - 1] = Math.min(suf[row][col - 1], col);
-              mn = Math.min(mn, suf[row][col]);
+              let qubitIdx = parseInt(gate.qubits[idx].qubitName);
+              suf[qubitIdx][layerIdx - 1] = Math.min(suf[qubitIdx][layerIdx - 1], layerIdx);
+              mn = Math.min(mn, suf[qubitIdx][layerIdx]);
             }
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
-              let row = parseInt(gate.qubits[idx].qubitName);
-              suf[row][col] = Math.min(suf[row][col], mn);
+              let qubitIdx = parseInt(gate.qubits[idx].qubitName);
+              suf[qubitIdx][layerIdx] = Math.min(suf[qubitIdx][layerIdx], mn);
             }
           }
         });
@@ -458,36 +454,36 @@ class ContextualCircuit {
 
     // averageIdleValue
     let averageIdleValue: number[][] = [];
-    for (let col = 0; col < layerNum; ++col) {
-      averageIdleValue[col] = [];
-      for (let row = 0; row < qubitsNum; ++row) {
-        averageIdleValue[col][row] = 0;
+    for (let layerIdx = 0; layerIdx < this._originalLayers.length; ++layerIdx) {
+      averageIdleValue[layerIdx] = [];
+      for (let qubitIdx = 0; qubitIdx < this._originalQubits.length; ++qubitIdx) {
+        averageIdleValue[layerIdx][qubitIdx] = 0;
       }
     }
 
-    for (let row = 0; row < qubitsNum; ++row) {
-      for (let col = 0; col < layerNum; ++col) {
+    for (let qubitIdx = 0; qubitIdx < this._originalQubits.length; ++qubitIdx) {
+      for (let layerIdx = 0; layerIdx < this._originalLayers.length; ++layerIdx) {
         let sum = 0.0;
-        for (let colidx = pre[row][col] + 1; colidx < suf[row][col]; ++colidx) {
+        for (let colidx = pre[qubitIdx][layerIdx] + 1; colidx < suf[qubitIdx][layerIdx]; ++colidx) {
           sum += this._layerParallelism[colidx];
         }
-        averageIdleValue[col][row] = sum / (suf[row][col] - pre[row][col] - 1);
+        averageIdleValue[layerIdx][qubitIdx] = sum / (suf[qubitIdx][layerIdx] - pre[qubitIdx][layerIdx] - 1);
       }
     }
 
     this._averageIdleValue = averageIdleValue;
 
     // idlePosition
-    for (let col = 0; col < layerNum; ++col) {
-      idlePosition[col] = [];
-      for (let row = 0; row < qubitsNum; ++row) {
-        idlePosition[col][row] = [];
+    for (let layerIdx = 0; layerIdx < this._originalLayers.length; ++layerIdx) {
+      idlePosition[layerIdx] = [];
+      for (let qubitIdx = 0; qubitIdx < this._originalQubits.length; ++qubitIdx) {
+        idlePosition[layerIdx][qubitIdx] = [];
       }
     }
-    for (let row = 0; row < qubitsNum; ++row) {
-      for (let col = 0; col < layerNum; ++col) {
-        for (let colidx = pre[row][col] + 1; colidx < suf[row][col]; ++colidx) {
-          idlePosition[col][row].push(colidx);
+    for (let qubitIdx = 0; qubitIdx < this._originalQubits.length; ++qubitIdx) {
+      for (let layerIdx = 0; layerIdx < this._originalLayers.length; ++layerIdx) {
+        for (let colidx = pre[qubitIdx][layerIdx] + 1; colidx < suf[qubitIdx][layerIdx]; ++colidx) {
+          idlePosition[layerIdx][qubitIdx].push(colidx);
         }
       }
     }
@@ -658,10 +654,10 @@ class ContextualCircuit {
     */
 
     //initialization
-    for (let row = 0; row < originalQubits.length; row++) {
+    for (let qubitIdx = 0; qubitIdx < originalQubits.length; qubitIdx++) {
       this._connectivityMatrix.push([]);
-      for (let col = 0; col < originalQubits.length; col++) {
-        this._connectivityMatrix[row].push(0);
+      for (let layerIdx = 0; layerIdx < originalQubits.length; layerIdx++) {
+        this._connectivityMatrix[qubitIdx].push(0);
       }
     }
 
