@@ -232,7 +232,7 @@ class ContextualCircuit {
     this._originalLayers = this._placement();
     this._focusQubitGates = this._updateQubit();
     this._updateParallelism();
-    this._updateSubCircuit();
+    // this._updateSubCircuit();
     this._updateIdle();
   }
 
@@ -256,7 +256,7 @@ class ContextualCircuit {
   setFocusNode(gate: ComponentGate | undefined) {
     this._focusGate = gate;
     this._updateDependency();
-    this._updateSubCircuit();
+    // this._updateSubCircuit();
   }
   setFocusLayer(focusLayer: number) {
     this._focusLayerIndex = focusLayer;
@@ -271,12 +271,12 @@ class ContextualCircuit {
       qubitStart + 7 <= this._originalQubits.length
         ? [qubitStart, qubitStart + 6]
         : [this._originalQubits.length - 7, this._originalQubits.length - 1];
-    this._updateSubCircuit();
+    // this._updateSubCircuit();
   }
 
   setLayerRangeStart(layerStart: number) {
     this._subGraphLayerRange = [layerStart, layerStart + 6];
-    this._updateSubCircuit();
+    // this._updateSubCircuit();
   }
 
   setFocusQubit(focusQubit: number) {
@@ -491,39 +491,6 @@ class ContextualCircuit {
     this._idlePosition = idlePosition;
   }
 
-  private _updateSubCircuit() {
-    const layerNum = this._originalLayers.length;
-    const qubitNum = this._originalQubits.length;
-    let layerRange = this._subGraphLayerRange;
-    let qubitRange = this._subGraphQubitRange;
-    this._subGraph = [];
-
-    const subGraph = this._originalLayers.slice(
-      layerRange[0],
-      layerRange[1] + 1
-    );
-    subGraph.forEach((layer) => {
-      const newGates: ComponentGate[] = [];
-      layer.forEach((gate: ComponentGate) => {
-        const qubits = gate.qubits.map((qubit) => {
-          return parseInt(qubit.qubitName);
-        });
-        for (let index = 0; index < qubits.length; index++) {
-          if (
-            qubits[index] >= qubitRange[0] &&
-            qubits[index] <= qubitRange[1]
-          ) {
-            newGates.push(gate);
-            break;
-          }
-        }
-      });
-      this._subGraph.push(newGates);
-    });
-
-    this._subGraphLayerRange = layerRange;
-  }
-
   private isInComponent(gate: ComponentGate, ComponentIdx: number) {
     let nwidx = gate.treeIndex;
     while (nwidx != 0) {
@@ -534,16 +501,21 @@ class ContextualCircuit {
   }
 
   private getGroupId(timeStamp: number) {
-    let fa: number[];
-    fa = [];
-    let group: number[];
-    group = [];
+    if (timeStamp < 0) return [];
+    let fa: number[] = [];
+    let group: number[] = [];
+    let used: boolean[] = [];
+
     const originalGates = this._compnentCircuit.getOriginalGates();
     const originalQubits = this._compnentCircuit.getOriginalQubits();
+
     // init
     for (let i = 0; i < originalQubits.length; ++i) {
-      group[i] = 0;
+      group[i] = -1;
       fa[i] = i;
+    }
+    for (let i = 0; i < originalQubits.length; ++i) {
+      used[i] = false;
     }
 
     let find = (x: number) => {
@@ -570,18 +542,12 @@ class ContextualCircuit {
       return mx;
     };
 
-    let used: boolean[];
-    used = [];
-    for (let i = 0; i < originalQubits.length; ++i) {
-      used[i] = false;
-    }
-
     for (let idx = 0; idx < originalGates.length; ++idx) {
       let gate = originalGates[idx];
       if (maxTime(gate) <= timeStamp) {
         let a = parseInt(gate.qubits[0].qubitName);
+        used[a] = true;
         if (gate.qubits.length === 1) {
-          used[a] = true;
           continue;
         }
         for (let i = 1; i < gate.qubits.length; ++i) {
@@ -592,13 +558,13 @@ class ContextualCircuit {
       }
     }
 
-    let groupId = 0; //qubit1 begin with 1
-    for (let i = 1; i < originalQubits.length; ++i) {
+    let groupId = -1; //qubit1 begin with 1
+    for (let i = 0; i < originalQubits.length; ++i) {
       if (used[i] === false) {
         continue;
       }
       let flag = false;
-      for (let j = 1; j < i; ++j) {
+      for (let j = 0; j < i; ++j) {
         if (find(i) === find(j)) {
           group[i] = group[j];
           flag = true;
@@ -609,6 +575,10 @@ class ContextualCircuit {
         continue;
       }
       group[i] = ++groupId;
+    }
+
+    for (let i = 0; i < originalQubits.length; ++i) {
+      group[i]++;
     }
 
     return group;
@@ -699,15 +669,20 @@ class ContextualCircuit {
     });
 
 
-    let tmp = this.getTimestamp(this._connectivityComponentIndex);
-    let beforeTimeStamp = tmp.startTimeStamp;
-    let currentTimeStamp = tmp.endTimeStamp;
+    let tmpTimestamp = this.getTimestamp(this._connectivityComponentIndex);
+    let beforeTimeStamp = tmpTimestamp.startTimeStamp;
+    let currentTimeStamp = tmpTimestamp.endTimeStamp;
+
+    console.log("timestamp", tmpTimestamp);
 
     //calculation the entanglement after current component(included)
     curEntGroup = this.getGroupId(currentTimeStamp);
 
     //calculation the entanglement before the endTimeStamp(NOT included)
     preEntGroup = this.getGroupId(beforeTimeStamp - 1);
+
+    console.log("preEntGroup", preEntGroup);
+    console.log("curEntGroup", curEntGroup);
 
     return { curEntGroup, preEntGroup };
   }
