@@ -20,72 +20,7 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
   const [curEntGroup, setCurEntGroup] = useState<number[]>([]);
   const [preEntGroup, setPreEntGroup] = useState<number[]>([]);
 
-  useEffect(() => {
-    var svg = d3.select("#matrixSVG");
-    svg.selectAll("*").remove();
-    var frame = svg.append("g");
-    var matrixLayer = svg.append("g");
 
-    var rects = matrixLayer.selectAll("rect").data(matrix);
-    // console.log("matrix", matrix);
-    for (let index = 0; index < matrix.length; index++) {
-      rects
-        .enter()
-        .append("rect")
-        .attr("x", function (d, i) {
-          return index * rectSize;
-        })
-        .attr("y", function (d, i) {
-          return i * rectSize;
-        })
-        .attr("width", rectSize)
-        .attr("height", rectSize)
-        .attr("fill", MATRIX_BG)
-        .attr("stroke-width", 0.5)
-        .attr("fill-opacity", function (d, i) {
-          switch (d[index]) {
-            case 1:
-              return "30%";
-            case 2:
-              return "100%";
-            case 0:
-              return "0%";
-            default:
-              return "100%";
-          }
-        })
-        .attr("stroke", MATRIX_STROKE);
-    }
-    if (focusQubit !== undefined) {
-      frame
-        .append("rect")
-        .attr("x", function (d, i) {
-          return 0;
-        })
-        .attr("y", function (d, i) {
-          return focusQubit * rectSize;
-        })
-        .attr("width", svgWidth)
-        .attr("height", rectSize)
-        .attr("stroke-width", 1)
-        .attr("stroke", "#606060")
-        .attr("fill", "white");
-
-      frame
-        .append("rect")
-        .attr("x", function (d, i) {
-          return focusQubit * rectSize;
-        })
-        .attr("y", function (d, i) {
-          return 0;
-        })
-        .attr("width", rectSize)
-        .attr("height", svgWidth)
-        .attr("stroke-width", 1)
-        .attr("stroke", "#606060")
-        .attr("fill", "white");
-    }
-  }, [matrix, rectSize, focusQubit]);
 
   useEffect(() => {
     const rectSize = svgWidth / matrix.length;
@@ -177,6 +112,75 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
     };
   }, []);
 
+  useEffect(() => {
+    var svg = d3.select("#matrixSVG");
+    svg.selectAll("*").remove();
+    var frame = svg.append("g");
+    var matrixLayer = svg.append("g");
+
+    if (focusQubit !== undefined) {
+      frame
+        .append("rect")
+        .attr("x", function (d, i) {
+          return 0;
+        })
+        .attr("y", function (d, i) {
+          return focusQubit * rectSize;
+        })
+        .attr("width", svgWidth)
+        .attr("height", rectSize)
+        .attr("stroke-width", 1)
+        .attr("stroke", "#606060")
+        .attr("fill", "transparent");
+
+      frame
+        .append("rect")
+        .attr("x", function (d, i) {
+          return focusQubit * rectSize;
+        })
+        .attr("y", function (d, i) {
+          return 0;
+        })
+        .attr("width", rectSize)
+        .attr("height", svgWidth)
+        .attr("stroke-width", 1)
+        .attr("stroke", "#606060")
+        .attr("fill", "transparent");
+    }
+
+    var rects = matrixLayer.selectAll("rect").data(matrix);
+    // console.log("matrix", matrix);
+    for (let index = 0; index < matrix.length; index++) {
+      rects
+        .enter()
+        .append("rect")
+        .attr("x", function (d, i) {
+          return index * rectSize;
+        })
+        .attr("y", function (d, i) {
+          return i * rectSize;
+        })
+        .attr("width", rectSize)
+        .attr("height", rectSize)
+        .attr("fill", MATRIX_BG)
+        .attr("stroke-width", 0.5)
+        .attr("fill-opacity", function (d, i) {
+          switch (d[index]) {
+            case 1:
+              return "30%";
+            case 2:
+              return "100%";
+            case 0:
+              return "0%";
+            default:
+              return "100%";
+          }
+        })
+        .attr("stroke", MATRIX_STROKE);
+    }
+
+  }, [matrix, rectSize, focusQubit]);
+
   return (
     <div className="panel" id="connectivityPanel">
       <div className="panelHeader">
@@ -255,12 +259,6 @@ const matrixData = () => {
       connectivityMatrix[row].push(0);
     }
   }
-  // for (let row = 0; row < 20; row++) {
-  //   for (let col = row + 1; col < 20; col++) {
-  //     connectivityMatrix[row][col] = 1;
-  //     connectivityMatrix[col][row] = 1;
-  //   }
-  // }
   return connectivityMatrix;
 };
 

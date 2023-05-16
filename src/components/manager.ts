@@ -4,8 +4,8 @@ import * as os from 'os';
 import * as tmp from 'tmp';
 import * as qv from '../quantivine';
 import * as utils from '../utilities/utils';
-import * as eventbus from './eventbus';
-import {getLogger} from './logger';
+import * as eventbus from './eventBus';
+import { getLogger } from './logger';
 
 const logger = getLogger('Manager');
 
@@ -31,7 +31,7 @@ export class Manager {
     // Create temp folder
     try {
       this._tmpDir = tmp
-        .dirSync({unsafeCleanup: true})
+        .dirSync({ unsafeCleanup: true })
         .name.split(path.sep)
         .join('/');
     } catch (error) {
