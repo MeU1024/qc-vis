@@ -115,8 +115,8 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
   useEffect(() => {
     var svg = d3.select("#matrixSVG");
     svg.selectAll("*").remove();
-    var frame = svg.append("g");
     var matrixLayer = svg.append("g");
+    var frame = svg.append("g");
 
     if (focusQubit !== undefined) {
       frame
