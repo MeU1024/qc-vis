@@ -56,7 +56,17 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
       .attr("cy", rectSize / 2)
       .attr("r", rectSize / 4)
       .attr("fill", function (d, i) {
-        return colorGroup[d];
+        if (d < colorGroup.length) {
+          return colorGroup[d];
+        }
+        else { // random color
+          const letters = "0123456789ABCDEF";
+          let color = "#";
+          for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+          }
+          return color;
+        }
       });
     var circles = preLayer
       .selectAll("circle")
@@ -69,7 +79,17 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
       .attr("cy", (rectSize / 8) * 8)
       .attr("r", rectSize / 4)
       .attr("fill", function (d, i) {
-        return colorGroup[d];
+        if (d < colorGroup.length) {
+          return colorGroup[d];
+        }
+        else { // random color
+          const letters = "0123456789ABCDEF";
+          let color = "#";
+          for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+          }
+          return color;
+        }
       })
       .attr("fill-opacity", "50%");
 

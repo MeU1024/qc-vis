@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as qv from "../../quantivine";
-import { ViewerStatusChanged } from "../eventbus";
+import { ViewerStatusChanged } from "../eventBus";
 
 import { getLogger } from "../logger";
 import {

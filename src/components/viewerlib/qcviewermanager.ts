@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import * as qc from '../../quantivine';
-import type {QCViewerPanel} from './qcviewerpanel';
+import type { QCViewerPanel } from './qcviewerpanel';
 
 export class QCViewerManagerService {
   private static readonly webviewPanelMap = new Map<
