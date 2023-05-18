@@ -1,7 +1,7 @@
 import ast
 import json
 from structure import extract_target_tree, tree_to_list
-from gates import reconstruct_ast
+from gates_and_semantics import reconstruct_ast
 
 
 def parse_file(file_path, target, filename):

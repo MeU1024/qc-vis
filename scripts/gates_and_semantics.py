@@ -61,6 +61,7 @@ def reconstruct_node(structure_node, target):
         ast_node.args.args.append(ast.arg("path", None))
         # 将当前节点的 index 加入 path
         body.insert(0, ast.parse("path = path.copy() + [get_index()]").body[0])
+    for_list = []
     for node in ast_node.body:
         # 如果是函数调用
         if type(node) == ast.Expr and type(node.value) == ast.Call:
@@ -103,13 +104,38 @@ def reconstruct_node(structure_node, target):
                 if type(func) == ast.Name and func.id != "QuantumCircuit":
                     call.keywords.append(ast.keyword("path", ast.Name("path")))
         elif type(node) == ast.For:
-            for child in structure_node["children"]:
-                if node == child["ast_node"]:
-                    reconstruct_node(child, target)
+            if node not in for_list:
+                for_list.append(node)
+                # 找到对应的 structure node
+                child_index = None
+                for child in structure_node["children"]:
+                    if node == child["ast_node"]:
+                        child_index = structure_node["children"].index(child)
+                if child_index is None:
+                    raise Exception("child_index is None")
+                child = structure_node["children"][child_index]
+                # 记录当前 timestamp
+                node_index = body.index(node)
+                body.insert(node_index,
+                            ast.parse("start_time = timestamp").body[0])
+                # 递归
+                reconstruct_node(child, target)
+                # 输出 semantics
+                node_index = body.index(node)
+                body.insert(
+                    node_index + 1,
+                    ast.parse(f"""semantics.append(
+                        {{
+                            'type': 'unknown',
+                            'range': [start_time, timestamp - 1],
+                            'treeIndex': {child["index"]},
+                        }}
+                        )""").body[0])
         elif type(node) == ast.FunctionDef:
             for child in structure_node["children"]:
                 if node == child["ast_node"]:
                     reconstruct_node(child, target)
+                    break
 
 
 def reconstruct_ast(structure, target):
@@ -117,24 +143,22 @@ def reconstruct_ast(structure, target):
     pre_process = []
     # 添加 uni_index 及其 getter
     pre_process += ast.parse("uni_index = 0").body
-    pre_process += ast.parse(
-        """def get_index():
+    pre_process += ast.parse("""def get_index():
             global uni_index
             temp = uni_index
             uni_index += 1
-            return temp"""
-    ).body
+            return temp""").body
     # 添加 timestamp 及其 getter
     pre_process += ast.parse("timestamp = 0").body
-    pre_process += ast.parse(
-        """def get_timestamp():
+    pre_process += ast.parse("""def get_timestamp():
             global timestamp
             temp = timestamp
             timestamp += 1
-            return temp"""
-    ).body
+            return temp""").body
     # 添加 gate 数组
     pre_process += ast.parse("gates = []").body
+    # 添加 semantics 数组
+    pre_process += ast.parse("semantics = []").body
     # 添加 path 数组
     pre_process += ast.parse("path = [get_index()]").body
 
@@ -143,6 +167,9 @@ def reconstruct_ast(structure, target):
     reconstruct_node(structure, target)
     global_module.body += ast.parse("import json").body
     global_module.body += ast.parse(
-        "with open('test.json', 'w') as f:\n\tjson.dump(gates, f)").body
+        "with open('gates.json', 'w') as f:\n\tjson.dump(gates, f)").body
+    global_module.body += ast.parse(
+        "with open('semantics.json', 'w') as f:\n\tjson.dump(semantics, f)"
+    ).body
 
     return global_module
