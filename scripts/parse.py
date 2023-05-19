@@ -8,10 +8,10 @@ def parse_file(file_path, target, filename):
     with open(file_path, 'r') as f:
         file = f.read()
     ast_tree = ast.parse(file)
-    target_tree = extract_target_tree(ast_tree, target)
+    target_tree, func_list = extract_target_tree(ast_tree, target)
     node_list = tree_to_list(target_tree)
     print_structure(node_list, filename)
-    new_ast = reconstruct_ast(target_tree, target)
+    new_ast = reconstruct_ast(func_list, target_tree, target)
     ast.unparse(new_ast)
     print_file(filename + "_new.py", ast.unparse(new_ast))
 
