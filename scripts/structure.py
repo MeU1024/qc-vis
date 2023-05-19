@@ -77,11 +77,13 @@ def travel_and_extract(tree, node, father, target):
         for child in node.body:
             travel_and_extract(tree, child, rep, target)
         # 构建循环名字
-        gates = []
+        names = []
         for child in rep["children"]:
             if child["type"] == "rep_item":
-                gates.append(child["name"])
-        rep["name"] = "[" + "-".join(gates) + "]"
+                names.append(child["name"])
+            elif child["type"] == "fun":
+                names.append(child["name"])
+        rep["name"] = "[" + "-".join(names) + "]"
 
 
 def extract_target_tree(ast_tree, target):
@@ -125,4 +127,5 @@ def tree_to_list(root):
                 preorder_output(child, cur_index)
 
     preorder_output(root, -1)
+    print(structure_list)
     return structure_list
