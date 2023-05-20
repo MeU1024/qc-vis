@@ -55,6 +55,14 @@ def get_qubits(caller):
     return index
 
 
+def qubit_index_getter(qubit):
+    ast_node = ast.parse(qubit).body[0]
+    if type(ast_node.value) == ast.Constant:
+        return qubit
+    else:
+        return f"{qubit} if type({qubit}) == int else ({qubit}).index"
+
+
 def reconstruct_node(func_list, structure_node, target):
     ast_node = structure_node["ast_node"]
     body = ast_node.body
@@ -96,10 +104,10 @@ def reconstruct_node(func_list, structure_node, target):
                     if tree_index is None:
                         raise Exception("tree_index is None")
                     # 加入输出语句
-                    # 要是参数是 QuantumRegister 怎么办？
                     module = ast.parse(f"""gates.append(
                             ['{func.attr}',
-                            [{','.join([qubit for qubit in qubits])}],
+                            [{','.join([qubit_index_getter(qubit)
+                                for qubit in qubits])}],
                             [get_timestamp()]*2, {tree_index} + base_index,
                             path.copy() + [get_index()]])""")
                     body.insert(node_index + 1, module.body[0])
