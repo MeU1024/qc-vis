@@ -1,5 +1,6 @@
 import ast
 from public import get_target_arg_pos, get_target_keyword, supported_gate_list
+import json
 
 
 def get_qubit_from_ast_node(node):
@@ -177,7 +178,7 @@ def reconstruct_node(func_list, structure_node, target):
                     break
 
 
-def reconstruct_ast(func_list, structure, target):
+def reconstruct_ast(func_list, structure, target, filename):
     global_module = structure["ast_node"]
     pre_process = []
     # 添加 uni_index 及其 getter
@@ -208,9 +209,53 @@ def reconstruct_ast(func_list, structure, target):
     reconstruct_node(func_list, structure, target)
     global_module.body += ast.parse("import json").body
     global_module.body += ast.parse(
-        "with open('gates.json', 'w') as f:\n\tjson.dump(gates, f)").body
-    global_module.body += ast.parse(
-        "with open('semantics.json', 'w') as f:\n\tjson.dump(semantics, f)"
+        f"with open('{filename}_gates.json', 'w') as f:\n\tjson.dump(gates, f)"
     ).body
+    global_module.body += ast.parse(
+        f"""with open('{filename}_semantics.json', 'w') as f:
+            json.dump(semantics, f)""").body
 
     return global_module
+
+
+def count_gates_by_qubit(gates, gate_range):
+    line_ends = {}
+    for i in range(gate_range[0], gate_range[1] + 1):
+        qubits = gates[i][1]
+        furthest = 0
+        for qubit in qubits:
+            if qubit not in line_ends:
+                line_ends[qubit] = 0
+            else:
+                furthest = max(furthest, line_ends[qubit])
+        for qubit in qubits:
+            line_ends[qubit] = furthest + 1
+    return line_ends
+
+
+def determine_rep_type(line_ends, rep_length):
+    line_count = len(line_ends.values())
+    furthest = max(line_ends.values())
+    if furthest >= rep_length and line_count >= rep_length:
+        return "diagonal"
+    elif furthest >= rep_length:
+        return "horizontal"
+    elif line_count >= rep_length:
+        return "vertical"
+    else:
+        return "diagonal"
+
+
+def set_semantic_types(filename):
+    with open(f"{filename}_semantics.json", "r") as f:
+        semantics = json.load(f)
+    with open(f"{filename}_gates.json", "r") as f:
+        gates = json.load(f)
+    for semantic in semantics:
+        gate_range = semantic["range"]
+        line_ends = count_gates_by_qubit(gates, gate_range)
+        semantic["type"] = determine_rep_type(
+            line_ends, gate_range[1] - gate_range[0] + 1)
+    with open(f"{filename}_semantics.json", "w") as f:
+        json.dump(semantics, f)
+    return

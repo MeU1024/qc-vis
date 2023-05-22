@@ -1,7 +1,7 @@
 import ast
 import json
 from structure import extract_target_tree, tree_to_list
-from gates_and_semantics import reconstruct_ast
+from gates_and_semantics import reconstruct_ast, set_semantic_types
 
 
 def parse_file(file_path, target, filename):
@@ -11,9 +11,10 @@ def parse_file(file_path, target, filename):
     target_tree, func_list = extract_target_tree(ast_tree, target)
     node_list = tree_to_list(target_tree)
     print_structure(node_list, filename)
-    new_ast = reconstruct_ast(func_list, target_tree, target)
+    new_ast = reconstruct_ast(func_list, target_tree, target, filename)
     ast.unparse(new_ast)
     print_file(filename + "_new.py", ast.unparse(new_ast))
+    set_semantic_types(filename)
 
 
 def print_structure(structure, filename):
