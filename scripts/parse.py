@@ -1,6 +1,7 @@
 import ast
 import json
 import os
+import sys
 from structure import extract_target_tree, tree_to_list
 from gates_and_semantics import reconstruct_ast, set_semantic_types
 
@@ -29,4 +30,5 @@ def print_file(file_path, str):
         f.write(str)
 
 
-parse_file("algorithms/Ising.py", "qc", "Ising")
+if __name__ == "__main__":
+    parse_file(sys.argv[1], sys.argv[2], sys.argv[3])
