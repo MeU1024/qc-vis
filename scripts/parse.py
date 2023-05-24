@@ -1,5 +1,6 @@
 import ast
 import json
+import os
 from structure import extract_target_tree, tree_to_list
 from gates_and_semantics import reconstruct_ast, set_semantic_types
 
@@ -14,6 +15,7 @@ def parse_file(file_path, target, filename):
     new_ast = reconstruct_ast(func_list, target_tree, target, filename)
     ast.unparse(new_ast)
     print_file(filename + "_new.py", ast.unparse(new_ast))
+    os.system("python " + filename + "_new.py")
     set_semantic_types(filename)
 
 
@@ -27,4 +29,4 @@ def print_file(file_path, str):
         f.write(str)
 
 
-parse_file("algorithms/W_state.py", "qc", "W_state")
+parse_file("algorithms/Ising.py", "qc", "Ising")

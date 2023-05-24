@@ -142,26 +142,25 @@ def reconstruct_node(func_list, structure_node, target):
                 for child in structure_node["children"]:
                     if node == child["ast_node"]:
                         child_index = structure_node["children"].index(child)
-                if child_index is None:
-                    raise Exception("child_index is None")
-                child = structure_node["children"][child_index]
-                # 记录当前 timestamp
-                ast_node_index = body.index(node)
-                body.insert(ast_node_index,
-                            ast.parse("start_time = timestamp").body[0])
-                # 递归
-                reconstruct_node(func_list, child, target)
-                # 输出 semantics
-                ast_node_index = body.index(node)
-                body.insert(
-                    ast_node_index + 1,
-                    ast.parse(f"""semantics.append(
-                        {{
-                            'type': 'unknown',
-                            'range': [start_time, timestamp - 1],
-                            'treeIndex': {child["index"]} + base_index,
-                        }}
-                        )""").body[0])
+                if child_index is not None:
+                    child = structure_node["children"][child_index]
+                    # 记录当前 timestamp
+                    ast_node_index = body.index(node)
+                    body.insert(ast_node_index,
+                                ast.parse("start_time = timestamp").body[0])
+                    # 递归
+                    reconstruct_node(func_list, child, target)
+                    # 输出 semantics
+                    ast_node_index = body.index(node)
+                    body.insert(
+                        ast_node_index + 1,
+                        ast.parse(f"""semantics.append(
+                            {{
+                                'type': 'unknown',
+                                'range': [start_time, timestamp - 1],
+                                'treeIndex': {child["index"]} + base_index,
+                            }}
+                            )""").body[0])
         elif type(node) == ast.FunctionDef:
             for func in func_list:
                 if func["ast_node"] == node:

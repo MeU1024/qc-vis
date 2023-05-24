@@ -122,7 +122,6 @@ def travel_and_extract(tree, node, father, target, func_list):
     # 如果是循环
     elif type(node) == ast.For:
         rep = {"name": "for", "type": "rep", "ast_node": node, "children": []}
-        father["children"].append(rep)
         for child in node.body:
             travel_and_extract(tree, child, rep, target, func_list)
         # 构建循环名字
@@ -132,7 +131,9 @@ def travel_and_extract(tree, node, father, target, func_list):
                 names.append(child["name"])
             elif child["type"] == "fun":
                 names.append(child["name"])
-        rep["name"] = "[" + "-".join(names) + "]"
+        if len(names) > 0:
+            rep["name"] = "[" + "-".join(names) + "]"
+            father["children"].append(rep)
 
 
 def extract_target_tree(ast_tree, target):
