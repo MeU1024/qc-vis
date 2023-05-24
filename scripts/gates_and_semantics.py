@@ -1,10 +1,11 @@
 import ast
+import astunparse
 from public import get_target_arg_pos, get_target_keyword, supported_gate_list
 import json
 
 
 def get_qubit_from_ast_node(node):
-    return ast.unparse(node)
+    return astunparse.unparse(node)
 
 
 # 根据 keyword 或 position 获取 qubit 参数
