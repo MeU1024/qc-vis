@@ -1,5 +1,5 @@
 import ast
-import astunparse
+from unparse import Unparser
 import json
 import os
 import sys
@@ -15,7 +15,7 @@ def parse_file(file_path, target, filename):
     node_list = tree_to_list(target_tree)
     print_structure(node_list, filename)
     new_ast = reconstruct_ast(func_list, target_tree, target, filename)
-    print_file(filename + "_new.py", astunparse.unparse(new_ast))
+    print_file(filename + "_new.py", new_ast)
     os.system("python " + filename + "_new.py")
     set_semantic_types(filename)
 
@@ -25,9 +25,9 @@ def print_structure(structure, filename):
         json.dump(structure, f, indent=4)
 
 
-def print_file(file_path, str):
+def print_file(file_path, ast_tree):
     with open(file_path, 'w') as f:
-        f.write(str)
+        Unparser(ast_tree, f)
 
 
 if __name__ == "__main__":
