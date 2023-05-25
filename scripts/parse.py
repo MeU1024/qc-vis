@@ -1,5 +1,4 @@
 import ast
-import astunparse
 import json
 import os
 import sys
@@ -15,7 +14,9 @@ def parse_file(file_path, target, filename):
     node_list = tree_to_list(target_tree)
     print_structure(node_list, filename)
     new_ast = reconstruct_ast(func_list, target_tree, target, filename)
-    print_file(filename + "_new.py", astunparse.unparse(new_ast))
+    if sys.version_info >= (3, 9):
+        print_file(filename + "_new.py", ast.unparse(new_ast))
+    #TODO: else ast unparse
     os.system("python " + filename + "_new.py")
     set_semantic_types(filename)
 
