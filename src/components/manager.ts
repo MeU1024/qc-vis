@@ -6,6 +6,8 @@ import * as qv from '../quantivine';
 import * as utils from '../utilities/utils';
 import * as eventbus from './eventBus';
 import { getLogger } from './logger';
+import { spawn } from 'child_process';
+import { rootCertificates } from 'tls';
 
 const logger = getLogger('Manager');
 
@@ -83,10 +85,10 @@ export class Manager {
     const wsfolders = vscode.workspace.workspaceFolders?.map((e) =>
       e.uri.toString(true)
     );
-    // logger.log(`Current workspace folders: ${JSON.stringify(wsfolders)}`);
+    logger.log(`Current workspace folders: ${JSON.stringify(wsfolders)}`);
 
     const currentFile = vscode.window.activeTextEditor?.document.uri;
-    // logger.log(`Current active editor: ${currentFile}`);
+    logger.log(`Current active editor: ${currentFile}`);
 
     if (!currentFile) {
       return;
@@ -94,7 +96,9 @@ export class Manager {
 
     const filename = path.basename(currentFile.fsPath);
 
-    if (this.sourceFile !== currentFile && this.supportAlgorithm(filename)) {
+    //TODO: fix supportAlgorithm
+    // if (this.sourceFile !== currentFile && this.supportAlgorithm(filename)) {
+    if (this.sourceFile !== currentFile) {
       logger.log(
         `Source file changed: from ${this.sourceFile} to ${currentFile}`
       );
@@ -167,13 +171,73 @@ export class Manager {
     return path.normalize(out).split(path.sep).join('/');
   }
 
-  code2data(codeFile: vscode.Uri) {
-    const codePath = codeFile.fsPath;
-    return path.resolve(
-      path.dirname(codePath),
-      this.getOutDir(codePath),
-      path.basename(`${codePath.substring(0, codePath.lastIndexOf('.'))}.json`)
-    );
+  callPython(envPath: string, scriptPath: string, sourceFilePath: string, target: string, tmpFilePath: string) {
+    //TODO: fix target、 conda env
+    // const pythonProcess = spawn('python', [pythonScriptPath, codePath, target, jsonFilePrefix]);
+    // const process = spawn(pythonPath, [scriptPath, arg1, arg2, arg3]);
+
+    const pythonProcess = spawn(envPath, [scriptPath, sourceFilePath, target, tmpFilePath]);
+
+    pythonProcess.stdout.on('data', (data) => {
+      console.log(`Received data from Python: ${data}`);
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      console.error(`Error from Python: ${data}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+      console.log(`Python process exited with code ${code}`);
+    });
+  }
+
+  //TODO: fix bug
+  code2data(codeFile: vscode.Uri): string {
+    console.log("manager code2data 1");
+    var codePath = codeFile.fsPath;
+    //TODO: throw error
+    if (this._tmpDir == undefined) return "error";
+    console.log("manager code2data 2");
+
+    // get python interpreter
+    var pythonInterpreter = "";
+    const pythonExtension = vscode.extensions.getExtension('ms-python.python');
+    console.log("manager code2data 3");
+    if (pythonExtension) {
+      const pythonExtensionApi = pythonExtension.exports;
+      const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
+      if (workspaceFolder) {
+        pythonInterpreter = pythonExtensionApi.settings.getExecutionDetails(workspaceFolder.uri).execCommand[0];
+        console.log(`Python interpreter for the workspace: ${pythonInterpreter}`);
+      }
+      //TODO: throw error
+    }
+    console.log("manager code2data 4");
+
+    const extensionRoot = qv.getExtensionUri().fsPath;
+    var pythonScriptPath = path.join(extensionRoot, 'scripts/parse.py');
+
+    //TODO: target
+    const target = 'qc';
+    // tmpdir + algorithm_name
+    var startPos = codePath.lastIndexOf('/');
+    if (startPos == -1 || startPos == undefined) startPos = codePath.lastIndexOf('\\');
+    const algorithm_name = codePath.substring(startPos + 1, codePath.lastIndexOf('.'));
+    var jsonFilePrefix = path.join(this._tmpDir, algorithm_name);
+
+    pythonScriptPath = pythonScriptPath.replace(/\//g, '\\').replace(/\\/g, '\\\\');
+    jsonFilePrefix = jsonFilePrefix.replace(/\//g, '\\').replace(/\\/g, '\\\\');
+    codePath = codePath.replace(/\//g, '\\').replace(/\\/g, '\\\\');
+
+    console.log(`Python interpreter for the workspace: ${pythonInterpreter}`);
+    console.log("pythonScriptPath", pythonScriptPath);
+    console.log("codepath", codePath);
+    console.log("tmpdir", this._tmpDir);
+    console.log("jsonFilePrefix", jsonFilePrefix);
+
+    this.callPython(pythonInterpreter, pythonScriptPath, codePath, target, jsonFilePrefix);
+
+    return this._tmpDir;
   }
 
   private registerSetEnvVar() {

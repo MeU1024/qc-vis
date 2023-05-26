@@ -60,7 +60,7 @@ export class Viewer {
     });
   }
 
-  openExternal(): void {}
+  openExternal(): void { }
 
   updateHighlight(id: string) {
     const dataUri = vscode.Uri.file("");
@@ -84,8 +84,9 @@ export class Viewer {
     });
   }
 
-  private code2data(sourceFile: vscode.Uri): vscode.Uri {
+  code2data(sourceFile: vscode.Uri): vscode.Uri {
     const dataFilePath = qv.manager.code2data(sourceFile);
+    console.log("viewer code2data");
     return vscode.Uri.file(dataFilePath);
   }
 }
