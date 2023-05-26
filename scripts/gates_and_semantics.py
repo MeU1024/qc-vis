@@ -1,10 +1,14 @@
 import ast
+from unparse import Unparser
+from io import StringIO
 from public import get_target_arg_pos, get_target_keyword, supported_gate_list
 import json
 
 
 def get_qubit_from_ast_node(node):
-    return ast.unparse(node)
+    redirect = StringIO()
+    Unparser(node, redirect)
+    return redirect.getvalue()
 
 
 # 根据 keyword 或 position 获取 qubit 参数

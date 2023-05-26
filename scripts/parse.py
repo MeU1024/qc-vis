@@ -1,4 +1,5 @@
 import ast
+from unparse import Unparser
 import json
 import os
 import sys
@@ -14,9 +15,7 @@ def parse_file(file_path, target, filename):
     node_list = tree_to_list(target_tree)
     print_structure(node_list, filename)
     new_ast = reconstruct_ast(func_list, target_tree, target, filename)
-    if sys.version_info >= (3, 9):
-        print_file(filename + "_new.py", ast.unparse(new_ast))
-    #TODO: else ast unparse
+    print_file(filename + "_new.py", new_ast)
     os.system("python " + filename + "_new.py")
     set_semantic_types(filename)
 
@@ -26,9 +25,9 @@ def print_structure(structure, filename):
         json.dump(structure, f, indent=4)
 
 
-def print_file(file_path, str):
+def print_file(file_path, ast_tree):
     with open(file_path, 'w') as f:
-        f.write(str)
+        Unparser(ast_tree, f)
 
 
 if __name__ == "__main__":
