@@ -212,8 +212,12 @@ def reconstruct_ast(func_list, structure, target, filename):
     reconstruct_node(func_list, structure, target)
     global_module.body += ast.parse("import json").body
     global_module.body += ast.parse(
-        f"with open('{filename}_gates.json', 'w') as f:\n\tjson.dump(gates, f)"
-    ).body
+        f"gate_info = {{'qubit': {target}.num_qubits, 'gates': gates}}").body
+    # 输出 gates
+    global_module.body += ast.parse(
+        f"""with open('{filename}_gates.json', 'w') as f:
+            json.dump(gate_info, f)""").body
+    # 输出 semantics
     global_module.body += ast.parse(
         f"""with open('{filename}_semantics.json', 'w') as f:
             json.dump(semantics, f)""").body
@@ -253,7 +257,8 @@ def set_semantic_types(filename):
     with open(f"{filename}_semantics.json", "r") as f:
         semantics = json.load(f)
     with open(f"{filename}_gates.json", "r") as f:
-        gates = json.load(f)
+        gate_info = json.load(f)
+        gates = gate_info["gates"]
     for semantic in semantics:
         gate_range = semantic["range"]
         line_ends = count_gates_by_qubit(gates, gate_range)
