@@ -141,6 +141,16 @@ def reconstruct_node(func_list, structure_node, target):
         elif type(node) == ast.For:
             if node not in for_list:
                 for_list.append(node)
+                # 记录当前 timestamp
+                node.body.insert(
+                    0,
+                    ast.parse(
+                        "start_time = timestamp").body[0])
+                # 插入当前循环体范围
+                node.body.insert(
+                    len(node.body),
+                    ast.parse(
+                        "range_list.append([start_time, timestamp - 1])").body[0])
                 # 找到对应的 structure node
                 child_index = None
                 for child in structure_node["children"]:
@@ -148,10 +158,10 @@ def reconstruct_node(func_list, structure_node, target):
                         child_index = structure_node["children"].index(child)
                 if child_index is not None:
                     child = structure_node["children"][child_index]
-                    # 记录当前 timestamp
+                    # 新建 range 数组
                     ast_node_index = body.index(node)
                     body.insert(ast_node_index,
-                                ast.parse("start_time = timestamp").body[0])
+                                ast.parse("range_list = []").body[0])
                     # 递归
                     reconstruct_node(func_list, child, target)
                     # 输出 semantics
@@ -161,7 +171,7 @@ def reconstruct_node(func_list, structure_node, target):
                         ast.parse(f"""semantics.append(
                             {{
                                 'type': 'unknown',
-                                'range': [start_time, timestamp - 1],
+                                'range': range_list,
                                 'treeIndex': {child["index"]} + base_index,
                             }}
                             )""").body[0])
@@ -227,7 +237,9 @@ def reconstruct_ast(func_list, structure, target, filename):
 
 def count_gates_by_qubit(gates, gate_range):
     line_ends = {}
-    for i in range(gate_range[0], gate_range[1] + 1):
+    start_time = gate_range[0][0]
+    end_time = gate_range[len(gate_range) - 1][1]
+    for i in range(start_time, end_time + 1):
         qubits = gates[i][1]
         furthest = 0
         for qubit in qubits:
@@ -263,7 +275,7 @@ def set_semantic_types(filename):
         gate_range = semantic["range"]
         line_ends = count_gates_by_qubit(gates, gate_range)
         semantic["type"] = determine_rep_type(
-            line_ends, gate_range[1] - gate_range[0] + 1)
+            line_ends, gate_range[len(gate_range) - 1][1] - gate_range[0][0] + 1)
     with open(f"{filename}_semantics.json", "w") as f:
         json.dump(semantics, f)
     return
