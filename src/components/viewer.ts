@@ -13,6 +13,7 @@ export class Viewer {
     tabEditorGroup: string,
     preserveFocus: boolean
   ): Promise<void> {
+    // fix datauri
     const dataUri = qv.manager.sourceFile || qv.getDefaultDataFile();
     return this.visualizeQCircuitInTab(dataUri, tabEditorGroup, preserveFocus);
   }
@@ -86,7 +87,6 @@ export class Viewer {
 
   code2data(sourceFile: vscode.Uri): vscode.Uri {
     const dataFilePath = qv.manager.code2data(sourceFile);
-    console.log("viewer code2data");
     return vscode.Uri.file(dataFilePath);
   }
 }

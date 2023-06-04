@@ -29,6 +29,8 @@ export class QcStructure {
   static async buildQcModel(file?: vscode.Uri): Promise<QuantumTreeNode[]> {
     file = file ? file : qv.manager.sourceFile;
 
+    console.log("buildQC file", file);
+
     if (!file) {
       return [];
     }
@@ -52,7 +54,8 @@ export class QcStructure {
     let ast: any;
 
     let gates: QuantumTreeNode[] = [];
-    gates = loadTreeFromFile();
+    //TODO: file
+    gates = loadTreeFromFile(file);
 
     return gates;
   }
@@ -89,7 +92,12 @@ export class QcStructure {
 }
 
 function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
+  // let resourcesFile = qv.manager.tmpDir;
   const algorithm = qv.manager.algorithm || "vqc";
+
+  console.log("qcmodel file", file);
+  console.log("qcmodel algorithm", algorithm);
+
   if (!file) {
     let path = vscode.Uri.joinPath(
       qv.getExtensionUri(),
@@ -100,6 +108,7 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
   logger.log("Loading tree from file: " + file.fsPath + "...");
 
   let data = require(file.fsPath);
+  //TODO: fix file
 
   let gates: QuantumTreeNode[] = [];
   let gateList: QuantumTreeNode[] = [];
@@ -123,8 +132,8 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
         node.type === "fun"
           ? NodeType.superGate
           : node.type === "rep"
-          ? NodeType.repetition
-          : NodeType.basicGate;
+            ? NodeType.repetition
+            : NodeType.basicGate;
       let description = undefined;
       let collapsibleState = vscode.TreeItemCollapsibleState.None;
 
@@ -154,6 +163,7 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
     }
   });
 
+  console.log("qcmodel gatelist", gateList);
   return gates;
 }
 
@@ -233,7 +243,7 @@ export class Gate {
     readonly gateType: string,
     readonly qubits: Qubit[],
     readonly index: number
-  ) {}
+  ) { }
 }
 
 export class ComponentGate {
@@ -243,7 +253,7 @@ export class ComponentGate {
     readonly range: number[],
     readonly treeIndex: number,
     readonly repTimes: number[]
-  ) {}
+  ) { }
 
   get treePath(): number[] {
     return this.repTimes;
@@ -259,7 +269,7 @@ export class ComponentGate {
 }
 
 export class Qubit {
-  constructor(readonly qubitName: string, readonly qubitIndex?: number) {}
+  constructor(readonly qubitName: string, readonly qubitIndex?: number) { }
   get index(): number {
     return this.qubitIndex ? this.qubitIndex : 0;
   }
@@ -272,7 +282,7 @@ export class SuperQubit extends Qubit {
 }
 
 export class Region {
-  constructor(layer: number[], qubit: number[], name: string) {}
+  constructor(layer: number[], qubit: number[], name: string) { }
 }
 
 export class DrawableCircuit {

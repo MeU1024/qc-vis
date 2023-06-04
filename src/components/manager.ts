@@ -58,6 +58,10 @@ export class Manager {
     }
   }
 
+  get tmpDir() {
+    return this._tmpDir;
+  }
+
   get sourceFileLanguageId() {
     return this._sourceFileLanguageId;
   }
@@ -82,6 +86,7 @@ export class Manager {
    * Set the current editing file as the source file.
    */
   async updateSource(): Promise<vscode.Uri | undefined> {
+    console.log("manager updateSource");
     const wsfolders = vscode.workspace.workspaceFolders?.map((e) =>
       e.uri.toString(true)
     );
@@ -172,9 +177,7 @@ export class Manager {
   }
 
   callPython(envPath: string, scriptPath: string, sourceFilePath: string, target: string, tmpFilePath: string) {
-    //TODO: fix target、 conda env
-    // const pythonProcess = spawn('python', [pythonScriptPath, codePath, target, jsonFilePrefix]);
-    // const process = spawn(pythonPath, [scriptPath, arg1, arg2, arg3]);
+    //TODO: fix target
 
     const pythonProcess = spawn(envPath, [scriptPath, sourceFilePath, target, tmpFilePath]);
 
@@ -193,26 +196,24 @@ export class Manager {
 
   //TODO: fix bug
   code2data(codeFile: vscode.Uri): string {
-    console.log("manager code2data 1");
     var codePath = codeFile.fsPath;
-    //TODO: throw error
-    if (this._tmpDir == undefined) return "error";
-    console.log("manager code2data 2");
+    if (this._tmpDir == undefined) {
+      throw new Error("Temp data file not found.");
+    }
 
     // get python interpreter
     var pythonInterpreter = "";
     const pythonExtension = vscode.extensions.getExtension('ms-python.python');
-    console.log("manager code2data 3");
     if (pythonExtension) {
       const pythonExtensionApi = pythonExtension.exports;
       const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
       if (workspaceFolder) {
         pythonInterpreter = pythonExtensionApi.settings.getExecutionDetails(workspaceFolder.uri).execCommand[0];
-        console.log(`Python interpreter for the workspace: ${pythonInterpreter}`);
       }
-      //TODO: throw error
+      else {
+        throw new Error("Workspace python interpreter not found.");
+      }
     }
-    console.log("manager code2data 4");
 
     const extensionRoot = qv.getExtensionUri().fsPath;
     var pythonScriptPath = path.join(extensionRoot, 'scripts/parse.py');
@@ -229,11 +230,11 @@ export class Manager {
     jsonFilePrefix = jsonFilePrefix.replace(/\//g, '\\').replace(/\\/g, '\\\\');
     codePath = codePath.replace(/\//g, '\\').replace(/\\/g, '\\\\');
 
-    console.log(`Python interpreter for the workspace: ${pythonInterpreter}`);
-    console.log("pythonScriptPath", pythonScriptPath);
-    console.log("codepath", codePath);
-    console.log("tmpdir", this._tmpDir);
-    console.log("jsonFilePrefix", jsonFilePrefix);
+    // console.log(`Python interpreter for the workspace: ${pythonInterpreter}`);
+    // console.log("pythonScriptPath", pythonScriptPath);
+    // console.log("codepath", codePath);
+    // console.log("tmpdir", this._tmpDir);
+    // console.log("jsonFilePrefix", jsonFilePrefix);
 
     this.callPython(pythonInterpreter, pythonScriptPath, codePath, target, jsonFilePrefix);
 

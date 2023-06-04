@@ -1,13 +1,14 @@
 import * as vscode from 'vscode';
-import {NodeType, QuantumTreeNode} from './structurelib/quantumgate';
+import { NodeType, QuantumTreeNode } from './structurelib/quantumgate';
 import * as qv from '../quantivine';
 
-import {getLogger} from '../components/logger';
+import { getLogger } from '../components/logger';
 import {
   SourceFileChanged,
   StructureUpdated as StructureUpdated,
 } from '../components/eventBus';
-import {ComponentGate, QcStructure} from './structurelib/qcmodel';
+import { ComponentGate, QcStructure } from './structurelib/qcmodel';
+import { DataLoader } from './structurelib/dataloader';
 
 const logger = getLogger('DataProvider', 'Structure');
 
@@ -66,13 +67,22 @@ export class GateNodeProvider
   async build(force: boolean): Promise<QuantumTreeNode[]> {
     if (qv.manager.sourceFile) {
       if (force || !this.cachedGates) {
-        this.cachedGates = await QcStructure.buildQcModel();
+        //TODO: file
+        //TODO: throw error
+        const tmpDir = qv.manager.tmpDir ? vscode.Uri.parse(qv.manager.tmpDir) : undefined;
+        const file = (tmpDir && qv.manager.algorithm) ? vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`) : undefined;
+        // console.log("structure file", file);
+        if (qv.manager.algorithm == undefined) {
+          throw new Error("Algorithm undefined");
+        }
+        let dataloader = new DataLoader(qv.manager.algorithm);
+        const structureFile = dataloader.structureDataFile;
+        this.cachedGates = await QcStructure.buildQcModel(structureFile);
       }
       this.ds = this.cachedGates;
       this.ds.forEach((gate) => this._updateTreeMap(gate));
       logger.log(
-        `Structure ${force ? 'force ' : ''}updated with ${this.ds.length} for ${
-          qv.manager.sourceFile
+        `Structure ${force ? 'force ' : ''}updated with ${this.ds.length} for ${qv.manager.sourceFile
         } .`
       );
     } else {

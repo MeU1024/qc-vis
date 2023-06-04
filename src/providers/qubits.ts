@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 import * as qv from '../quantivine';
 
-import {getLogger} from '../components/logger';
-import {SourceFileChanged} from '../components/eventBus';
+import { getLogger } from '../components/logger';
+import { SourceFileChanged } from '../components/eventBus';
 import path from 'path';
+import { DataLoader } from './structurelib/dataloader';
 
 const logger = getLogger('DataProvider', 'Qubit');
 
@@ -60,12 +61,20 @@ export class QubitNodeProvider
 
   private _getQubitNum(sourceFilePath: string): number {
     const algorithm = path.basename(sourceFilePath, '.py');
-    const dataFile = vscode.Uri.joinPath(
-      qv.getExtensionUri(),
-      `/resources/data/${algorithm}-json-data.json`
-    );
-    let data = require(dataFile.fsPath);
-    return data.qubits.length;    
+    const dataloader = new DataLoader(algorithm);
+    const gatesDataFile = dataloader.gatesDataFile;
+    if (gatesDataFile == undefined) {
+      //TODO: throw error
+      return 0;
+    }
+    // const dataFile = vscode.Uri.joinPath(
+    //   qv.getExtensionUri(),
+    //   `/resources/data/${algorithm}-json-data.json`
+    // );
+    let data = require(gatesDataFile.fsPath);
+    //TODO: delete & throw error
+    if (!data.qubit) return 4;
+    return data.qubit;
   }
 }
 

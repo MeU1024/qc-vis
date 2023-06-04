@@ -15,6 +15,7 @@ import {
 import { getExtensionUri } from "../quantivine";
 import { get, maxHeaderSize } from "http";
 import G from "glob";
+import { DataLoader } from "./structurelib/dataloader";
 
 const logger = getLogger("DataProvider", "Context");
 
@@ -304,11 +305,22 @@ class ContextualCircuit {
     type: string;
   }[] {
     const algorithm = qv.manager.algorithm;
-    let dataSource = vscode.Uri.joinPath(
-      getExtensionUri(),
-      `/resources/data/${algorithm}-structure.json`
-    ).fsPath;
-    let data = require(dataSource);
+    //TODO: change resource file
+    // let dataSource = vscode.Uri.joinPath(
+    //   getExtensionUri(),
+    //   `/resources/data/${algorithm}-structure.json`
+    // ).fsPath;
+    if (algorithm == undefined) {
+      //TODO: throw error
+      return [];
+    }
+    const dataloader = new DataLoader(algorithm);
+    const file = dataloader.structureDataFile;
+    if (file == undefined) {
+      //TODO: throw error
+      return [];
+    }
+    let data = require(file.fsPath);
     let treeStructure = data.map((tree: any) => {
       return {
         name: tree.name,

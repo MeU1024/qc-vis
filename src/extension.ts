@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import {getLogger} from './components/logger';
-import {QCViewerManagerService} from './components/viewerlib/qcviewermanager';
-import {AbstractionDataProvider} from './providers/abstraction';
+import { getLogger } from './components/logger';
+import { QCViewerManagerService } from './components/viewerlib/qcviewermanager';
+import { AbstractionDataProvider } from './providers/abstraction';
 import { QubitTreeNode } from './providers/qubits';
-import {QuantumTreeNode} from './providers/structurelib/quantumgate';
+import { QuantumTreeNode } from './providers/structurelib/quantumgate';
 import * as qv from './quantivine';
 
 const logger = getLogger('Extension');

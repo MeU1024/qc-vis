@@ -165,13 +165,17 @@ export class ComponentCircuit {
     this._originalQubits = this._dataLoader.qubits;
     this._originalGates = this._dataLoader.quantumGates;
 
-    const file = vscode.Uri.file(
-      vscode.Uri.joinPath(
-        getExtensionUri(),
-        `/resources/data/${algorithmName}-json-data.json`
-      ).fsPath
-    );
-    logger.log(`Build component circuit from ${file.fsPath}`);
+    // const file = vscode.Uri.file(
+    //   vscode.Uri.joinPath(
+    //     getExtensionUri(),
+    //     `/resources/data/${algorithmName}-json-data.json`
+    //   ).fsPath
+    // );
+    // logger.log(`Build component circuit from ${file.fsPath}`);
+
+    //TODO: fix file
+    const jsondatafile = this._dataLoader.structureDataFile;
+
     // if (jsonData === undefined) {
     //   jsonData.layers.forEach((layer: any) => {
     //     this._layers.push(new Layer([]));
@@ -192,7 +196,10 @@ export class ComponentCircuit {
     // }
 
     // this._importGatesFromFile(file);
-    this._treeStructure = this._importStructureFromFile(file);
+
+    // TODO: fix file
+    // this._treeStructure = this._importStructureFromFile(file);
+    this._treeStructure = this._importStructureFromFile(jsondatafile);
     this._updateTreeMap();
     this._build();
   }
@@ -338,11 +345,21 @@ export class ComponentCircuit {
     type: string;
   }[] {
     const algorithm = qv.manager.algorithm;
-    let dataSource = vscode.Uri.joinPath(
-      getExtensionUri(),
-      `/resources/data/${algorithm}-structure.json`
-    ).fsPath;
-    let data = require(dataSource);
+    if (algorithm == undefined) {
+      //TODO: throw error
+      return [];
+    }
+    // const dataloader = new DataLoader(algorithm);
+    const structurefile = this._dataLoader.structureDataFile;
+    if (structurefile == undefined) {
+      //TODO: throw error
+      return [];
+    }
+    // let dataSource = vscode.Uri.joinPath(
+    //   getExtensionUri(),
+    //   `/resources/data/${algorithm}-structure.json`
+    // ).fsPath;
+    let data = require(structurefile.fsPath);
     // if (file) {
     //   data = require(file.fsPath);
     // }
@@ -370,8 +387,10 @@ export class ComponentCircuit {
         let treeIndex = item.index;
         let previousIndex = treeIndex;
         while (1) {
+          console.log("component isvisible");
+          console.log("component treevisible index", treeIndex);
           let treeVisible = qv.semanticTreeViewer.isVisible(treeIndex);
-          let parentVisible = qv.semanticTreeViewer.isVisible(parentIndex);
+          // let parentVisible = qv.semanticTreeViewer.isVisible(parentIndex);
 
           if (treeVisible) {
             if (this._treeStructure[treeIndex].type === "rep") {

@@ -1,0 +1,19 @@
+[
+    {
+        "type": "diagonal",
+        "range": [
+            1,
+            27
+        ],
+        "treeIndex": 3
+    },
+    {
+        "type": "diagonal",
+        "range": [
+            28,
+            36,
+            1
+        ],
+        "treeIndex": 8
+    }
+]

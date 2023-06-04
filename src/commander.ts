@@ -7,17 +7,14 @@ import { QCViewerManagerService } from "./components/viewerlib/qcviewermanager";
 const logger = getLogger("Commander");
 
 export async function build() {
-  console.log("commander build 1")
   const sourceFile = await qv.manager.updateSource();
   if (sourceFile === undefined) {
     logger.log("Cannot find quantum circuit to view.");
     return;
   }
-  console.log("commander build 2")
-  qv.viewer.code2data(sourceFile);
-  console.log("commander build 3")
-  // 新建tmp文件夹
-  // return文件夹，使build的时候使用这个文件夹
+  console.log("commander build sourceFile", sourceFile);
+  const tmpDir = qv.viewer.code2data(sourceFile);
+  //TODO: ，使build的时候使用tmpDir这个文件夹 (?)
 
 }
 
