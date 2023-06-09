@@ -136,10 +136,10 @@ def travel_and_extract(tree, node, father, target, func_list):
             father["children"].append(rep)
 
 
-def extract_target_tree(ast_tree, target):
+def extract_target_tree(ast_tree, target, file_name):
     func_list = []
     root = {
-        "name": "global",
+        "name": file_name,
         "type": "fun",
         "ast_node": ast_tree,
         "children": []
@@ -168,5 +168,5 @@ def tree_to_list(root):
             for child in node["children"]:
                 preorder_output(child, cur_index)
 
-    preorder_output(root, -1)
+    preorder_output(root, 0)
     return structure_list

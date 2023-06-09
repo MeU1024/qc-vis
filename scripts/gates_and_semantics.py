@@ -141,22 +141,22 @@ def reconstruct_node(func_list, structure_node, target):
         elif type(node) == ast.For:
             if node not in for_list:
                 for_list.append(node)
-                # 记录当前 timestamp
-                node.body.insert(
-                    0,
-                    ast.parse(
-                        "start_time = timestamp").body[0])
-                # 插入当前循环体范围
-                node.body.insert(
-                    len(node.body),
-                    ast.parse(
-                        "range_list.append([start_time, timestamp - 1])").body[0])
                 # 找到对应的 structure node
                 child_index = None
                 for child in structure_node["children"]:
                     if node == child["ast_node"]:
                         child_index = structure_node["children"].index(child)
                 if child_index is not None:
+                    # 记录当前 timestamp
+                    node.body.insert(
+                        0,
+                        ast.parse(
+                            "start_time = timestamp").body[0])
+                    # 插入当前循环体范围
+                    node.body.insert(
+                        len(node.body),
+                        ast.parse(
+                            "range_list.append([start_time, timestamp - 1])").body[0])
                     child = structure_node["children"][child_index]
                     # 新建 range 数组
                     ast_node_index = body.index(node)
