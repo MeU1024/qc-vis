@@ -16,11 +16,11 @@ def parse_file(file_path, target, filename):
     print_structure(node_list, filename)
     new_ast = reconstruct_ast(func_list, target_tree, target, filename)
     print_file(filename + "_new.py", new_ast)
-    python_path = sys.executable
+    python_interpreter_path = sys.executable
     script_name = filename + "_new.py"
-    print("python_path" + python_path)
+    print("python_path" + python_interpreter_path)
     print("script_name" + script_name)
-    os.system(f'{python_path} {script_name}') 
+    os.system(f'{python_interpreter_path} {script_name}') 
     #os.system("python " + filename + "_new.py")
     set_semantic_types(filename)
 

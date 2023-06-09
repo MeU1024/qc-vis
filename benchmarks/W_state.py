@@ -22,3 +22,5 @@ def get_cir(n_qubits):
         qc.cx(n - 2 - i, n - 1 - i)
 
     return qc
+
+qc = get_cir(10)
