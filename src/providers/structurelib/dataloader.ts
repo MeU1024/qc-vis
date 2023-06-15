@@ -25,23 +25,44 @@ export class DataLoader {
 
 
   constructor(private algorithmName: string) {
-    const tmpDir = qv.manager.tmpDir ? vscode.Uri.parse(qv.manager.tmpDir) : undefined;
-    //TODO: fix file
-    // this._structureDataFile = (tmpDir && qv.manager.algorithm) ? vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`) : undefined;
-    this._structureDataFile = vscode.Uri.joinPath(
-      getExtensionUri(),
-      `/resources/data/${qv.manager.algorithm}_structure.json`
-    );
-    // this._gatesDataFile = (tmpDir && qv.manager.algorithm) ? vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_gates.json`) : undefined;
-    this._gatesDataFile = vscode.Uri.joinPath(
-      getExtensionUri(),
-      `/resources/data/${qv.manager.algorithm}_gates.json`
-    );
-    // this._semanticsDataFile = (tmpDir && qv.manager.algorithm) ? vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_semantics.json`) : undefined;
-    this._semanticsDataFile = vscode.Uri.joinPath(
-      getExtensionUri(),
-      `/resources/data/${qv.manager.algorithm}_semantics.json`
-    );
+    
+    // TODO: fix file
+    
+    if(!qv.manager.tmpDir) {
+      throw new Error("tmp dir not found");
+    }
+    if(!qv.manager.algorithm) {
+      throw new Error("algorithm not found ");
+    }
+    const tmpDir =  vscode.Uri.file(qv.manager.tmpDir);
+    console.log("datloader tmpdir", tmpDir);
+    this._structureDataFile = vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`) ;
+    // this._structureDataFile = vscode.Uri.joinPath(
+    //   getExtensionUri(),
+    //   `/resources/data/${qv.manager.algorithm}_structure.json`
+    // );
+    // console.log("dataloader dir1", vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`));
+    // console.log("dataloader dir2", vscode.Uri.joinPath(
+    //   getExtensionUri(),
+    //   `/resources/data/${qv.manager.algorithm}_structure.json`
+    // ));
+
+    // console.log("dataloader dir1", vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`).toString());
+    // console.log("dataloader dir2", vscode.Uri.joinPath(
+    //   getExtensionUri(),
+    //   `/resources/data/${qv.manager.algorithm}_structure.json`
+    // ).toString());
+
+    this._gatesDataFile = vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_gates.json`) ;
+    // this._gatesDataFile = vscode.Uri.joinPath(
+    //   getExtensionUri(),
+    //   `/resources/data/${qv.manager.algorithm}_gates.json`
+    // );
+    this._semanticsDataFile =  vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_semantics.json`) ;
+    // this._semanticsDataFile = vscode.Uri.joinPath(
+    //   getExtensionUri(),
+    //   `/resources/data/${qv.manager.algorithm}_semantics.json`
+    // );
 
     if (this._structureDataFile == undefined || this._gatesDataFile == undefined || this._semanticsDataFile == undefined) {
       throw new Error('Dataload Error: File not found');

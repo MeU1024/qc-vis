@@ -55,7 +55,7 @@ qc = get_cir(10, path=path, base_index=
 (base_index + 1))
 import json
 gate_info = {'qubit': qc.num_qubits, 'gates': gates}
-with open('C:\\Users\\61049\\AppData\\Local\\Temp\\tmp-6880-VmPzzdd6Dqcw\\W_state_gates.json', 'w') as f:
+with open('D:\\qc\\qc-vis\\tmpdir\\W_state_gates.json', 'w') as f:
     json.dump(gate_info, f)
-with open('C:\\Users\\61049\\AppData\\Local\\Temp\\tmp-6880-VmPzzdd6Dqcw\\W_state_semantics.json', 'w') as f:
+with open('D:\\qc\\qc-vis\\tmpdir\\W_state_semantics.json', 'w') as f:
     json.dump(semantics, f)
