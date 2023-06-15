@@ -13,7 +13,7 @@ def parse_file(file_path, target, output_name):
         file = f.read()
     ast_tree = ast.parse(file)
     target_tree, func_list = extract_target_tree(
-        ast_tree, target, re.split('[.\\/]', file_path)[-2])
+        ast_tree, target, re.split('[.\\\\/]', file_path)[-2])
     node_list = tree_to_list(target_tree)
     print_structure(node_list, output_name)
     new_ast = reconstruct_ast(func_list, target_tree, target, output_name)
