@@ -3,6 +3,7 @@ from unparse import Unparser
 import json
 import os
 import sys
+import re
 from structure import extract_target_tree, tree_to_list
 from gates_and_semantics import reconstruct_ast, set_semantic_types
 
@@ -11,7 +12,8 @@ def parse_file(file_path, target, output_name):
     with open(file_path, 'r') as f:
         file = f.read()
     ast_tree = ast.parse(file)
-    target_tree, func_list = extract_target_tree(ast_tree, target, file_path.split("/")[-1])
+    target_tree, func_list = extract_target_tree(
+        ast_tree, target, re.split('[.\\/]', file_path)[-2])
     node_list = tree_to_list(target_tree)
     print_structure(node_list, output_name)
     new_ast = reconstruct_ast(func_list, target_tree, target, output_name)
