@@ -187,7 +187,7 @@ def reconstruct_node(func_list, structure_node, target):
                         0,
                         ast.parse(
                             "path = path.copy() + [get_index()]").body[0])
-                    reconstruct_node(func_list, func, target)
+                    reconstruct_node(func_list, func, func["target"])
                     break
 
 
@@ -253,6 +253,8 @@ def count_gates_by_qubit(gates, gate_range):
 
 
 def determine_rep_type(line_ends, rep_length):
+    if (line_ends == {}):
+        return "empty"
     line_count = len(line_ends.values())
     furthest = max(line_ends.values())
     if furthest >= rep_length and line_count >= rep_length:
@@ -271,11 +273,21 @@ def set_semantic_types(filename):
     with open(f"{filename}_gates.json", "r") as f:
         gate_info = json.load(f)
         gates = gate_info["gates"]
+    empty_list = []
     for semantic in semantics:
         gate_range = semantic["range"]
+        if (gate_range == []):
+            empty_list.append(semantic)
+            continue
         line_ends = count_gates_by_qubit(gates, gate_range)
-        semantic["type"] = determine_rep_type(
+        type = determine_rep_type(
             line_ends, gate_range[len(gate_range) - 1][1] - gate_range[0][0] + 1)
+        if (type == "empty"):
+            empty_list.append(semantic)
+        else:
+            semantic["type"] = type
+    for semantic in empty_list:
+        semantics.remove(semantic)
     with open(f"{filename}_semantics.json", "w") as f:
         json.dump(semantics, f)
     return

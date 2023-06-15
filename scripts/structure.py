@@ -58,7 +58,8 @@ def extract_target_function(func_list,
             added = True
             break
     if not added:
-        func_root = {"name": func_name, "ast_node": func_def, "children": []}
+        func_root = {"name": func_name, "ast_node": func_def,
+                     "target": target, "children": []}
         index = Index(1)
 
         def preoder_add_node(structure_node, father):
@@ -127,7 +128,7 @@ def travel_and_extract(tree, node, father, target, func_list):
         # 构建循环名字
         names = []
         for child in rep["children"]:
-            if child["type"] == "rep_item":
+            if child["type"] == "rep_item" or child["type"] == "rep":
                 names.append(child["name"])
             elif child["type"] == "fun":
                 names.append(child["name"])
