@@ -78,3 +78,5 @@ def get_cir(n_qubits):
     Sqr(qc, n)
     EQxMark(qc, 1, n)
     return qc
+
+qc = get_cir(10)

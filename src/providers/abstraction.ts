@@ -21,6 +21,7 @@ import { ComponentCircuit } from "./component";
 import { getExtensionUri } from "../quantivine";
 import path from "path";
 import { DataLoader } from "./structurelib/dataloader";
+import { error } from "console";
 
 const logger = getLogger("DataProvider", "Abstraction");
 
@@ -192,13 +193,12 @@ class AbstractedCircuit {
     //   `/resources/data/${algorithm}-structure.json`
     // ).fsPath;
     if (algorithm == undefined) {
-      //TODO: throw error
-      return [];
+      throw new Error("Algorithm undefined");
     }
     const dataloader = new DataLoader(algorithm);
     const structureDataFile = dataloader.structureDataFile;
     if (structureDataFile == undefined) {
-      throw new Error("file not found");
+      throw new Error("File not found");
     }
     let data = require(structureDataFile?.fsPath);
     // if (file) {
@@ -234,14 +234,12 @@ class AbstractedCircuit {
     // ).fsPath;
     //TODO: fix file
     if (algorithmName == undefined) {
-      //TODO: throw error
-      return [];
+      throw new Error("Algorithm undefined");
     }
     const dataloader = new DataLoader(algorithmName);
     const semanticsfile = dataloader.semanticsDataFile;
     if (semanticsfile == undefined) {
-      //TODO: throw error
-      return [];
+      throw new Error("File not found");
     }
     logger.log("Load semantics data from: " + semanticsfile);
     let data = require(semanticsfile.fsPath);
@@ -304,13 +302,27 @@ class AbstractedCircuit {
     // Build abstracted circuit with semantics
     this._semanticsList.forEach((semantics) => {
       if (qv.semanticTreeViewer.isVisible(semantics.treeIndex)) {
-        let subCircuit = this._componentCircuit.slice(semantics.range);
+        //TODO: check range
+        console.log("range1", semantics.range);
+        let tmpran: number[] = [];
+        tmpran.push(semantics.range[0][0]);
+        tmpran.push(semantics.range[0][1]);
+        semantics.range.forEach((ran: number[]) => {
+          if (tmpran[0] > ran[0]) tmpran[0] = ran[0];
+          if (tmpran[1] < ran[1]) tmpran[1] = ran[1];
+        });
+        console.log("range2", semantics.range);
+        console.log("abs tmpran", tmpran);
+        let subCircuit = this._componentCircuit.slice(tmpran);
         let abstraction = AbstractionRule.apply(subCircuit, semantics);
         if (abstraction) {
           // Mark symbol gates in abstraction
           abstraction.start.forEach((gate) => this._visGate(gate));
           abstraction.second.forEach((gate) => this._visGate(gate));
           abstraction.end.forEach((gate) => this._visGate(gate));
+          console.log("abs start",abstraction.start);
+          console.log("abs seconde",abstraction.second);
+          console.log("abs end",abstraction.end);
 
           this._abstractions.push(abstraction);
 
@@ -568,12 +580,21 @@ class AbstractedCircuit {
 
     this._semanticsList.forEach((sem: Semantics) => {
       // if the component gate is contained in the semantics
+      let flag = false;
+      let tmpran = [-1, -1];
+      sem.range.forEach((ran: number[]) => {
+        if (cgRange[0] >= ran[0] && cgRange[1] <= ran[1]) {
+          flag = true;
+          tmpran = ran;
+        }
+      });
       if (
-        cgRange[0] >= sem.range[0] &&
-        cgRange[1] <= sem.range[1] &&
-        cgRange[1] - cgRange[0] + 1 <= sem.range[2]
+        // cgRange[0] >= sem.range[0] &&
+        // cgRange[1] <= sem.range[1] &&
+        // cgRange[1] - cgRange[0] + 1 <= sem.range[2]
+        flag
       ) {
-        let subCircuit = this._componentCircuit.slice(sem.range);
+        let subCircuit = this._componentCircuit.slice(tmpran);
         ret = AbstractionRule.apply(subCircuit, sem);
       }
     });

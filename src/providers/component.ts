@@ -371,6 +371,7 @@ export class ComponentCircuit {
         type: tree.type,
       };
     });
+    console.log("treeStructure", treeStructure);
     return treeStructure;
   }
 

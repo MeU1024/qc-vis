@@ -69,7 +69,7 @@ export class GateNodeProvider
       if (force || !this.cachedGates) {
         //TODO: file
         //TODO: throw error
-        const tmpDir = qv.manager.tmpDir ? vscode.Uri.parse(qv.manager.tmpDir) : undefined;
+        const tmpDir = qv.manager.tmpDir ? vscode.Uri.file(qv.manager.tmpDir) : undefined;
         const file = (tmpDir && qv.manager.algorithm) ? vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`) : undefined;
         // console.log("structure file", file);
         if (qv.manager.algorithm == undefined) {
@@ -190,7 +190,10 @@ export class GateNodeProvider
   isVisible(treeIndex: number): boolean {
     let node = this._nodeMap.get(treeIndex);
 
+    console.log("this._nodeMap", this._nodeMap);
+
     if (node === undefined) {
+      console.log("structure treeindex", treeIndex);
       throw new Error('Gate not found');
     }
 
