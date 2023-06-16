@@ -370,7 +370,7 @@ class ContextualCircuit {
       suf[qubitIdx] = [];
       for (let layerIdx = 0; layerIdx < this._originalLayers.length; ++layerIdx) {
         pre[qubitIdx][layerIdx] = -1;
-        suf[qubitIdx][layerIdx] = this._originalLayers.length + 1;
+        suf[qubitIdx][layerIdx] = this._originalLayers.length;
       }
     }
 
@@ -431,7 +431,7 @@ class ContextualCircuit {
         layerGate.forEach((gate: ComponentGate) => {
           if (gate.qubits.length === 1) {
           } else {
-            let mn = this._originalLayers.length + 1;
+            let mn = this._originalLayers.length;
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
               let qubitIdx = parseInt(gate.qubits[idx].qubitName);
               mn = Math.min(mn, suf[qubitIdx][layerIdx]);
@@ -449,7 +449,7 @@ class ContextualCircuit {
             let qubitIdx = parseInt(gate.qubits[0].qubitName);
             suf[qubitIdx][layerIdx - 1] = Math.min(suf[qubitIdx][layerIdx - 1], layerIdx);
           } else {
-            let mn = this._originalLayers.length + 1;
+            let mn = this._originalLayers.length;
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
               let qubitIdx = parseInt(gate.qubits[idx].qubitName);
               suf[qubitIdx][layerIdx - 1] = Math.min(suf[qubitIdx][layerIdx - 1], layerIdx);
@@ -501,6 +501,8 @@ class ContextualCircuit {
     }
 
     this._idlePosition = idlePosition;
+
+    console.log("this._idlePosition", this._idlePosition);
   }
 
   private isInComponent(gate: ComponentGate, ComponentIdx: number) {
