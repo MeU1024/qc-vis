@@ -241,6 +241,8 @@ export class ComponentCircuit {
       componentGates.push(componentGate);
     });
 
+    console.log("group gates", componentGates);
+
     return componentGates;
   }
 
@@ -388,8 +390,6 @@ export class ComponentCircuit {
         let treeIndex = item.index;
         let previousIndex = treeIndex;
         while (1) {
-          console.log("component isvisible");
-          console.log("component treevisible index", treeIndex);
           let treeVisible = qv.semanticTreeViewer.isVisible(treeIndex);
           // let parentVisible = qv.semanticTreeViewer.isVisible(parentIndex);
 

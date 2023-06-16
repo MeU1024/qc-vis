@@ -35,6 +35,8 @@ export async function view(mode?: "tab" | vscode.Uri) {
     return;
   }
   const sourceFile = await qv.manager.updateSource();
+  await qv.semanticTreeViewer.computeTreeStructure();
+  await qv.qubitTreeViewer.InitNodeProvider();
   if (sourceFile === undefined) {
     logger.log("Cannot find quantum circuit to view.");
     return;

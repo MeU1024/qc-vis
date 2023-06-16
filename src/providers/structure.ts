@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { NodeType, QuantumTreeNode } from './structurelib/quantumgate';
 import * as qv from '../quantivine';
+import * as fs from 'fs';  
 
 import { getLogger } from '../components/logger';
 import {
@@ -65,18 +66,37 @@ export class GateNodeProvider
    * @param force If `false` and some cached data exists for the corresponding file, use it. If `true`, always recompute the structure from disk
    */
   async build(force: boolean): Promise<QuantumTreeNode[]> {
+
+    
+    async function readFileIfExists(filename: string): Promise<string | null> {  
+      return new Promise((resolve, reject) => {  
+        const interval = setInterval(() => {  
+          if (fs.existsSync(filename)) {  
+            clearInterval(interval);  
+            fs.readFile(filename, 'utf8', (err, data) => {  
+              if (err) {  
+                reject(err);  
+              } else {  
+                resolve(data);  
+              }  
+            });  
+          }  
+        }, 1000); // 每隔1秒检查一次文件是否存在  
+      });  
+    }  
+
     if (qv.manager.sourceFile) {
       if (force || !this.cachedGates) {
         //TODO: file
-        //TODO: throw error
-        const tmpDir = qv.manager.tmpDir ? vscode.Uri.file(qv.manager.tmpDir) : undefined;
-        const file = (tmpDir && qv.manager.algorithm) ? vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`) : undefined;
-        // console.log("structure file", file);
         if (qv.manager.algorithm == undefined) {
           throw new Error("Algorithm undefined");
         }
         let dataloader = new DataLoader(qv.manager.algorithm);
         const structureFile = dataloader.structureDataFile;
+        if(structureFile == undefined) {
+          throw new Error("structureFile not found");
+        }
+        await readFileIfExists(structureFile.fsPath);
         this.cachedGates = await QcStructure.buildQcModel(structureFile);
       }
       this.ds = this.cachedGates;
@@ -93,7 +113,9 @@ export class GateNodeProvider
     return this.ds;
   }
 
+
   private _updateTreeMap(node: QuantumTreeNode) {
+    console.log("_updateTreeMap??");
     this._nodeMap.set(node.treeIndex, node);
     this._statMap.set(node.treeIndex, node.collapsibleState);
     node.children.forEach((child) => this._updateTreeMap(child));
@@ -188,9 +210,12 @@ export class GateNodeProvider
   }
 
   isVisible(treeIndex: number): boolean {
+    if(this._nodeMap.size <= 0) {
+      qv.semanticTreeViewer.computeTreeStructure();
+      qv.qubitTreeViewer.InitNodeProvider();
+    }
+    
     let node = this._nodeMap.get(treeIndex);
-
-    console.log("this._nodeMap", this._nodeMap);
 
     if (node === undefined) {
       console.log("structure treeindex", treeIndex);
@@ -256,11 +281,11 @@ export class SemanticTreeViewer {
     //     logger.log(`Follow cursor is set to ${this._followCursor}.`);
     //   }
     // );
-    qv.registerDisposable(
-      qv.eventBus.on(SourceFileChanged, (e) => {
-        void qv.semanticTreeViewer.computeTreeStructure();
-      })
-    );
+    // qv.registerDisposable(
+    //   qv.eventBus.on(SourceFileChanged, (e) => {
+    //     void qv.semanticTreeViewer.computeTreeStructure();
+    //   })
+    // );
 
     qv.registerDisposable(
       this._viewer.onDidCollapseElement((e) => {
