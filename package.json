@@ -122,6 +122,12 @@
           "default": "%DIR%",
           "markdownDescription": "The directory where the extension tries to find output files are located."
         },
+        "quantivine.python.qctarget": {
+          "scope": "resource",
+          "type": "string",
+          "default": "qc",
+          "markdownDescription": "The directory where the extension tries to find output files are located."
+        },
         "quantivine.view.qcv.viewer": {
           "scope": "window",
           "type": "string",
@@ -225,7 +231,6 @@
           "group": "inline"
         }
       ]
-      
     }
   },
   "scripts": {

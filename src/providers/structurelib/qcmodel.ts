@@ -45,11 +45,13 @@ export class QcStructure {
   private static async buildQcStructureFromFile(
     file: vscode.Uri
   ): Promise<QuantumTreeNode[]> {
-    let content = vscode.window.activeTextEditor?.document.getText();
+    // let content = vscode.window.activeTextEditor?.document.getText();
 
-    if (content === undefined) {
-      return [];
-    }
+    // console.log("?qcmodel content", content);
+
+    // if (content === undefined) {
+    //   return [];
+    // }
 
     let ast: any;
 
