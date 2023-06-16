@@ -30,7 +30,7 @@ def extract_target_function(func_list,
         return None
     # 构建函数树
     root = {
-        "name": func_name,
+        "name": "_" + func_name,
         "type": "fun",
         "ast_node": caller_node,
         "children": []
