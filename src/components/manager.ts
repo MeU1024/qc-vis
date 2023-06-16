@@ -221,8 +221,12 @@ export class Manager {
     const extensionRoot = qv.getExtensionUri().fsPath;
     var pythonScriptPath = path.join(extensionRoot, 'scripts/parse.py');
 
-    //TODO: target
-    const target = 'qc';
+    const configuration = vscode.workspace.getConfiguration(
+      'quantivine',
+      vscode.Uri.file(codePath)
+    );
+    const target =  configuration.get('python.qctarget') as string;
+    console.log("qc target", target);
     // tmpdir + algorithm_name
     var startPos = codePath.lastIndexOf('/');
     if (startPos == -1 || startPos == undefined) startPos = codePath.lastIndexOf('\\');
