@@ -38,7 +38,6 @@ export class ContextDataProvider {
     this._data = data;
   }
   async updateData() {
-    // TODO: Update Data
     this._data = await this.contextualQcData();
     this._postData();
   }
@@ -305,20 +304,13 @@ class ContextualCircuit {
     type: string;
   }[] {
     const algorithm = qv.manager.algorithm;
-    //TODO: change resource file
-    // let dataSource = vscode.Uri.joinPath(
-    //   getExtensionUri(),
-    //   `/resources/data/${algorithm}-structure.json`
-    // ).fsPath;
     if (algorithm == undefined) {
-      //TODO: throw error
-      return [];
+      throw new Error("Algorithm not found.");
     }
     const dataloader = new DataLoader(algorithm);
     const file = dataloader.structureDataFile;
     if (file == undefined) {
-      //TODO: throw error
-      return [];
+      throw new Error("StructureDataFile not found.");
     }
     let data = require(file.fsPath);
     let treeStructure = data.map((tree: any) => {
@@ -501,8 +493,6 @@ class ContextualCircuit {
     }
 
     this._idlePosition = idlePosition;
-
-    console.log("this._idlePosition", this._idlePosition);
   }
 
   private isInComponent(gate: ComponentGate, ComponentIdx: number) {
@@ -687,16 +677,12 @@ class ContextualCircuit {
     let beforeTimeStamp = tmpTimestamp.startTimeStamp;
     let currentTimeStamp = tmpTimestamp.endTimeStamp;
 
-    console.log("timestamp", tmpTimestamp);
 
     //calculation the entanglement after current component(included)
     curEntGroup = this.getGroupId(currentTimeStamp);
 
     //calculation the entanglement before the endTimeStamp(NOT included)
     preEntGroup = this.getGroupId(beforeTimeStamp - 1);
-
-    console.log("preEntGroup", preEntGroup);
-    console.log("curEntGroup", curEntGroup);
 
     return { curEntGroup, preEntGroup };
   }

@@ -55,8 +55,6 @@ export class Viewer {
     await readFileIfExists(gatesDataFile.fsPath);
     console.log("fs.existsSync(filename)", fs.existsSync(gatesDataFile.fsPath));
 
-    
-
     const activeDocument = vscode.window.activeTextEditor?.document;
     const panel = await QCViewerPanelService.createQCircuitViewerPanel(
       dataUri,

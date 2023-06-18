@@ -87,14 +87,13 @@ export class GateNodeProvider
 
     if (qv.manager.sourceFile) {
       if (force || !this.cachedGates) {
-        //TODO: file
         if (qv.manager.algorithm == undefined) {
           throw new Error("Algorithm undefined");
         }
         let dataloader = new DataLoader(qv.manager.algorithm);
         const structureFile = dataloader.structureDataFile;
         if(structureFile == undefined) {
-          throw new Error("structureFile not found");
+          throw new Error("StructureFile not found");
         }
         await readFileIfExists(structureFile.fsPath);
         this.cachedGates = await QcStructure.buildQcModel(structureFile);
@@ -115,7 +114,6 @@ export class GateNodeProvider
 
 
   private _updateTreeMap(node: QuantumTreeNode) {
-    console.log("_updateTreeMap??");
     this._nodeMap.set(node.treeIndex, node);
     this._statMap.set(node.treeIndex, node.collapsibleState);
     node.children.forEach((child) => this._updateTreeMap(child));
@@ -218,7 +216,6 @@ export class GateNodeProvider
     let node = this._nodeMap.get(treeIndex);
 
     if (node === undefined) {
-      console.log("structure treeindex", treeIndex);
       throw new Error('Gate not found');
     }
 

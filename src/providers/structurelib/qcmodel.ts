@@ -29,8 +29,6 @@ export class QcStructure {
   static async buildQcModel(file?: vscode.Uri): Promise<QuantumTreeNode[]> {
     file = file ? file : qv.manager.sourceFile;
 
-    console.log("buildQC file", file);
-
     if (!file) {
       return [];
     }
@@ -45,20 +43,9 @@ export class QcStructure {
   private static async buildQcStructureFromFile(
     file: vscode.Uri
   ): Promise<QuantumTreeNode[]> {
-    // let content = vscode.window.activeTextEditor?.document.getText();
-
-    // console.log("?qcmodel content", content);
-
-    // if (content === undefined) {
-    //   return [];
-    // }
-
-    let ast: any;
 
     let gates: QuantumTreeNode[] = [];
-    //TODO: file
     gates = loadTreeFromFile(file);
-
     return gates;
   }
 
@@ -96,9 +83,6 @@ export class QcStructure {
 function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
   // let resourcesFile = qv.manager.tmpDir;
   const algorithm = qv.manager.algorithm || "vqc";
-
-  console.log("qcmodel file", file);
-  console.log("qcmodel algorithm", algorithm);
 
   if (!file) {
     let path = vscode.Uri.joinPath(
@@ -329,7 +313,6 @@ export class DrawableCircuit {
   }
 
   exportJson(): any {
-    // TODO: rename
     return {
       output_size: this.size,
       op_map: this.opMap,
