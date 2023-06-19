@@ -656,7 +656,7 @@ class ContextualCircuit {
             }
           }
         }
-        if (gate.gateName === "csw") {
+        if (gate.gateName === "cswap") {
           this._connectivityMatrix[qubits[0]][qubits[1]] = num;
           this._connectivityMatrix[qubits[0]][qubits[2]] = num;
           this._connectivityMatrix[qubits[1]][qubits[2]] = num;
