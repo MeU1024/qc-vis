@@ -144,23 +144,22 @@ def reconstruct_node(func_list, structure_node, target):
         elif type(node) == ast.For:
             if node not in for_list:
                 for_list.append(node)
-                # 记录当前 timestamp
-                node.body.insert(
-                    0,
-                    ast.parse(
-                        "start_time = timestamp").body[0])
-                # 插入当前循环体范围
-                node.body.insert(
-                    len(node.body),
-                    ast.parse(
-                        "range_list.append([start_time, timestamp - 1])").body[0])
                 # 找到对应的 structure node
                 child_index = None
                 for child in structure_node["children"]:
                     if node == child["ast_node"]:
                         child_index = structure_node["children"].index(child)
                 if child_index is not None:
-
+                    # 记录当前 timestamp
+                    node.body.insert(
+                        0,
+                        ast.parse(
+                            "start_time = timestamp").body[0])
+                    # 插入当前循环体范围
+                    node.body.insert(
+                        len(node.body),
+                        ast.parse(
+                            "range_list.append([start_time, timestamp - 1])").body[0])
                     child = structure_node["children"][child_index]
                     # 新建 range 数组
                     ast_node_index = body.index(node)
@@ -277,14 +276,21 @@ def set_semantic_types(filename):
     with open(f"{filename}_gates.json", "r") as f:
         gate_info = json.load(f)
         gates = gate_info["gates"]
-
+    empty_list = []
     for semantic in semantics:
         gate_range = semantic["range"]
         if (gate_range == []):
             empty_list.append(semantic)
             continue
         line_ends = count_gates_by_qubit(gates, gate_range)
-
+        type = determine_rep_type(
+            line_ends, gate_range[len(gate_range) - 1][1] - gate_range[0][0] + 1)
+        if (type == "empty"):
+            empty_list.append(semantic)
+        else:
+            semantic["type"] = type
+    for semantic in empty_list:
+        semantics.remove(semantic)
     with open(f"{filename}_semantics.json", "w") as f:
         json.dump(semantics, f)
     return
