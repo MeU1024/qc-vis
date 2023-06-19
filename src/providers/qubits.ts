@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
 import * as qv from '../quantivine';
 
-import {getLogger} from '../components/logger';
-import {SourceFileChanged} from '../components/eventBus';
+import { getLogger } from '../components/logger';
+import { SourceFileChanged } from '../components/eventBus';
 import path from 'path';
+import { DataLoader } from './structurelib/dataloader';
 
 const logger = getLogger('DataProvider', 'Qubit');
 
@@ -46,8 +47,9 @@ export class QubitNodeProvider
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  public setQubits(sourceFilePath: string): void {
-    const qubitNum = this._getQubitNum(sourceFilePath);
+  public setQubits(): void {
+    // const qubitNum = this._getQubitNum(sourceFilePath);
+    const qubitNum = this._getQubitNum();
 
     this.ds = [];
     for (let i = 0; i < qubitNum; i++) {
@@ -58,14 +60,27 @@ export class QubitNodeProvider
     this.refresh();
   }
 
-  private _getQubitNum(sourceFilePath: string): number {
-    const algorithm = path.basename(sourceFilePath, '.py');
-    const dataFile = vscode.Uri.joinPath(
-      qv.getExtensionUri(),
-      `/resources/data/${algorithm}-json-data.json`
-    );
-    let data = require(dataFile.fsPath);
-    return data.qubits.length;    
+  // private _getQubitNum(sourceFilePath: string): number {
+  private _getQubitNum(): number {
+    // const algorithm = path.basename(sourceFilePath, '.py');
+    if(qv.manager.algorithm == undefined) {
+      throw new Error("algorithm undefined.");
+    }
+    const algorithm = qv.manager.algorithm;
+    const dataloader = new DataLoader(algorithm);
+    const gatesDataFile = dataloader.gatesDataFile;
+    if (gatesDataFile == undefined) {
+      throw new Error("gatesDataFile not found");
+    }
+    // const dataFile = vscode.Uri.joinPath(
+    //   qv.getExtensionUri(),
+    //   `/resources/data/${algorithm}-json-data.json`
+    // );
+    let data = require(gatesDataFile.fsPath);
+    if (!data.qubit) {
+      throw new Error("Qubit not found");
+    }
+    return data.qubit;
   }
 }
 
@@ -79,10 +94,14 @@ export class QubitTreeViewer {
       treeDataProvider: this._nodeProvider,
     });
 
-    qv.registerDisposable(
-      qv.eventBus.on(SourceFileChanged, (e) => {
-        this._nodeProvider.setQubits(e);
-      })
-    );
+    // qv.registerDisposable(
+    //   qv.eventBus.on(SourceFileChanged, (e) => {
+    //     this._nodeProvider.setQubits();
+    //   })
+    // );
+  }
+
+  async InitNodeProvider() {
+    await this._nodeProvider.setQubits();
   }
 }

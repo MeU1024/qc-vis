@@ -28,8 +28,11 @@ export class QCViewerPanel {
     this.dataFileUri = dataFileUri;
     this.webviewPanel = panel;
     // set name of the panel
-    const algorithmName =
+    var algorithmName =
       qv.algorithmNameDict[path.basename(dataFileUri.fsPath, ".py")];
+
+    algorithmName = algorithmName ? algorithmName : path.basename(dataFileUri.fsPath, ".py");
+
     this.webviewPanel.title = "Visualization: " + algorithmName;
     panel.webview.onDidReceiveMessage((msg: PanelRequest) => {
       switch (msg.type) {

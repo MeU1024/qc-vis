@@ -54,15 +54,28 @@ const Circuit2GridData = (circuitData: {
     var ctrl_bit = yRange[0];
     var target_bit = yRange[yRange.length - 1];
     switch (op) {
+      case "id":
+        graph[xRange[0]][yRange[0]] = opDict["single_gate"];
+        graphText.push({ x: xRange, y: yRange, content: "i" });
+        break;
       case "h":
       case "x":
+      case "y":
+      case "z":
       case "p":
+      case "s":
+      case "sdg":
+      case "t":
+      case "tdg":
+      case "i":
+      case "u":
       case "ry":
       case "rz":
       case "rx":
         graph[xRange[0]][yRange[0]] = opDict["single_gate"];
         graphText.push({ x: xRange, y: yRange, content: op });
         break;
+      case "swap":
       case "cz":
       case "cp":
         for (let index = start; index < end; index++) {
@@ -81,6 +94,9 @@ const Circuit2GridData = (circuitData: {
         }
 
         break;
+      case "ch":
+      case "crz":
+      case "cu":
       case "cx":
       case "cy":
       case "cry":
@@ -127,7 +143,7 @@ const Circuit2GridData = (circuitData: {
           content: op,
         });
         break;
-      case "csw":
+      case "cswap":
         for (let index = yRange[0]; index < yRange[2]; index++) {
           if (graph[xRange[0]][index] !== opDict["empty"]) {
             graph[xRange[0]][index] = opDict["vertical_line"];

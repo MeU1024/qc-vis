@@ -41,7 +41,7 @@ def get_qubits(caller):
     elif gate in ["cx", "cy", "cz", "ch"]:
         index = get_qubits_by_keyword_or_position(
             caller, ["control_qubit", "target_qubit"], [0, 1])
-    elif gate in ["crz", "cp"]:
+    elif gate in ["cry", "crz", "cp"]:
         index = get_qubits_by_keyword_or_position(
             caller, ["control_qubit", "target_qubit"], [1, 2])
     elif gate == "cu":
@@ -57,6 +57,9 @@ def get_qubits(caller):
     elif gate == "cswap":
         index = get_qubits_by_keyword_or_position(
             caller, ["control_qubit", "qubit1", "qubit2"], [0, 1, 2])
+    elif gate == "ryy":
+        index = get_qubits_by_keyword_or_position(caller,
+                                                  ["qubit1", "qubit2"], [1, 2])
     return index
 
 
@@ -157,6 +160,7 @@ def reconstruct_node(func_list, structure_node, target):
                     if node == child["ast_node"]:
                         child_index = structure_node["children"].index(child)
                 if child_index is not None:
+
                     child = structure_node["children"][child_index]
                     # 新建 range 数组
                     ast_node_index = body.index(node)
@@ -187,7 +191,7 @@ def reconstruct_node(func_list, structure_node, target):
                         0,
                         ast.parse(
                             "path = path.copy() + [get_index()]").body[0])
-                    reconstruct_node(func_list, func, target)
+                    reconstruct_node(func_list, func, func["target"])
                     break
 
 
@@ -253,6 +257,8 @@ def count_gates_by_qubit(gates, gate_range):
 
 
 def determine_rep_type(line_ends, rep_length):
+    if (line_ends == {}):
+        return "empty"
     line_count = len(line_ends.values())
     furthest = max(line_ends.values())
     if furthest >= rep_length and line_count >= rep_length:
@@ -271,11 +277,14 @@ def set_semantic_types(filename):
     with open(f"{filename}_gates.json", "r") as f:
         gate_info = json.load(f)
         gates = gate_info["gates"]
+
     for semantic in semantics:
         gate_range = semantic["range"]
+        if (gate_range == []):
+            empty_list.append(semantic)
+            continue
         line_ends = count_gates_by_qubit(gates, gate_range)
-        semantic["type"] = determine_rep_type(
-            line_ends, gate_range[len(gate_range) - 1][1] - gate_range[0][0] + 1)
+
     with open(f"{filename}_semantics.json", "w") as f:
         json.dump(semantics, f)
     return

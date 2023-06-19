@@ -2,8 +2,8 @@ import ast
 
 supported_gate_list = [
     "x", "y", "z", "h", "s", "sdg", "t", "tdg", "rx", "ry", "rz", "u", "p",
-    "i", "id", "cx", "cy", "cz", "ch", "crz", "cp", "cu", "swap", "ccx",
-    "cswap"
+    "i", "id", "cx", "cy", "cz", "ch", "cry", "crz", "cp", "cu", "swap", "ccx",
+    "cswap", "ryy"
 ]
 
 

@@ -29,4 +29,5 @@ def get_cir(n_qubits):
     swapTest(qc, qr)
     return qc
 
-qc = get_cir(10)
+
+qc = get_cir(4)

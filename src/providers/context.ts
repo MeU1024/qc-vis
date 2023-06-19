@@ -15,6 +15,7 @@ import {
 import { getExtensionUri } from "../quantivine";
 import { get, maxHeaderSize } from "http";
 import G from "glob";
+import { DataLoader } from "./structurelib/dataloader";
 
 const logger = getLogger("DataProvider", "Context");
 
@@ -37,7 +38,6 @@ export class ContextDataProvider {
     this._data = data;
   }
   async updateData() {
-    // TODO: Update Data
     this._data = await this.contextualQcData();
     this._postData();
   }
@@ -304,11 +304,15 @@ class ContextualCircuit {
     type: string;
   }[] {
     const algorithm = qv.manager.algorithm;
-    let dataSource = vscode.Uri.joinPath(
-      getExtensionUri(),
-      `/resources/data/${algorithm}-structure.json`
-    ).fsPath;
-    let data = require(dataSource);
+    if (algorithm == undefined) {
+      throw new Error("Algorithm not found.");
+    }
+    const dataloader = new DataLoader(algorithm);
+    const file = dataloader.structureDataFile;
+    if (file == undefined) {
+      throw new Error("StructureDataFile not found.");
+    }
+    let data = require(file.fsPath);
     let treeStructure = data.map((tree: any) => {
       return {
         name: tree.name,
@@ -358,7 +362,7 @@ class ContextualCircuit {
       suf[qubitIdx] = [];
       for (let layerIdx = 0; layerIdx < this._originalLayers.length; ++layerIdx) {
         pre[qubitIdx][layerIdx] = -1;
-        suf[qubitIdx][layerIdx] = this._originalLayers.length + 1;
+        suf[qubitIdx][layerIdx] = this._originalLayers.length;
       }
     }
 
@@ -419,7 +423,7 @@ class ContextualCircuit {
         layerGate.forEach((gate: ComponentGate) => {
           if (gate.qubits.length === 1) {
           } else {
-            let mn = this._originalLayers.length + 1;
+            let mn = this._originalLayers.length;
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
               let qubitIdx = parseInt(gate.qubits[idx].qubitName);
               mn = Math.min(mn, suf[qubitIdx][layerIdx]);
@@ -437,7 +441,7 @@ class ContextualCircuit {
             let qubitIdx = parseInt(gate.qubits[0].qubitName);
             suf[qubitIdx][layerIdx - 1] = Math.min(suf[qubitIdx][layerIdx - 1], layerIdx);
           } else {
-            let mn = this._originalLayers.length + 1;
+            let mn = this._originalLayers.length;
             for (let idx = 0; idx < gate.qubits.length; ++idx) {
               let qubitIdx = parseInt(gate.qubits[idx].qubitName);
               suf[qubitIdx][layerIdx - 1] = Math.min(suf[qubitIdx][layerIdx - 1], layerIdx);
@@ -652,7 +656,7 @@ class ContextualCircuit {
             }
           }
         }
-        if (gate.gateName === "csw") {
+        if (gate.gateName === "cswap") {
           this._connectivityMatrix[qubits[0]][qubits[1]] = num;
           this._connectivityMatrix[qubits[0]][qubits[2]] = num;
           this._connectivityMatrix[qubits[1]][qubits[2]] = num;
@@ -673,16 +677,12 @@ class ContextualCircuit {
     let beforeTimeStamp = tmpTimestamp.startTimeStamp;
     let currentTimeStamp = tmpTimestamp.endTimeStamp;
 
-    console.log("timestamp", tmpTimestamp);
 
     //calculation the entanglement after current component(included)
     curEntGroup = this.getGroupId(currentTimeStamp);
 
     //calculation the entanglement before the endTimeStamp(NOT included)
     preEntGroup = this.getGroupId(beforeTimeStamp - 1);
-
-    console.log("preEntGroup", preEntGroup);
-    console.log("curEntGroup", curEntGroup);
 
     return { curEntGroup, preEntGroup };
   }

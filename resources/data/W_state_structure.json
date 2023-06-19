@@ -1,0 +1,62 @@
+[
+    {
+        "name": "d:\\\\goodluck\\\\benchmark\\\\W_state.py",
+        "parentIndex": 0,
+        "index": 0,
+        "type": "fun"
+    },
+    {
+        "name": "get_cir",
+        "parentIndex": 0,
+        "index": 1,
+        "type": "fun"
+    },
+    {
+        "name": "x",
+        "parentIndex": 1,
+        "index": 2,
+        "type": "rep_item"
+    },
+    {
+        "name": "[F_gate]",
+        "parentIndex": 1,
+        "index": 3,
+        "type": "rep"
+    },
+    {
+        "name": "F_gate",
+        "parentIndex": 3,
+        "index": 4,
+        "type": "fun"
+    },
+    {
+        "name": "ry",
+        "parentIndex": 4,
+        "index": 5,
+        "type": "rep_item"
+    },
+    {
+        "name": "cz",
+        "parentIndex": 4,
+        "index": 6,
+        "type": "rep_item"
+    },
+    {
+        "name": "ry",
+        "parentIndex": 4,
+        "index": 7,
+        "type": "rep_item"
+    },
+    {
+        "name": "[cx]",
+        "parentIndex": 1,
+        "index": 8,
+        "type": "rep"
+    },
+    {
+        "name": "cx",
+        "parentIndex": 8,
+        "index": 9,
+        "type": "rep_item"
+    }
+]

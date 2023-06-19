@@ -6,7 +6,15 @@ import { QCViewerManagerService } from "./components/viewerlib/qcviewermanager";
 
 const logger = getLogger("Commander");
 
-export async function build() {}
+export async function build() {
+  const sourceFile = await qv.manager.updateSource();
+  if (sourceFile === undefined) {
+    logger.log("Cannot find quantum circuit to view.");
+    return;
+  }
+  console.log("commander build sourceFile", sourceFile);
+  const tmpDir = qv.viewer.code2data(sourceFile);
+}
 
 export async function view(mode?: "tab" | vscode.Uri) {
   if (mode) {
@@ -25,6 +33,8 @@ export async function view(mode?: "tab" | vscode.Uri) {
     return;
   }
   const sourceFile = await qv.manager.updateSource();
+  await qv.semanticTreeViewer.computeTreeStructure();
+  await qv.qubitTreeViewer.InitNodeProvider();
   if (sourceFile === undefined) {
     logger.log("Cannot find quantum circuit to view.");
     return;

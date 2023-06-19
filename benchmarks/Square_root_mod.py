@@ -3,7 +3,6 @@ from qiskit import QuantumCircuit
 import math
 
 
-
 pi = math.pi
 
 
@@ -60,6 +59,7 @@ def Sqr(qc, n):
 
     qc.compose(sub_circuit, inplace=True)
 
+
 def get_cir(n_qubits):
     n = n_qubits // 3
     qc = QuantumCircuit(n_qubits)
@@ -79,4 +79,5 @@ def get_cir(n_qubits):
     EQxMark(qc, 1, n)
     return qc
 
-qc = get_cir(10)
+
+qc = get_cir(6)

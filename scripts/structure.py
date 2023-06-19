@@ -30,7 +30,7 @@ def extract_target_function(func_list,
         return None
     # 构建函数树
     root = {
-        "name": func_name,
+        "name": "_" + func_name,
         "type": "fun",
         "ast_node": caller_node,
         "children": []
@@ -58,7 +58,8 @@ def extract_target_function(func_list,
             added = True
             break
     if not added:
-        func_root = {"name": func_name, "ast_node": func_def, "children": []}
+        func_root = {"name": func_name, "ast_node": func_def,
+                     "target": target, "children": []}
         index = Index(1)
 
         def preoder_add_node(structure_node, father):
@@ -127,7 +128,7 @@ def travel_and_extract(tree, node, father, target, func_list):
         # 构建循环名字
         names = []
         for child in rep["children"]:
-            if child["type"] == "rep_item":
+            if child["type"] == "rep_item" or child["type"] == "rep":
                 names.append(child["name"])
             elif child["type"] == "fun":
                 names.append(child["name"])
@@ -136,10 +137,10 @@ def travel_and_extract(tree, node, father, target, func_list):
             father["children"].append(rep)
 
 
-def extract_target_tree(ast_tree, target):
+def extract_target_tree(ast_tree, target, file_name):
     func_list = []
     root = {
-        "name": "global",
+        "name": file_name,
         "type": "fun",
         "ast_node": ast_tree,
         "children": []
@@ -168,5 +169,5 @@ def tree_to_list(root):
             for child in node["children"]:
                 preorder_output(child, cur_index)
 
-    preorder_output(root, -1)
+    preorder_output(root, 0)
     return structure_list

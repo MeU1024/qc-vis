@@ -3,21 +3,26 @@ from unparse import Unparser
 import json
 import os
 import sys
+import re
 from structure import extract_target_tree, tree_to_list
 from gates_and_semantics import reconstruct_ast, set_semantic_types
 
 
-def parse_file(file_path, target, filename):
+def parse_file(file_path, target, output_name):
     with open(file_path, 'r') as f:
         file = f.read()
     ast_tree = ast.parse(file)
-    target_tree, func_list = extract_target_tree(ast_tree, target)
+    target_tree, func_list = extract_target_tree(
+        ast_tree, target, re.split('[.\\\\/]', file_path)[-2])
     node_list = tree_to_list(target_tree)
-    print_structure(node_list, filename)
-    new_ast = reconstruct_ast(func_list, target_tree, target, filename)
-    print_file(filename + "_new.py", new_ast)
-    os.system("python " + filename + "_new.py")
-    set_semantic_types(filename)
+    print_structure(node_list, output_name)
+    new_ast = reconstruct_ast(func_list, target_tree, target, output_name)
+    print_file(output_name + "_new.py", new_ast)
+    # os.system("python " + output_name + "_new.py")
+    python_interpreter_path = sys.executable
+    script_name = output_name+"_new.py"
+    os.system(f'{python_interpreter_path} {script_name}')
+    set_semantic_types(output_name)
 
 
 def print_structure(structure, filename):
