@@ -41,7 +41,7 @@ def get_qubits(caller):
     elif gate in ["cx", "cy", "cz", "ch"]:
         index = get_qubits_by_keyword_or_position(
             caller, ["control_qubit", "target_qubit"], [0, 1])
-    elif gate in ["crz", "cp"]:
+    elif gate in ["cry", "crz", "cp"]:
         index = get_qubits_by_keyword_or_position(
             caller, ["control_qubit", "target_qubit"], [1, 2])
     elif gate == "cu":
@@ -57,6 +57,9 @@ def get_qubits(caller):
     elif gate == "cswap":
         index = get_qubits_by_keyword_or_position(
             caller, ["control_qubit", "qubit1", "qubit2"], [0, 1, 2])
+    elif gate == "ryy":
+        index = get_qubits_by_keyword_or_position(caller,
+                                                  ["qubit1", "qubit2"], [1, 2])
     return index
 
 

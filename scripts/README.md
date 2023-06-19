@@ -1,13 +1,13 @@
 ## 支持的功能
 
 * 单文件内基于 qiskit 的量子电路语法分析
-* 支持 25 种基本的量子门：
+* 支持 27 种基本的量子门：
 
   ```python
   supported_gate_list = [
       "x", "y", "z", "h", "s", "sdg", "t", "tdg", "rx", "ry", "rz", "u", "p",
-      "i", "id", "cx", "cy", "cz", "ch", "crz", "cp", "cu", "swap", "ccx",
-      "cswap"
+      "i", "id", "cx", "cy", "cz", "ch", "cry", "crz", "cp", "cu", "swap", "ccx",
+      "cswap", "ryy"
   ]
   ```
 * 支持自定义函数
