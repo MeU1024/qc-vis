@@ -30,7 +30,6 @@ export class AbstractionDataProvider {
   private _dataFile: vscode.Uri;
 
   constructor(_dataFile?: vscode.Uri) {
-    console.log("abstraction file", _dataFile);
     if (_dataFile) {
       this._dataFile = _dataFile;
     } else {
@@ -303,7 +302,6 @@ class AbstractedCircuit {
     this._semanticsList.forEach((semantics) => {
       if (qv.semanticTreeViewer.isVisible(semantics.treeIndex)) {
         //TODO: check range
-        console.log("range1", semantics.range);
         let tmpran: number[] = [];
         tmpran.push(semantics.range[0][0]);
         tmpran.push(semantics.range[0][1]);
@@ -311,8 +309,6 @@ class AbstractedCircuit {
           if (tmpran[0] > ran[0]) tmpran[0] = ran[0];
           if (tmpran[1] < ran[1]) tmpran[1] = ran[1];
         });
-        console.log("range2", semantics.range);
-        console.log("abs tmpran", tmpran);
         let subCircuit = this._componentCircuit.slice(tmpran);
         let abstraction = AbstractionRule.apply(subCircuit, semantics);
         if (abstraction) {
@@ -320,10 +316,6 @@ class AbstractedCircuit {
           abstraction.start.forEach((gate) => this._visGate(gate));
           abstraction.second.forEach((gate) => this._visGate(gate));
           abstraction.end.forEach((gate) => this._visGate(gate));
-          console.log("abs start",abstraction.start);
-          console.log("abs seconde",abstraction.second);
-          console.log("abs end",abstraction.end);
-
           this._abstractions.push(abstraction);
 
           // Cache gates in abstraction

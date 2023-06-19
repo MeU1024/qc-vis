@@ -348,14 +348,12 @@ export class ComponentCircuit {
   }[] {
     const algorithm = qv.manager.algorithm;
     if (algorithm == undefined) {
-      //TODO: throw error
-      return [];
+      throw new Error("Algorithm not found.");
     }
     // const dataloader = new DataLoader(algorithm);
     const structurefile = this._dataLoader.structureDataFile;
     if (structurefile == undefined) {
-      //TODO: throw error
-      return [];
+      throw new Error("Structurefile not found.");
     }
     // let dataSource = vscode.Uri.joinPath(
     //   getExtensionUri(),

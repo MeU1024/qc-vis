@@ -169,7 +169,6 @@ const ConnectivityPanel = (props: ConnectivityPanelProps) => {
     }
 
     var rects = matrixLayer.selectAll("rect").data(matrix);
-    // console.log("matrix", matrix);
     for (let index = 0; index < matrix.length; index++) {
       rects
         .enter()

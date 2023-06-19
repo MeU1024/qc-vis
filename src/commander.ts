@@ -14,8 +14,6 @@ export async function build() {
   }
   console.log("commander build sourceFile", sourceFile);
   const tmpDir = qv.viewer.code2data(sourceFile);
-  //TODO: ，使build的时候使用tmpDir这个文件夹 (?)
-
 }
 
 export async function view(mode?: "tab" | vscode.Uri) {

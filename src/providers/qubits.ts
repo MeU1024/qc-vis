@@ -78,7 +78,7 @@ export class QubitNodeProvider
     // );
     let data = require(gatesDataFile.fsPath);
     if (!data.qubit) {
-      throw new Error("qubit not found");
+      throw new Error("Qubit not found");
     }
     return data.qubit;
   }

@@ -126,7 +126,7 @@
           "scope": "resource",
           "type": "string",
           "default": "qc",
-          "markdownDescription": "The directory where the extension tries to find output files are located."
+          "markdownDescription": "The quantum circuit target that the extension tries to show."
         },
         "quantivine.view.qcv.viewer": {
           "scope": "window",

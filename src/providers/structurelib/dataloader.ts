@@ -26,55 +26,21 @@ export class DataLoader {
 
   constructor(private algorithmName: string) {
     
-    // TODO: fix file
-    
     if(!qv.manager.tmpDir) {
-      throw new Error("tmp dir not found");
+      throw new Error("Temporary folder not found");
     }
     if(!qv.manager.algorithm) {
-      throw new Error("algorithm not found ");
+      throw new Error("Algorithm not found ");
     }
     const tmpDir =  vscode.Uri.file(qv.manager.tmpDir);
     console.log("datloader tmpdir", tmpDir);
     this._structureDataFile = vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`) ;
-    // this._structureDataFile = vscode.Uri.joinPath(
-    //   getExtensionUri(),
-    //   `/resources/data/${qv.manager.algorithm}_structure.json`
-    // );
-    // console.log("dataloader dir1", vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`));
-    // console.log("dataloader dir2", vscode.Uri.joinPath(
-    //   getExtensionUri(),
-    //   `/resources/data/${qv.manager.algorithm}_structure.json`
-    // ));
-
-    // console.log("dataloader dir1", vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`).toString());
-    // console.log("dataloader dir2", vscode.Uri.joinPath(
-    //   getExtensionUri(),
-    //   `/resources/data/${qv.manager.algorithm}_structure.json`
-    // ).toString());
-
     this._gatesDataFile = vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_gates.json`) ;
-    // this._gatesDataFile = vscode.Uri.joinPath(
-    //   getExtensionUri(),
-    //   `/resources/data/${qv.manager.algorithm}_gates.json`
-    // );
     this._semanticsDataFile =  vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_semantics.json`) ;
-    // this._semanticsDataFile = vscode.Uri.joinPath(
-    //   getExtensionUri(),
-    //   `/resources/data/${qv.manager.algorithm}_semantics.json`
-    // );
 
     if (this._structureDataFile == undefined || this._gatesDataFile == undefined || this._semanticsDataFile == undefined) {
       throw new Error('Dataload Error: File not found');
     }
-    // const compilationDataFile = vscode.Uri.joinPath(
-    //   qv.getExtensionUri(),
-    //   `/resources/data/${algorithmName}-json-data.json`
-    // );
-    // const structureDataFile = vscode.Uri.joinPath(
-    //   qv.getExtensionUri(),
-    //   `/resources/data/${algorithmName}-structure.json`
-    // );
 
     //TODO: readfromFile
     this._loadCompilationData(); //json-data //layers , qubits, semantics
@@ -137,8 +103,6 @@ export class DataLoader {
       );
       this._quantumGates.push(componentGate);
     });
-
-    console.log("dataloader constructor ok");
 
   }
 
