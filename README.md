@@ -39,3 +39,40 @@ This is a system designed for visualizing scalable quantum circuits.
   doi       = {},
 }
 ```
+
+## install
+
+change to the project root directory, then
+
+`npm install && cd webview-ui && npm install`
+
+and then 
+
+`cd webview-ui && npm run build`
+
+## Usage
+
+You should make sure that your Python file can run in the Visual Studio Code workspace,  and  the corresponding environment is properly configured in the workspace’s Python interpreter.
+
+click `Build QC` and Waiting for the Python script to finish running ( Debug console will show `Python process exited with code 0` when finish)
+
+then click `View QC`
+
+### change the target of the quantum circuit
+
+( target means the circuit you want to display
+
+```python
+def carry(qc, c0, a, b, c1):
+    qc.ccx(a, b, c1)
+    qc.cx(a, b)
+    qc.ccx(c0, b, c1)
+```
+
+take this code as an example, the target is `qc` )
+
+in workspace
+
+`Ctrl + Shift + P ` and choose `Preferences: Open User Settings` 
+
+search `qctarget` （default value is `qc`）
