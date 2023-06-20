@@ -6,7 +6,7 @@
 * QAOA：未通过（语法错误：ValueError: non-integer arg 1 for randrange()）
 * Qcounting：未通过（语法错误：qiskit.circuit.exceptions.CircuitError: 'The amount of qubit(3)/clbit(0) arguments does not match the gate expectation (5).'）
 * QEC：未通过（语法错误：ModuleNotFoundError: No module named 'qiskit.algorithms.linear_solvers'）
-* QFT：未通过（不支持递归）
+* QFT：改语法后通过（改掉了递归的写法）
 * QKnn：改语法后通过（改掉了类的写法）
 * QNN：通过
 * QSVM：改语法后通过（改掉了类的写法）

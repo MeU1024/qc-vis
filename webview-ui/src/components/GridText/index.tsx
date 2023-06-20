@@ -60,7 +60,6 @@ const GridText = (props: GridTextProps) => {
     content == "cp" ||
     content == "ch" ||
     content == "cu" ||
-    content == "swap" ||
     content == "ryy" 
   ) {
     ctx.fillStyle = MULTI_GATE_STROKE;

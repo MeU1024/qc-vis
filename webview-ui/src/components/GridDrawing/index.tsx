@@ -859,6 +859,7 @@ const GridDrawing = (props: GridDrawingProps) => {
       ctx.beginPath();
       ctx.moveTo(xCoord + width / 2, yCoord + height / 2);
       ctx.lineTo(xCoord + width / 2, yCoord + height);
+      ctx.stroke();
       //swap
       ctx.beginPath();
       ctx.moveTo(xCoord + (width / 8) * 3, yCoord + (height / 8) * 3);

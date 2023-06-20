@@ -75,7 +75,6 @@ const Circuit2GridData = (circuitData: {
         graph[xRange[0]][yRange[0]] = opDict["single_gate"];
         graphText.push({ x: xRange, y: yRange, content: op });
         break;
-      case "swap":
       case "cz":
       case "cp":
         for (let index = start; index < end; index++) {
@@ -142,6 +141,18 @@ const Circuit2GridData = (circuitData: {
           y: yRange,
           content: op,
         });
+        break;
+      case "swap":
+        for (let index = yRange[0]; index < yRange[1]; index++) {
+          if (graph[xRange[0]][index] !== opDict["empty"]) {
+            graph[xRange[0]][index] = opDict["vertical_line"];
+          } else {
+            graph[xRange[0]][index] = opDict["vertical_line_empty_bg"];
+          }
+        }
+        
+        graph[xRange[0]][yRange[0]] = opDict["swap_up"];
+        graph[xRange[0]][yRange[1]] = opDict["swap_down"];
         break;
       case "cswap":
         for (let index = yRange[0]; index < yRange[2]; index++) {
