@@ -68,21 +68,36 @@ export const HIGHLIGHT_FRAME = "#4234C6";
 export const HIGHLIGHT_GATE_BG = "white";
 export const opTypeDict: { [key: string]: string } = {
   x: "single",
-
+  y: "single",
+  z: "single",
+  h: "single",
+  s: "single",
+  sdg: "single",
+  t: "single",
+  tdg: "single",
   rx: "single",
   ry: "single",
   rz: "single",
-  h: "single",
+  u: "single",
   p: "single",
-  cp: "multi",
+  i: "single",
+  id: "single",
+
   cx: "multi",
   cy: "multi",
-  cz: "multi",
   cry: "multi",
-  ccx: "triple",
+  crz: "multi",
+  ch: "multi",
+  cu: "multi",
 
+  cz: "multi",
+  cp: "multi",
+  swap: "multi",
+  
   ryy: "double",
-  csw: "triple",
+
+  cswap: "triple",
+  ccx: "triple",
 };
 export const colorDict: { [key: string]: string } = {
   single: SINGLE_GATE_STROKE,

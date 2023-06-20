@@ -170,6 +170,9 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   const allGates = circuit.all_gates;
   const opMap = circuit.op_map;
 
+  console.log("svg circuit allgates", allGates);
+  console.log("svg opmap", opMap);
+
   var gates = gatesLayer.selectAll("g").data(allGates).enter().append("g");
   gates.each((gate: any, index) => {
     let shape;
@@ -256,6 +259,9 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
     switch (op) {
       case "cx":
       case "cy":
+      case "crz":
+      case "ch":
+      case "cu":
       case "cry":
         shape = d3.select(gates.nodes()[index]).append("line");
         shape
@@ -278,6 +284,7 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
       case "ryy":
         break;
       case "cz":
+      case "swap":
       case "cp":
         shape = d3.select(gates.nodes()[index]).append("line");
         shape
