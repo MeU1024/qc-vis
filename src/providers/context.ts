@@ -648,11 +648,13 @@ class ContextualCircuit {
 
       //cz cp cswap ryy cry cx 
       if (qubits.length >= 2) {
-        for (let start = 0; start < qubits.length; start++) {
-          for (let end = start + 1; end < qubits.length; end++) {
-            this._connectivityMatrix[qubits[start]][qubits[end]] = num;
-            if (gate.gateName === "cz" || gate.gateName === "cp" || gate.gateName === "swap") {
-              this._connectivityMatrix[qubits[end]][qubits[start]] = num;
+        if(qubits.length == 2){
+          for (let start = 0; start < qubits.length; start++) {
+            for (let end = start + 1; end < qubits.length; end++) {
+              this._connectivityMatrix[qubits[start]][qubits[end]] = num;
+              if (gate.gateName === "cz" || gate.gateName === "cp" || gate.gateName === "swap") {
+                this._connectivityMatrix[qubits[end]][qubits[start]] = num;
+              }
             }
           }
         }
