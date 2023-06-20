@@ -36,12 +36,21 @@ const GridText = (props: GridTextProps) => {
       content = content.substring(1);
     }
   } else if (
+    content == "x" ||
+    content == "y" ||
+    content == "z" ||
+    content == "h" ||
+    content == "s" ||
+    content == "sdg" ||
+    content == "t" ||
+    content == "tdg" ||
     content == "rz" ||
     content == "rx" ||
     content == "ry" ||
-    content == "h" ||
+    content == "u" ||
     content == "p" ||
-    content == "x"
+    content == "i" ||
+    content == "id"
   ) {
     ctx.fillStyle = SINGLE_GATE_STROKE;
   } else if (
@@ -49,10 +58,13 @@ const GridText = (props: GridTextProps) => {
     content == "cx" ||
     content == "cy" ||
     content == "cp" ||
-    content == "ryy"
+    content == "ch" ||
+    content == "cu" ||
+    content == "swap" ||
+    content == "ryy" 
   ) {
     ctx.fillStyle = MULTI_GATE_STROKE;
-  } else if (content == "cry" || content == "ccx") {
+  } else if (content == "cry" || content == "ccx" || content == "crz") {
     ctx.fillStyle = MULTI_GATE_STROKE;
   } else if (content == "···" || content == "...") {
     ctx.fillStyle = "black";
