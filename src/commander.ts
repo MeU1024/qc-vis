@@ -3,11 +3,40 @@ import * as qv from "./quantivine";
 import { getLogger } from "./components/logger";
 import { QuantumTreeNode } from "./providers/structurelib/quantumgate";
 import { QCViewerManagerService } from "./components/viewerlib/qcviewermanager";
+import { DataLoader } from "./providers/structurelib/dataloader";
+import * as fs from 'fs'; 
 
 const logger = getLogger("Commander");
 
 export async function build() {
   const sourceFile = await qv.manager.updateSource();
+  if(qv.manager.tmpDir == undefined){
+    throw new Error("Temporary folder not found");
+  }
+  var tempDir = vscode.Uri.file(qv.manager.tmpDir);
+  let structureDataFile = vscode.Uri.joinPath(tempDir, `${qv.manager.algorithm}_structure.json`) ;
+
+  vscode.window.withProgress({  
+    location: vscode.ProgressLocation.Window,  
+    title: 'building...',  
+    cancellable: false  
+    }, (progress, token) => {  
+      progress.report({ increment: 0 });  
+      return new Promise<void>(resolve => { 
+          const total = 100;  
+          let completed = 0;  
+          const timer = setInterval(() => {  
+              if(fs.existsSync(structureDataFile.fsPath)) {
+                progress.report({ increment: 100 });  
+                completed += 100; 
+              }
+              if (completed >= total) {  
+                  clearInterval(timer);  
+                  resolve();  
+              }  
+          }, 1000);  
+      });  
+    });
   if (sourceFile === undefined) {
     logger.log("Cannot find quantum circuit to view.");
     return;

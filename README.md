@@ -54,7 +54,7 @@ and then
 
 You should make sure that your Python file can run in the Visual Studio Code workspace,  and  the corresponding environment is properly configured in the workspace’s Python interpreter.
 
-click `Build QC` and Waiting for the Python script to finish running ( Debug console will show `Python process exited with code 0` when finish)
+click `Build QC` and Waiting for the Python script to finish running 
 
 then click `View QC`
 
