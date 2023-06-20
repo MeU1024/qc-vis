@@ -33,7 +33,6 @@ export class DataLoader {
       throw new Error("Algorithm not found ");
     }
     const tmpDir =  vscode.Uri.file(qv.manager.tmpDir);
-    console.log("datloader tmpdir", tmpDir);
     this._structureDataFile = vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`) ;
     this._gatesDataFile = vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_gates.json`) ;
     this._semanticsDataFile =  vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_semantics.json`) ;

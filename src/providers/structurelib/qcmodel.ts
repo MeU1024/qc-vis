@@ -149,7 +149,6 @@ function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
     }
   });
 
-  console.log("qcmodel gatelist", gateList);
   return gates;
 }
 

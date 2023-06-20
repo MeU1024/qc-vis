@@ -241,8 +241,6 @@ export class ComponentCircuit {
       componentGates.push(componentGate);
     });
 
-    console.log("group gates", componentGates);
-
     return componentGates;
   }
 
@@ -371,7 +369,6 @@ export class ComponentCircuit {
         type: tree.type,
       };
     });
-    console.log("treeStructure", treeStructure);
     return treeStructure;
   }
 

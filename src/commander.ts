@@ -12,7 +12,6 @@ export async function build() {
     logger.log("Cannot find quantum circuit to view.");
     return;
   }
-  console.log("commander build sourceFile", sourceFile);
   const tmpDir = qv.viewer.code2data(sourceFile);
 }
 
