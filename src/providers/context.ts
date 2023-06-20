@@ -651,7 +651,7 @@ class ContextualCircuit {
         for (let start = 0; start < qubits.length; start++) {
           for (let end = start + 1; end < qubits.length; end++) {
             this._connectivityMatrix[qubits[start]][qubits[end]] = num;
-            if (gate.gateName === "cz" || gate.gateName === "cp") {
+            if (gate.gateName === "cz" || gate.gateName === "cp" || gate.gateName === "swap") {
               this._connectivityMatrix[qubits[end]][qubits[start]] = num;
             }
           }
@@ -661,6 +661,9 @@ class ContextualCircuit {
           this._connectivityMatrix[qubits[0]][qubits[2]] = num;
           this._connectivityMatrix[qubits[1]][qubits[2]] = num;
           this._connectivityMatrix[qubits[2]][qubits[1]] = num;
+        } else if (gate.gateName === "ccx") {
+          this._connectivityMatrix[qubits[0]][qubits[1]] = num;
+          this._connectivityMatrix[qubits[0]][qubits[2]] = num;
         } else if (gate.gateName === "ryy") {
           this._connectivityMatrix[qubits[0]][qubits[1]] = num;
           this._connectivityMatrix[qubits[1]][qubits[0]] = num;
