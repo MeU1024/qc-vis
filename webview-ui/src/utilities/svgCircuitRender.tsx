@@ -318,6 +318,17 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
             y * gridSize + gridSize / 2 - (gridSize / 16) * 5 * diff + offsetY
           )
           .attr("stroke", colorDict[gateType]);
+        
+        shape = d3.select(gates.nodes()[index]).append("line");
+        shape
+          .attr("x1", x * gridSize + gridSize / 2 + offsetX)
+          .attr("y1", qubits[1] * gridSize + gridSize / 2 + offsetY)
+          .attr("x2", x * gridSize + gridSize / 2 + offsetX)
+          .attr(
+            "y2",
+            qubits[0] * gridSize + gridSize / 2 + offsetY
+          )
+          .attr("stroke", colorDict[gateType]);
 
         shape = d3.select(gates.nodes()[index]).append("circle");
         shape

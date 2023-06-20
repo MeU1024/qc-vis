@@ -48,16 +48,16 @@ def EQxMark(qc, tF, n):
 
 
 def Sqr(qc, n):
-    sub_circuit = QuantumCircuit(qc.num_qubits)
+    # sub_circuit = QuantumCircuit(qc.num_qubits)
     for i in range(0, ((n - 1) // 2) + 1):
         k = i * 2
-        sub_circuit.cx(i, n + k)
+        qc.cx(i, n + k)
     for i in range(((n + 1) // 2), n):
         k = 2 * i - n
-        sub_circuit.cx(i, n + k)
-        sub_circuit.cx(i, n + k + 1)
+        qc.cx(i, n + k)
+        qc.cx(i, n + k + 1)
 
-    qc.compose(sub_circuit, inplace=True)
+    # qc.compose(sub_circuit, inplace=True)
 
 
 def get_cir(n_qubits):
@@ -80,4 +80,4 @@ def get_cir(n_qubits):
     return qc
 
 
-qc = get_cir(6)
+qc = get_cir(9)
