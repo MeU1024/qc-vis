@@ -1,16 +1,6 @@
 import ast
-from public import get_target_arg_pos, get_target_keyword, supported_gate_list
-
-
-class Index:
-
-    def __init__(self, init_value=0):
-        self.value = init_value
-
-    def getter(self) -> int:
-        temp = self.value
-        self.value += 1
-        return temp
+from public import get_target_arg_pos, get_target_keyword, \
+    supported_gate_list, Index
 
 
 def extract_target_function(func_list,

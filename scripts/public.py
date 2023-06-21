@@ -20,3 +20,14 @@ def get_target_keyword(keywords, target):
             if keyword.value.id == target:
                 return keyword.arg
     return None
+
+
+class Index:
+
+    def __init__(self, init_value=0):
+        self.value = init_value
+
+    def getter(self) -> int:
+        temp = self.value
+        self.value += 1
+        return temp

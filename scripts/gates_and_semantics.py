@@ -1,8 +1,12 @@
 import ast
 from unparse import Unparser
 from io import StringIO
-from public import get_target_arg_pos, get_target_keyword, supported_gate_list
+from public import get_target_arg_pos, get_target_keyword, \
+    supported_gate_list, Index
 import json
+
+
+unique_index = Index()
 
 
 def get_qubit_from_ast_node(node):
@@ -150,21 +154,24 @@ def reconstruct_node(func_list, structure_node, target):
                     if node == child["ast_node"]:
                         child_index = structure_node["children"].index(child)
                 if child_index is not None:
+                    # 获取唯一索引
+                    index = unique_index.getter()
                     # 记录当前 timestamp
                     node.body.insert(
                         0,
                         ast.parse(
-                            "start_time = timestamp").body[0])
+                            f"start_time_{index} = timestamp")
+                        .body[0])
                     # 插入当前循环体范围
                     node.body.insert(
                         len(node.body),
                         ast.parse(
-                            "range_list.append([start_time, timestamp - 1])").body[0])
+                            f"""range_list_{index}.append([start_time_{index}, timestamp - 1])""").body[0])
                     child = structure_node["children"][child_index]
                     # 新建 range 数组
                     ast_node_index = body.index(node)
                     body.insert(ast_node_index,
-                                ast.parse("range_list = []").body[0])
+                                ast.parse(f"""range_list_{index} = []""").body[0])
                     # 递归
                     reconstruct_node(func_list, child, target)
                     # 输出 semantics
@@ -174,7 +181,7 @@ def reconstruct_node(func_list, structure_node, target):
                         ast.parse(f"""semantics.append(
                             {{
                                 'type': 'unknown',
-                                'range': range_list,
+                                'range': range_list_{index},
                                 'treeIndex': {child["index"]} + base_index,
                             }}
                             )""").body[0])
@@ -244,22 +251,54 @@ def count_gates_by_qubit(gates, gate_range):
     end_time = gate_range[len(gate_range) - 1][1]
     for i in range(start_time, end_time + 1):
         qubits = gates[i][1]
+        min_q = qubits[0]
+        max_q = -1
+        for qubit in qubits:
+            if qubit < min_q:
+                min_q = qubit
+            if qubit > max_q:
+                max_q = qubit
         furthest = 0
-        for qubit in qubits:
-            if qubit not in line_ends:
-                line_ends[qubit] = 0
+        for i in range(min_q, max_q + 1):
+            if i not in line_ends:
+                line_ends[i] = 0
             else:
-                furthest = max(furthest, line_ends[qubit])
-        for qubit in qubits:
-            line_ends[qubit] = furthest + 1
+                furthest = max(furthest, line_ends[i])
+        for i in range(min_q, max_q + 1):
+            line_ends[i] = furthest + 1
+
     return line_ends
 
 
-def determine_rep_type(line_ends, rep_length):
+def top_in_a_row(gates, gate_range):
+    start_time = gate_range[0][0]
+    end_time = gate_range[len(gate_range) - 1][1]
+    top = gates[start_time][1][0]
+    for i in range(start_time + 1, end_time + 1):
+        qubits = gates[i][1]
+        if top != qubits[0]:
+            return False
+    return True
+
+
+def bottom_in_a_row(gates, gate_range):
+    start_time = gate_range[0][0]
+    end_time = gate_range[len(gate_range) - 1][1]
+    bottom = gates[start_time][1][len(gates[start_time][1]) - 1]
+    for i in range(start_time + 1, end_time + 1):
+        qubits = gates[i][1]
+        if bottom != qubits[len(qubits) - 1]:
+            return False
+    return True
+
+
+def determine_rep_type(line_ends, rep_length, gates, gate_range):
     if (line_ends == {}):
         return "empty"
     line_count = len(line_ends.values())
     furthest = max(line_ends.values())
+    if top_in_a_row(gates, gate_range) or bottom_in_a_row(gates, gate_range):
+        return "horizontal"
     if furthest >= rep_length and line_count >= rep_length:
         return "diagonal"
     elif furthest >= rep_length:
@@ -284,7 +323,10 @@ def set_semantic_types(filename):
             continue
         line_ends = count_gates_by_qubit(gates, gate_range)
         type = determine_rep_type(
-            line_ends, gate_range[len(gate_range) - 1][1] - gate_range[0][0] + 1)
+            line_ends,
+            len(gate_range),
+            gates,
+            gate_range)
         if (type == "empty"):
             empty_list.append(semantic)
         else:
