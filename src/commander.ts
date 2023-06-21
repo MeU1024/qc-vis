@@ -26,7 +26,7 @@ export async function build() {
           const total = 100;  
           let completed = 0;  
           const timer = setInterval(() => {  
-              if(fs.existsSync(structureDataFile.fsPath)) {
+              if(qv.manager.buildFileFinish) {
                 progress.report({ increment: 100 });  
                 completed += 100; 
               }

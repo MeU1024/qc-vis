@@ -16,6 +16,11 @@ export class Manager {
   private _sourceFile: vscode.Uri | undefined;
   private _tmpDir: string | undefined;
   private _algorithm: string | undefined;
+  private _buildFileFinish: boolean;
+
+  get buildFileFinish() {
+    return this._buildFileFinish;
+  }
 
   constructor() {
     this.registerSetEnvVar();
@@ -28,6 +33,8 @@ export class Manager {
         }
       )
     );
+
+    this._buildFileFinish = false;
   }
   createTempFolder() {
     // Create temp folder
@@ -176,6 +183,8 @@ export class Manager {
   }
 
   callPython(envPath: string, scriptPath: string, sourceFilePath: string, target: string, tmpFilePath: string) {
+    this._buildFileFinish = false;
+
     const pythonProcess = spawn(envPath, [scriptPath, sourceFilePath, target, tmpFilePath]);
 
     pythonProcess.stdout.on('data', (data) => {
@@ -188,6 +197,7 @@ export class Manager {
 
     pythonProcess.on('close', (code) => {
       console.log(`Python process exited with code ${code}`);
+      this._buildFileFinish = true;
     });
   }
 
