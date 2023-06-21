@@ -251,22 +251,14 @@ def count_gates_by_qubit(gates, gate_range):
     end_time = gate_range[len(gate_range) - 1][1]
     for i in range(start_time, end_time + 1):
         qubits = gates[i][1]
-        min_q = qubits[0]
-        max_q = -1
-        for qubit in qubits:
-            if qubit < min_q:
-                min_q = qubit
-            if qubit > max_q:
-                max_q = qubit
         furthest = 0
-        for i in range(min_q, max_q + 1):
-            if i not in line_ends:
-                line_ends[i] = 0
+        for qubit in qubits:
+            if qubit not in line_ends:
+                line_ends[qubit] = 0
             else:
-                furthest = max(furthest, line_ends[i])
-        for i in range(min_q, max_q + 1):
-            line_ends[i] = furthest + 1
-
+                furthest = max(furthest, line_ends[qubit])
+        for qubit in qubits:
+            line_ends[qubit] = furthest + 1
     return line_ends
 
 
