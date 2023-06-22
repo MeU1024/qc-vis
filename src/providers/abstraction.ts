@@ -481,7 +481,7 @@ class AbstractedCircuit {
             this._componentCircuit.getGateLayer(start)!
             ]
           )!;
-          let endQubitIndex = qubitMap.get(end.qubits[0])!;
+          let endQubitIndex = Math.max(qubitMap.get(end.qubits[end.qubits.length - 1])!, qubitMap.get(start.qubits[start.qubits.length - 1])!);
           let endLayerIndex = layerMap.get(
             this._componentCircuit.layers[
             this._componentCircuit.getGateLayer(end)!
@@ -495,6 +495,48 @@ class AbstractedCircuit {
             j <= endLayerIndex;
         });
       return ret;
+    };
+
+    //compute where to draw dots in case of ( vertical abs & isIdelNewLayer )
+    const dotQubit = (
+      i: number,
+      j: number,
+      absType: AbstractionType
+    ): number[] => {
+      // Check if the grid(i, j) is in abstraction
+      let res = [-1, -1];
+      this._abstractions
+        .filter((abstraction) => abstraction.type === absType)
+        .forEach((abstraction) => {
+          let ret = false;
+          let start = abstraction.start[0];
+          let second = abstraction.second[0];
+          let end = abstraction.end[0];
+          let startQubitIndex = qubitMap.get(start.qubits[0])!;
+          let startLayerIndex = layerMap.get(
+            this._componentCircuit.layers[
+            this._componentCircuit.getGateLayer(start)!
+            ]
+          )!;
+          let endQubitIndex = Math.max(qubitMap.get(end.qubits[end.qubits.length - 1])!, qubitMap.get(start.qubits[start.qubits.length - 1])!);
+          let endLayerIndex = layerMap.get(
+            this._componentCircuit.layers[
+            this._componentCircuit.getGateLayer(end)!
+            ]
+          )!;
+
+          ret ||=
+            i >= startQubitIndex &&
+            i <= endQubitIndex &&
+            j >= startLayerIndex &&
+            j <= endLayerIndex;
+
+          if(ret) {
+            res[0] = Math.floor((qubitMap.get(end.qubits[0])! + qubitMap.get(second.qubits[0])!) / 2);
+            res[1] = Math.floor((qubitMap.get(end.qubits[end.qubits.length - 1])! + qubitMap.get(second.qubits[second.qubits.length- 1])!) / 2);
+          }
+        });
+      return res;
     };
 
     for (let i = 0; i < n; ++i) {
@@ -519,8 +561,8 @@ class AbstractedCircuit {
             ret[j].gates.push(new ComponentGate("...", [curQubit], [], 0, []));
           }
         } else if (isIdelNewLayer[j]) {
-          const checkIn = checkInAbstraction(i, j, "horizontal");
-          if (checkIn) {
+          const checkInHor = checkInAbstraction(i, j, "horizontal");
+          if (checkInHor) {
             // let curQubit = newQubits[Math.floor(newQubits.length / 2)];
             // if (curQubit instanceof SuperQubit) {
             //   //curQubit = curQubit.qubits[0];
@@ -530,9 +572,25 @@ class AbstractedCircuit {
               new ComponentGate("colDots", [curQubit], [], 0, [])
             );
           }
+          
+          const checkInVer = checkInAbstraction(i, j, "vertical");
+
+          if(checkInVer) {
+            console.log("dotQubit", dotQubit(i, j, "vertical"));
+            console.log("curQubit", parseInt(curQubit.qubitName))
+          }
+
+          if(checkInVer && 
+            ( parseInt(curQubit.qubitName) == dotQubit(i, j, "vertical")[0] || parseInt(curQubit.qubitName) == dotQubit(i, j, "vertical")[1])) {
+            ret[j].gates.push(
+              new ComponentGate("colDots", [curQubit], [], 0, [])
+            );
+          }
         }
       }
     }
+
+    console.log("abs ret", ret);
 
     return ret;
   }

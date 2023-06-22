@@ -12,7 +12,7 @@
 * QSVM：改语法后通过（改掉了类的写法）
 * QuGAN：改语法后通过（改掉了类的写法）
 * Simon：未通过（不支持 += 和 compose）
-* Square_root：通过
+* Square_root：通过（跳过了里面的判断语句）
 * Swap_test：未通过（语法错误：IndexError: list index out of range）
 * VQC：改语法后通过（改掉了类的写法）
 * W_state：通过

@@ -170,7 +170,6 @@ export const svgCircuitRender = (props: svgCircuitRenderProps) => {
   const allGates = circuit.all_gates;
   const opMap = circuit.op_map;
 
-  console.log("svg circuit allgates", allGates);
   console.log("svg opmap", opMap);
 
   var gates = gatesLayer.selectAll("g").data(allGates).enter().append("g");

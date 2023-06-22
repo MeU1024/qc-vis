@@ -237,9 +237,13 @@ export class Manager {
     const algorithm_name = codePath.substring(startPos + 1, codePath.lastIndexOf('.'));
     var jsonFilePrefix = path.join(this._tmpDir, algorithm_name);
 
-    pythonScriptPath = pythonScriptPath.replace(/\//g, '\\').replace(/\\/g, '\\\\');
+    // pythonScriptPath = pythonScriptPath.replace(/\//g, '\\').replace(/\\/g, '\\\\');
     jsonFilePrefix = jsonFilePrefix.replace(/\//g, '\\').replace(/\\/g, '\\\\');
-    codePath = codePath.replace(/\//g, '\\').replace(/\\/g, '\\\\');
+    // codePath = codePath.replace(/\//g, '\\').replace(/\\/g, '\\\\');
+
+    pythonScriptPath = pythonScriptPath.replace(/\//g, '\\');
+    // jsonFilePrefix = jsonFilePrefix.replace(/\//g, '\\');
+    codePath = codePath.replace(/\//g, '\\');
 
     this.callPython(pythonInterpreter, pythonScriptPath, codePath, target, jsonFilePrefix);
 
