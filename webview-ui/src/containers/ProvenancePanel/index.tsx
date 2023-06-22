@@ -309,7 +309,39 @@ const ProvenancePanel = (props: ProvenancePanelProps) => {
     const posWidth = svgWidth - offset * 2;
     const gateWidth = 20;
     console.log("layerNumUndefined", layerNum === undefined);
-    if (qubitData !== undefined && layerNum !== undefined) {
+
+    if(qubitData !== undefined && qubitData?.length == 0) {
+      var svg = d3.select("#qubitSVG");
+      svg.selectAll("*").remove();
+
+      let wire = svg.append("line");
+      wire
+        .attr("x1", 0)
+        .attr("y1", gridSize)
+        .attr("x2", svgWidth)
+        .attr("y2", gridSize)
+        .attr("stroke", WIRE_STROKE);
+
+      let start = svg.append("line");
+      start
+        .attr("x1", (offset / 4) * 3)
+        .attr("y1", (gridSize / 4) * 3)
+        .attr("x2", (offset / 4) * 3)
+        .attr("y2", (gridSize / 4) * 5)
+        .attr("stroke", IDLE_STROKE);
+
+      let end = svg.append("line");
+      end
+        .attr("x1", realLength + (offset / 4) * 4)
+        .attr("y1", (gridSize / 4) * 3)
+        .attr("x2", realLength + (offset / 4) * 4)
+        .attr("y2", (gridSize / 4) * 5)
+        .attr("stroke", IDLE_STROKE);
+  
+    }
+    
+
+    if ( qubitData !== undefined && qubitData?.length > 0 && layerNum !== undefined) {
       console.log("layerNum", layerNum);
       let n = qubitData.length;
       let totIntervalLayer = layerNum - 1;
