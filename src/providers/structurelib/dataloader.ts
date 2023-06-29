@@ -48,9 +48,9 @@ export class DataLoader {
       `${codeName}_semantics.json`
     );
 
-    this.structureData = require(this._structureDataFile.fsPath);
-    this.gateData = require(this._gatesDataFile.fsPath);
-    this.semanticData = require(this._semanticsDataFile.fsPath);
+    this.structureData = requireUncached(this._structureDataFile.fsPath);
+    this.gateData = requireUncached(this._gatesDataFile.fsPath);
+    this.semanticData = requireUncached(this._semanticsDataFile.fsPath);
 
     this._loadCompilationData();
     this._loadStructureData();
@@ -63,7 +63,7 @@ export class DataLoader {
     if (this._gatesDataFile === undefined) {
       throw new Error('Dataload Error: File not found');
     }
-    let gateData = require(this._gatesDataFile?.fsPath);
+    let gateData = this.gateData;
 
     this._qubits = [];
     this._quantumGates = [];
@@ -101,7 +101,7 @@ export class DataLoader {
       throw new Error('Dataload Error: File not found');
     }
 
-    let data = require(this._structureDataFile.fsPath);
+    let data = this.structureData;
 
     let gates: QuantumTreeNode[] = [];
     let gateList: QuantumTreeNode[] = [];
@@ -170,4 +170,9 @@ export class DataLoader {
   get qubits(): Qubit[] {
     return this._qubits;
   }
+}
+
+function requireUncached(module: string) {
+  delete require.cache[require.resolve(module)];
+  return require(module);
 }
