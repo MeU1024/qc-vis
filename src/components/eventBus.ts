@@ -14,6 +14,7 @@ export const FileRemoved = 'FILE_REMOVED';
 export const DocumentChanged = 'DOCUMENT_CHANGED';
 export const StructureUpdated = 'STRUCTURE_UPDATED';
 export const AutoCleaned = 'AUTO_CLEANED';
+export const CodeBuilt = 'CODE_BUILT';
 
 export type EventArgs = {
   [AutoBuildInitiated]: { type: 'onChange' | 'onSave'; file: string };
@@ -37,7 +38,8 @@ export type EventName =
   | typeof FileRemoved
   | typeof DocumentChanged
   | typeof StructureUpdated
-  | typeof AutoCleaned;
+  | typeof AutoCleaned
+  | typeof CodeBuilt;
 
 export class EventBus {
   private readonly eventEmitter = new EventEmitter();

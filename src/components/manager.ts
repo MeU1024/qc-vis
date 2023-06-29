@@ -3,11 +3,8 @@ import * as path from 'path';
 import * as os from 'os';
 import * as tmp from 'tmp';
 import * as qv from '../quantivine';
-import * as utils from '../utilities/utils';
 import * as eventbus from './eventBus';
-import { getLogger } from './logger';
-import { spawn } from 'child_process';
-import { rootCertificates } from 'tls';
+import {getLogger} from './logger';
 
 const logger = getLogger('Manager');
 
@@ -26,24 +23,33 @@ export class Manager {
     this.registerSetEnvVar();
     this.createTempFolder();
 
+    this._buildFileFinish = false;
     qv.registerDisposable(
       vscode.window.onDidChangeActiveTextEditor(
         async (e: vscode.TextEditor | undefined) => {
           this.updateSource();
         }
-      )
+      ),
+      // TODO: This event is not triggered.
+      qv.eventBus.on(eventbus.FileChanged, () => {
+        this._buildFileFinish = false;
+      }), 
+      qv.eventBus.on(eventbus.SourceFileChanged, () => {
+        this._buildFileFinish = false;
+      }),
+      qv.eventBus.on(eventbus.CodeBuilt, () => {
+        this._buildFileFinish = true;
+      }),
     );
-
-    this._buildFileFinish = false;
   }
   createTempFolder() {
     // Create temp folder
     try {
       this._tmpDir = tmp
-        .dirSync({ unsafeCleanup: true })
+        .dirSync({unsafeCleanup: true})
         .name.split(path.sep)
         .join('/');
-      console.log("tmpDir", this._tmpDir);
+      console.log('tmpDir', this._tmpDir);
     } catch (error) {
       void vscode.window.showErrorMessage(
         'Error during making tmpdir to build quantum circuit files. Please check the environment variables, TEMP, TMP, and TMPDIR on your system.'
@@ -114,7 +120,7 @@ export class Manager {
       );
       this.sourceFile = currentFile;
       this._algorithm = filename.substring(0, filename.lastIndexOf('.'));
-      console.log("algorithm name", this._algorithm);
+      console.log('algorithm name', this._algorithm);
       qv.eventBus.fire(eventbus.SourceFileChanged, currentFile.fsPath);
     }
 
@@ -159,95 +165,6 @@ export class Manager {
    */
   hasQPLId(id: string | undefined) {
     return id ? ['python'].includes(id) : false;
-  }
-
-  getOutDir(codePath?: string) {
-    if (codePath === undefined) {
-      codePath = this.sourceFile?.fsPath;
-    }
-    // sourceCodeFile is also undefined
-    if (codePath === undefined) {
-      return './';
-    }
-
-    const configuration = vscode.workspace.getConfiguration(
-      'quantivine',
-      vscode.Uri.file(codePath)
-    );
-    const outDir = configuration.get('python.outDir') as string;
-    const out = utils.replaceArgumentPlaceholders(
-      codePath,
-      this._tmpDir
-    )(outDir);
-    return path.normalize(out).split(path.sep).join('/');
-  }
-
-  callPython(envPath: string, scriptPath: string, sourceFilePath: string, target: string, tmpFilePath: string) {
-    this._buildFileFinish = false;
-
-    const pythonProcess = spawn(envPath, [scriptPath, sourceFilePath, target, tmpFilePath]);
-
-    pythonProcess.stdout.on('data', (data) => {
-      console.log(`Received data from Python: ${data}`);
-    });
-
-    pythonProcess.stderr.on('data', (data) => {
-      console.error(`Error or warning from Python: ${data}`);
-    });
-
-    pythonProcess.on('close', (code) => {
-      console.log(`Python process exited with code ${code}`);
-      this._buildFileFinish = true;
-    });
-  }
-
-  code2data(codeFile: vscode.Uri): string {
-    var codePath = codeFile.fsPath;
-    if (this._tmpDir == undefined) {
-      throw new Error("Temp data file not found.");
-    }
-
-    // get python interpreter
-    var pythonInterpreter = "";
-    const pythonExtension = vscode.extensions.getExtension('ms-python.python');
-    if (pythonExtension) {
-      const pythonExtensionApi = pythonExtension.exports;
-      const workspaceFolder = vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0] : undefined;
-      if (workspaceFolder) {
-        pythonInterpreter = pythonExtensionApi.settings.getExecutionDetails(workspaceFolder.uri).execCommand[0];
-      }
-      else {
-        throw new Error("Workspace python interpreter not found.");
-      }
-    }
-
-    const extensionRoot = qv.getExtensionUri().fsPath;
-    var pythonScriptPath = path.join(extensionRoot, 'scripts/parse.py');
-
-    const configuration = vscode.workspace.getConfiguration(
-      'quantivine',
-      vscode.Uri.file(codePath)
-    );
-    const target =  configuration.get('python.qctarget') as string;
-    console.log("qc target : ", target);
-    // tmpdir + algorithm_name
-    var startPos = codePath.lastIndexOf('/');
-    //TODO: fix path
-    if (startPos == -1 || startPos == undefined) startPos = codePath.lastIndexOf('\\');
-    const algorithm_name = codePath.substring(startPos + 1, codePath.lastIndexOf('.'));
-    var jsonFilePrefix = path.join(this._tmpDir, algorithm_name);
-
-    // pythonScriptPath = pythonScriptPath.replace(/\//g, '\\').replace(/\\/g, '\\\\');
-    jsonFilePrefix = jsonFilePrefix.replace(/\//g, '\\').replace(/\\/g, '\\\\');
-    // codePath = codePath.replace(/\//g, '\\').replace(/\\/g, '\\\\');
-
-    pythonScriptPath = pythonScriptPath.replace(/\//g, '\\');
-    // jsonFilePrefix = jsonFilePrefix.replace(/\//g, '\\');
-    codePath = codePath.replace(/\//g, '\\');
-
-    this.callPython(pythonInterpreter, pythonScriptPath, codePath, target, jsonFilePrefix);
-
-    return this._tmpDir;
   }
 
   private registerSetEnvVar() {

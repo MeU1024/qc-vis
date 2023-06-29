@@ -202,6 +202,7 @@ def reconstruct_node(func_list, structure_node, target):
 
 
 def reconstruct_ast(func_list, structure, target, filename):
+    filename = repr(filename)[1:-1]
     global_module = structure["ast_node"]
     pre_process = []
     # 添加 uni_index 及其 getter
@@ -302,6 +303,7 @@ def determine_rep_type(line_ends, rep_length, gates, gate_range):
 
 
 def set_semantic_types(filename):
+    filename = repr(filename)[1:-1]
     with open(f"{filename}_semantics.json", "r") as f:
         semantics = json.load(f)
     with open(f"{filename}_gates.json", "r") as f:

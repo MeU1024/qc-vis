@@ -7,6 +7,7 @@ import { Viewer } from "./components/viewer";
 import { QuantivineFileSystem } from "./components/qvfs";
 import { SemanticTreeViewer } from "./providers/structure";
 import { QubitTreeViewer } from "./providers/qubits";
+import { Compiler } from "./components/compiler";
 
 let disposables: { dispose(): any }[] = [];
 let context: vscode.ExtensionContext;
@@ -33,6 +34,7 @@ export const supportedAlgorithms = [
 ];
 export const extensionRoot = path.resolve(`${__dirname}/../../`);
 export const eventBus = new EventBus();
+export const compiler = new Compiler();
 export const manager = new Manager();
 export const qvfs = new QuantivineFileSystem();
 export const viewer = new Viewer();

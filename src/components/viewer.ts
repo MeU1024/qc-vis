@@ -1,13 +1,13 @@
-import * as vscode from "vscode";
-import * as qv from "../quantivine";
+import * as vscode from 'vscode';
+import * as qv from '../quantivine';
 import * as fs from 'fs';
-import { moveActiveEditor } from "../utilities/webview";
-import { getLogger } from "./logger";
-import { QCViewerManagerService } from "./viewerlib/qcviewermanager";
-import { QCViewerPanelService } from "./viewerlib/qcviewerpanel";
-import { DataLoader } from "../providers/structurelib/dataloader";
+import {moveActiveEditor} from '../utilities/webview';
+import {getLogger} from './logger';
+import {QCViewerManagerService} from './viewerlib/qcviewermanager';
+import {QCViewerPanelService} from './viewerlib/qcviewerpanel';
+import {DataLoader} from '../providers/structurelib/dataloader';
 
-const logger = getLogger("Viewer");
+const logger = getLogger('Viewer');
 
 export class Viewer {
   async openTab(
@@ -20,69 +20,51 @@ export class Viewer {
     return this.visualizeQCircuitInTab(dataUri, tabEditorGroup, preserveFocus);
   }
 
-  
-
   async visualizeQCircuitInTab(
     dataUri: vscode.Uri,
     tabEditorGroup: string,
     preserveFocus: boolean
   ): Promise<void> {
-
-    async function readFileIfExists(filename: string): Promise<string | null> {  
-      return new Promise((resolve, reject) => {  
-        const interval = setInterval(() => {  
-          if (fs.existsSync(filename)) {  
-            clearInterval(interval);  
-            fs.readFile(filename, 'utf8', (err, data) => {  
-              if (err) {  
-                reject(err);  
-              } else {  
-                resolve(data);  
-              }  
-            });  
-          }  
-        }, 1000); // 每隔1秒检查一次文件是否存在  
-      });  
-    }  
-    if(qv.manager.algorithm == undefined) {
-      throw new Error ("algorithm not found");
+    async function readFileIfExists(filename: string): Promise<string | null> {
+      return new Promise((resolve, reject) => {
+        const interval = setInterval(() => {
+          if (fs.existsSync(filename)) {
+            clearInterval(interval);
+            fs.readFile(filename, 'utf8', (err, data) => {
+              if (err) {
+                reject(err);
+              } else {
+                resolve(data);
+              }
+            });
+          }
+        }, 1000); // 每隔1秒检查一次文件是否存在
+      });
+    }
+    if (qv.manager.algorithm === undefined) {
+      throw new Error('algorithm not found');
     }
     let dataloader = new DataLoader(qv.manager.algorithm);
     const gatesDataFile = dataloader.gatesDataFile;
-    if(gatesDataFile == undefined) {
-      throw new Error("gatesDataFile not found");
+    if (gatesDataFile == undefined) {
+      throw new Error('gatesDataFile not found');
     }
     await readFileIfExists(gatesDataFile.fsPath);
-    console.log("fs.existsSync(filename)", fs.existsSync(gatesDataFile.fsPath));
+    console.log('fs.existsSync(filename)', fs.existsSync(gatesDataFile.fsPath));
 
     const activeDocument = vscode.window.activeTextEditor?.document;
     const panel = await QCViewerPanelService.createQCircuitViewerPanel(
       dataUri,
-      tabEditorGroup === "current"
+      tabEditorGroup === 'current'
     );
     QCViewerManagerService.initiateQCViewerPanel(panel);
     if (!panel) {
       return;
     }
-    if (tabEditorGroup !== "current" && activeDocument) {
+    if (tabEditorGroup !== 'current' && activeDocument) {
       await moveActiveEditor(tabEditorGroup, preserveFocus);
     }
     logger.log(`Open visualization tab for ${dataUri.toString(true)}`);
-  }
-
-  private async checkViewer(sourceFile: vscode.Uri): Promise<boolean> {
-    const dataUri = this.code2data(sourceFile);
-    if (!(await qv.qvfs.exists(dataUri))) {
-      logger.log(`Cannot find data file ${dataUri}`);
-      logger.refreshStatus(
-        "check",
-        "statusBar.foreground",
-        `Cannot view file data file. File not found: ${dataUri}`,
-        "warning"
-      );
-      return false;
-    }
-    return true;
   }
 
   refreshView() {
@@ -93,32 +75,27 @@ export class Viewer {
     });
   }
 
-  openExternal(): void { }
+  openExternal(): void {}
 
   updateHighlight(id: string) {
-    const dataUri = vscode.Uri.file("");
+    const dataUri = vscode.Uri.file('');
     const panelSet = QCViewerManagerService.getPanelSet(dataUri);
     panelSet?.forEach((panel) => {
       panel.webviewPanel.webview.postMessage({
-        command: "update",
+        command: 'update',
         text: id,
       });
     });
   }
 
   updateTheme(theme: vscode.ColorTheme) {
-    const dataUri = vscode.Uri.file("");
+    const dataUri = vscode.Uri.file('');
     const panelSet = QCViewerManagerService.getPanelSet(dataUri);
     panelSet?.forEach((panel) => {
       panel.webviewPanel.webview.postMessage({
-        command: "themeChange",
+        command: 'themeChange',
         theme: theme,
       });
     });
-  }
-
-  code2data(sourceFile: vscode.Uri): vscode.Uri {
-    const dataFilePath = qv.manager.code2data(sourceFile);
-    return vscode.Uri.file(dataFilePath);
   }
 }
