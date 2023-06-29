@@ -48,9 +48,7 @@ export class QubitNodeProvider
   }
 
   public setQubits(): void {
-    // const qubitNum = this._getQubitNum(sourceFilePath);
-    const qubitNum = this._getQubitNum();
-
+    const qubitNum = qv.manager.dataLoader.qubitNum;
     this.ds = [];
     for (let i = 0; i < qubitNum; i++) {
       this.ds.push(
@@ -58,29 +56,6 @@ export class QubitNodeProvider
       );
     }
     this.refresh();
-  }
-
-  // private _getQubitNum(sourceFilePath: string): number {
-  private _getQubitNum(): number {
-    // const algorithm = path.basename(sourceFilePath, '.py');
-    if(qv.manager.algorithm == undefined) {
-      throw new Error("algorithm undefined.");
-    }
-    const algorithm = qv.manager.algorithm;
-    const dataloader = new DataLoader(algorithm);
-    const gatesDataFile = dataloader.gatesDataFile;
-    if (gatesDataFile == undefined) {
-      throw new Error("gatesDataFile not found");
-    }
-    // const dataFile = vscode.Uri.joinPath(
-    //   qv.getExtensionUri(),
-    //   `/resources/data/${algorithm}-json-data.json`
-    // );
-    let data = require(gatesDataFile.fsPath);
-    if (!data.qubit) {
-      throw new Error("Qubit not found");
-    }
-    return data.qubit;
   }
 }
 
@@ -93,15 +68,9 @@ export class QubitTreeViewer {
     this._treeView = vscode.window.createTreeView('quantivine-qubitview', {
       treeDataProvider: this._nodeProvider,
     });
-
-    // qv.registerDisposable(
-    //   qv.eventBus.on(SourceFileChanged, (e) => {
-    //     this._nodeProvider.setQubits();
-    //   })
-    // );
   }
 
-  async InitNodeProvider() {
+  async initNodeProvider() {
     await this._nodeProvider.setQubits();
   }
 }

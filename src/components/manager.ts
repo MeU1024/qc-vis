@@ -5,15 +5,17 @@ import * as tmp from 'tmp';
 import * as qv from '../quantivine';
 import * as eventbus from './eventBus';
 import {getLogger} from './logger';
+import {DataLoader} from '../providers/structurelib/dataloader';
 
 const logger = getLogger('Manager');
 
 export class Manager {
   private _sourceFileLanguageId: string | undefined;
   private _sourceFile: vscode.Uri | undefined;
-  private _tmpDir: string | undefined;
+  private _tmpDir: vscode.Uri | undefined;
   private _algorithm: string | undefined;
   private _buildFileFinish: boolean;
+  private _dataLoader: DataLoader;
 
   get buildFileFinish() {
     return this._buildFileFinish;
@@ -22,6 +24,7 @@ export class Manager {
   constructor() {
     this.registerSetEnvVar();
     this.createTempFolder();
+    this._dataLoader = new DataLoader();
 
     this._buildFileFinish = false;
     qv.registerDisposable(
@@ -33,13 +36,18 @@ export class Manager {
       // TODO: This event is not triggered.
       qv.eventBus.on(eventbus.FileChanged, () => {
         this._buildFileFinish = false;
-      }), 
+      }),
       qv.eventBus.on(eventbus.SourceFileChanged, () => {
         this._buildFileFinish = false;
       }),
       qv.eventBus.on(eventbus.CodeBuilt, () => {
         this._buildFileFinish = true;
-      }),
+        if (this.tmpDir !== undefined && this.algorithm !== undefined) {
+          this._dataLoader.load(this.tmpDir, this.algorithm);
+          qv.semanticTreeViewer.computeTreeStructure();
+          qv.qubitTreeViewer.initNodeProvider();
+        }
+      })
     );
   }
 
@@ -47,11 +55,10 @@ export class Manager {
     // Create temp folder
     tmp.setGracefulCleanup();
     try {
-      this._tmpDir = tmp
-        .dirSync({unsafeCleanup: true})
-        .name.split(path.sep)
-        .join('/');
-      console.log('Create temp folder:', this._tmpDir);
+      this._tmpDir = vscode.Uri.file(
+        tmp.dirSync({unsafeCleanup: true}).name.split(path.sep).join('/')
+      );
+      console.log('Create temp folder:', this._tmpDir.fsPath);
     } catch (error) {
       void vscode.window.showErrorMessage(
         'Error during making tmpdir to build quantum circuit files. Please check the environment variables, TEMP, TMP, and TMPDIR on your system.'
@@ -98,6 +105,10 @@ export class Manager {
     return this._algorithm;
   }
 
+  get dataLoader() {
+    return this._dataLoader;
+  }
+
   /**
    * Set the current editing file as the source file.
    */
@@ -124,24 +135,6 @@ export class Manager {
       this._algorithm = filename.substring(0, filename.lastIndexOf('.'));
       qv.eventBus.fire(eventbus.SourceFileChanged, currentFile.fsPath);
     }
-
-    // const laguangeId = this.inferLanguageId(currentFile);
-
-    // if (this.sourceFile !== currentFile && this.hasQPLId(laguangeId)) {
-    //   logger.log(
-    //     `Source file changed: from ${this.sourceFile} to ${currentFile}`
-    //   );
-
-    //   this.sourceFile = currentFile;
-
-    //   this.sourceFileLanguageId = laguangeId;
-    //   logger.log(`Source file languageId: ${laguangeId}`);
-    //   // void qv.semanticTreeViewer.computeTreeStructure();
-    //   qv.eventBus.fire(eventbus.SourceFileChanged, currentFile.fsPath);
-    // } else {
-    //   logger.log(`Keep using the same source file: ${this.sourceFile}`);
-    //   // void qv.semanticTreeViewer.refreshView();
-    // }
 
     return this.sourceFile;
   }

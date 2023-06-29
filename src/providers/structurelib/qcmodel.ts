@@ -35,18 +35,9 @@ export class QcStructure {
 
     QcStructure.refreshQcModelConfig();
 
-    const structure = await QcStructure.buildQcStructureFromFile(file);
+    const structure = qv.manager.dataLoader.structure;
 
     return structure;
-  }
-
-  private static async buildQcStructureFromFile(
-    file: vscode.Uri
-  ): Promise<QuantumTreeNode[]> {
-
-    let gates: QuantumTreeNode[] = [];
-    gates = loadTreeFromFile(file);
-    return gates;
   }
 
   protected static normalizeDepths(flatNodes: QuantumTreeNode[]) {
@@ -80,133 +71,6 @@ export class QcStructure {
   }
 }
 
-function loadTreeFromFile(file?: vscode.Uri): QuantumTreeNode[] {
-  // let resourcesFile = qv.manager.tmpDir;
-  const algorithm = qv.manager.algorithm || "vqc";
-
-  if (!file) {
-    let path = vscode.Uri.joinPath(
-      qv.getExtensionUri(),
-      `/resources/data/${algorithm}-structure.json`
-    ).fsPath;
-    file = vscode.Uri.file(path);
-  }
-  logger.log("Loading tree from file: " + file.fsPath + "...");
-
-  let data = require(file.fsPath);
-  //TODO: fix file
-
-  let gates: QuantumTreeNode[] = [];
-  let gateList: QuantumTreeNode[] = [];
-
-  data.forEach((node: any) => {
-    if (node.index === 0) {
-      gates.push(
-        new QuantumTreeNode(
-          NodeType.superGate,
-          node.name,
-          vscode.TreeItemCollapsibleState.Expanded,
-          0,
-          0
-        )
-      );
-      gateList.push(gates[0]);
-    } else {
-      let parent = gateList[node.parentIndex];
-      let nodeName = node.name;
-      let nodeType =
-        node.type === "fun"
-          ? NodeType.superGate
-          : node.type === "rep"
-            ? NodeType.repetition
-            : NodeType.basicGate;
-      let description = undefined;
-      let collapsibleState = vscode.TreeItemCollapsibleState.None;
-
-      if (nodeType === NodeType.superGate) {
-        nodeName = nodeName.slice(1, nodeName.length);
-        collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-      }
-
-      if (nodeType === NodeType.repetition) {
-        description = "×" + " ? times";
-        collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
-      }
-
-      let newGate = new QuantumTreeNode(
-        nodeType,
-        nodeName,
-        collapsibleState,
-        parent.depth + 1,
-        node.index,
-
-        description
-      );
-
-      newGate.parent = parent;
-      parent.children.push(newGate);
-      gateList.push(newGate);
-    }
-  });
-
-  return gates;
-}
-
-function testTree() {
-  let gates: QuantumTreeNode[] = [];
-  let index = 0;
-
-  gates.push(
-    new QuantumTreeNode(
-      NodeType.superGate,
-      "QuantumCircuit01",
-      vscode.TreeItemCollapsibleState.Expanded,
-      0,
-      index++
-    )
-  );
-
-  const firstLevelGates = ["h", "PA", "Ent"];
-
-  firstLevelGates.forEach((label) => {
-    const gateType = label.endsWith("Gate")
-      ? NodeType.basicGate
-      : NodeType.superGate;
-    let newGate = new QuantumTreeNode(
-      gateType,
-      label,
-      vscode.TreeItemCollapsibleState.Expanded,
-      1,
-      index++
-    );
-    newGate.parent = gates[0];
-    gates[0].children.push(newGate);
-  });
-
-  const secondLevelGates = ["H-Gate", "G41", "G42"];
-
-  secondLevelGates.forEach((label) => {
-    const parentGate = gates[0].children[1];
-    const gateType = label.endsWith("Gate")
-      ? NodeType.basicGate
-      : NodeType.superGate;
-    let newGate = new QuantumTreeNode(
-      gateType,
-      label,
-      vscode.TreeItemCollapsibleState.Expanded,
-      2,
-      index++
-    );
-    newGate.parent = parentGate;
-    parentGate.children.push(newGate);
-  });
-
-  return gates;
-}
-
-// export class TaggedLayer {
-//   constructor(readonly gates: ComponentGate[]) {}
-// }
 export class Layer {
   private _gates: ComponentGate[];
 

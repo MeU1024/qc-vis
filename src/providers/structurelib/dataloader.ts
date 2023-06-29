@@ -1,12 +1,15 @@
-import * as vscode from "vscode";
-import * as qv from "../../quantivine";
-import { SemanticTree } from "./layout";
-import { ComponentGate, Qubit } from "./qcmodel";
-import { getExtensionUri } from "../../quantivine";
+import * as vscode from 'vscode';
+import {SemanticTree} from './layout';
+import {ComponentGate, Qubit} from './qcmodel';
+import {NodeType, QuantumTreeNode} from './quantumgate';
 
 export class DataLoader {
+  structureData: any;
+  gateData: any;
+  semanticData: any;
   private _qubits: Qubit[] = [];
   private _quantumGates: ComponentGate[] = [];
+  private _structure: QuantumTreeNode[] = [];
   private _structureDataFile: vscode.Uri | undefined;
   private _gatesDataFile: vscode.Uri | undefined;
   private _semanticsDataFile: vscode.Uri | undefined;
@@ -23,33 +26,41 @@ export class DataLoader {
     return this._semanticsDataFile;
   }
 
-
-  constructor(private algorithmName: string) {
-    
-    if(!qv.manager.tmpDir) {
-      throw new Error("Temporary folder not found");
-    }
-    if(!qv.manager.algorithm) {
-      throw new Error("Algorithm not found ");
-    }
-    const tmpDir =  vscode.Uri.file(qv.manager.tmpDir);
-    this._structureDataFile = vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_structure.json`) ;
-    this._gatesDataFile = vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_gates.json`) ;
-    this._semanticsDataFile =  vscode.Uri.joinPath(tmpDir, `${qv.manager.algorithm}_semantics.json`) ;
-
-    if (this._structureDataFile == undefined || this._gatesDataFile == undefined || this._semanticsDataFile == undefined) {
-      throw new Error('Dataload Error: File not found');
-    }
-
-    //TODO: readfromFile
-    this._loadCompilationData(); //json-data //layers , qubits, semantics
-    this._loadStructureData(this._structureDataFile);
+  get qubitNum() {
+    return this._qubits.length;
   }
 
-  // private _loadCompilationData(dataSource: vscode.Uri) {
+  get structure() {
+    return this._structure;
+  }
+
+  load(dataDir: vscode.Uri, codeName: string) {
+    this._structureDataFile = vscode.Uri.joinPath(
+      dataDir,
+      `${codeName}_structure.json`
+    );
+    this._gatesDataFile = vscode.Uri.joinPath(
+      dataDir,
+      `${codeName}_gates.json`
+    );
+    this._semanticsDataFile = vscode.Uri.joinPath(
+      dataDir,
+      `${codeName}_semantics.json`
+    );
+
+    this.structureData = require(this._structureDataFile.fsPath);
+    this.gateData = require(this._gatesDataFile.fsPath);
+    this.semanticData = require(this._semanticsDataFile.fsPath);
+
+    this._loadCompilationData();
+    this._loadStructureData();
+  }
+
+  /**
+   * Load layers, qubits, semantics.
+   */
   private _loadCompilationData() {
-    // let data = require(dataSource.fsPath);
-    if (this._gatesDataFile == undefined) {
+    if (this._gatesDataFile === undefined) {
       throw new Error('Dataload Error: File not found');
     }
     let gateData = require(this._gatesDataFile?.fsPath);
@@ -57,38 +68,16 @@ export class DataLoader {
     this._qubits = [];
     this._quantumGates = [];
 
-    // data.qubits.forEach((qubitName: string) => {
-    //   this._qubits.push(new Qubit(qubitName, this._qubits.length));
-    // });
-
     for (let i = 0; i < gateData.qubit; ++i) {
-      this._qubits.push(new Qubit("" + i, this._qubits.length));
+      this._qubits.push(new Qubit('' + i, this._qubits.length));
     }
 
-    // data.layers.forEach((layer: any) => {
-    //   layer.forEach((gate: any) => {
-    //     const qubits = gate[1].map((bit: number) => {
-    //       return this._qubits[bit];
-    //     });
-    //     const gateName = gate[0];
-    //     const range = gate[2];
-    //     const treeIndex = gate[3];
-    //     const repTimes = gate[4];
-    //     const componentGate = new ComponentGate(
-    //       gateName,
-    //       qubits,
-    //       range,
-    //       treeIndex,
-    //       repTimes
-    //     );
-    //     this._quantumGates.push(componentGate);
-    //   });
-    // });
-
     gateData.gates.forEach((gate: any) => {
-      const qubits = Array.isArray(gate[1]) ? gate[1].map((bit: number) => {
-        return this._qubits[bit];
-      }) : [this._qubits[gate[1]]];
+      const qubits = Array.isArray(gate[1])
+        ? gate[1].map((bit: number) => {
+            return this._qubits[bit];
+          })
+        : [this._qubits[gate[1]]];
       const gateName = gate[0];
       const range = gate[2];
       const treeIndex = gate[3];
@@ -102,11 +91,72 @@ export class DataLoader {
       );
       this._quantumGates.push(componentGate);
     });
-
   }
+  /**
+   *
+   *
+   */
+  private _loadStructureData() {
+    if (this._structureDataFile === undefined) {
+      throw new Error('Dataload Error: File not found');
+    }
 
-  private _loadStructureData(dataSource: vscode.Uri) {
-    let data = require(dataSource.fsPath);
+    let data = require(this._structureDataFile.fsPath);
+
+    let gates: QuantumTreeNode[] = [];
+    let gateList: QuantumTreeNode[] = [];
+
+    data.forEach((node: any) => {
+      if (node.index === 0) {
+        gates.push(
+          new QuantumTreeNode(
+            NodeType.superGate,
+            node.name,
+            vscode.TreeItemCollapsibleState.Expanded,
+            0,
+            0
+          )
+        );
+        gateList.push(gates[0]);
+      } else {
+        let parent = gateList[node.parentIndex];
+        let nodeName = node.name;
+        let nodeType =
+          node.type === 'fun'
+            ? NodeType.superGate
+            : node.type === 'rep'
+            ? NodeType.repetition
+            : NodeType.basicGate;
+        let description = undefined;
+        let collapsibleState = vscode.TreeItemCollapsibleState.None;
+
+        if (nodeType === NodeType.superGate) {
+          nodeName = nodeName.slice(1, nodeName.length);
+          collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
+        }
+
+        if (nodeType === NodeType.repetition) {
+          description = '×' + ' ? times';
+          collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+        }
+
+        let newGate = new QuantumTreeNode(
+          nodeType,
+          nodeName,
+          collapsibleState,
+          parent.depth + 1,
+          node.index,
+
+          description
+        );
+
+        newGate.parent = parent;
+        parent.children.push(newGate);
+        gateList.push(newGate);
+      }
+    });
+
+    this._structure = gates;
   }
 
   get quantumGates(): ComponentGate[] {
@@ -114,7 +164,7 @@ export class DataLoader {
   }
 
   get compiledTree(): SemanticTree {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   get qubits(): Qubit[] {

@@ -18,20 +18,21 @@ const logger = getLogger("Viewer", "Panel");
 
 export class QCViewerPanel {
   readonly webviewPanel: vscode.WebviewPanel;
-  readonly dataFileUri: vscode.Uri;
+  readonly sourceFileUri: vscode.Uri;
   private viewerState: QCViewerState | undefined;
   private _abstractionData: AbstractionDataProvider | undefined;
   private _componentData: ComponentDataProvider | undefined;
   private _contextData: ContextDataProvider | undefined;
 
-  constructor(dataFileUri: vscode.Uri, panel: vscode.WebviewPanel) {
-    this.dataFileUri = dataFileUri;
+  constructor(sourceFileUri: vscode.Uri, panel: vscode.WebviewPanel) {
+    this.sourceFileUri = sourceFileUri;
     this.webviewPanel = panel;
     // set name of the panel
-    var algorithmName =
-      qv.algorithmNameDict[path.basename(dataFileUri.fsPath, ".py")];
-
-    algorithmName = algorithmName ? algorithmName : path.basename(dataFileUri.fsPath, ".py");
+    const sourceFilePath = sourceFileUri.fsPath;
+    const filename = path.basename(sourceFilePath, path.extname(sourceFilePath));
+    let algorithmName =
+      qv.algorithmNameDict[filename];
+    algorithmName = algorithmName ? algorithmName : filename;
 
     this.webviewPanel.title = "Visualization: " + algorithmName;
     panel.webview.onDidReceiveMessage((msg: PanelRequest) => {
@@ -93,13 +94,13 @@ export class QCViewerPanel {
 
   updateData() {
     if (!this._componentData) {
-      this._componentData = new ComponentDataProvider(this.dataFileUri);
+      this._componentData = new ComponentDataProvider(this.sourceFileUri);
     }
     if (!this._abstractionData) {
-      this._abstractionData = new AbstractionDataProvider(this.dataFileUri);
+      this._abstractionData = new AbstractionDataProvider(this.sourceFileUri);
     }
     if (!this._contextData) {
-      this._contextData = new ContextDataProvider(this.dataFileUri);
+      this._contextData = new ContextDataProvider(this.sourceFileUri);
     }
 
     this._componentData.updateData();
@@ -115,7 +116,6 @@ export class QCViewerPanelService {
     dataUri: vscode.Uri,
     preserveFocus: boolean
   ): Promise<QCViewerPanel> {
-    // await qv.server.serverStarted;
     const panel = vscode.window.createWebviewPanel(
       "quantivine-vis",
       "Quantivine",

@@ -28,7 +28,7 @@ export class QCViewerManagerService {
   static initiateQCViewerPanel(
     qcvPanel: QCViewerPanel
   ): QCViewerPanel | undefined {
-    const dataFileUri = qcvPanel.dataFileUri;
+    const dataFileUri = qcvPanel.sourceFileUri;
     QCViewerManagerService.createWebviewSet(dataFileUri);
     const panelSet = QCViewerManagerService.getPanelSet(dataFileUri);
     if (!panelSet) {

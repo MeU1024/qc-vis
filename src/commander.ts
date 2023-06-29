@@ -15,11 +15,7 @@ export async function build() {
   if (qv.manager.tmpDir === undefined) {
     throw new Error('Temporary folder not found');
   }
-  var tempDir = vscode.Uri.file(qv.manager.tmpDir);
-  let structureDataFile = vscode.Uri.joinPath(
-    tempDir,
-    `${qv.manager.algorithm}_structure.json`
-  );
+  const tmpDir = qv.manager.tmpDir;
 
   vscode.window
     .showInputBox({
@@ -27,11 +23,7 @@ export async function build() {
       value: 'qc',
     })
     .then((value) => {
-      if (value === undefined) {
-        logger.log('Cannot find quantum circuit to build.');
-        return;
-      }
-      qv.compiler.build(sourceFile, tempDir);
+      qv.compiler.build(sourceFile, tmpDir, value);
     });
 
   if (sourceFile === undefined) {
@@ -41,30 +33,20 @@ export async function build() {
 }
 
 export async function view(mode?: 'tab' | vscode.Uri) {
+  const sourceFile = await qv.manager.updateSource();
+  if (sourceFile === undefined) {
+    logger.log('Cannot find quantum circuit to view.');
+    return;
+  }
   if (!qv.manager.buildFileFinish) {
     vscode.window.showWarningMessage(
       'Can not view quantum circuit before building.'
     );
     return;
   }
-  if (mode) {
-    logger.log(`VIEW command invoked with mode: ${mode}.`);
-  } else {
-    logger.log('VIEW command invoked.');
-  }
-  if (!vscode.window.activeTextEditor) {
-    logger.log('Cannot find active TextEditor.');
-    return;
-  }
-  if (
-    !qv.manager.hasQPLId(vscode.window.activeTextEditor.document.languageId)
-  ) {
-    logger.log('Active document is not a Quantum Program file.');
-    return;
-  }
-  const sourceFile = await qv.manager.updateSource();
+  
   await qv.semanticTreeViewer.computeTreeStructure();
-  await qv.qubitTreeViewer.InitNodeProvider();
+  await qv.qubitTreeViewer.initNodeProvider();
   if (sourceFile === undefined) {
     logger.log('Cannot find quantum circuit to view.');
     return;

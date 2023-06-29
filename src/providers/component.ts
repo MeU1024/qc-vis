@@ -75,7 +75,7 @@ export class ComponentDataProvider {
 
       panelSet?.forEach((panel) => {
         panel.postMessage(message);
-        logger.log(`Sent Message: ${panel.dataFileUri}`);
+        logger.log(`Sent Message: ${panel.sourceFileUri}`);
       });
     }
   }
@@ -131,7 +131,6 @@ export class ComponentCircuit {
   private _superQubitMap: Map<Qubit, number>;
   private _layerMap: Map<number, number[]>;
   private _drawableCircuit: DrawableCircuit;
-  private _dataLoader: DataLoader;
   private _treeChildrenList: number[][];
   private _highlightedComponent: number[];
   constructor(dataFile: vscode.Uri) {
@@ -161,45 +160,10 @@ export class ComponentCircuit {
 
     const algorithmName = path.basename(dataFile.fsPath, ".py");
 
-    this._dataLoader = new DataLoader(algorithmName);
-    this._originalQubits = this._dataLoader.qubits;
-    this._originalGates = this._dataLoader.quantumGates;
-
-    // const file = vscode.Uri.file(
-    //   vscode.Uri.joinPath(
-    //     getExtensionUri(),
-    //     `/resources/data/${algorithmName}-json-data.json`
-    //   ).fsPath
-    // );
-    // logger.log(`Build component circuit from ${file.fsPath}`);
-
-    //TODO: fix file
-    const jsondatafile = this._dataLoader.structureDataFile;
-
-    // if (jsonData === undefined) {
-    //   jsonData.layers.forEach((layer: any) => {
-    //     this._layers.push(new Layer([]));
-    //     layer.forEach((gateInfo: any) => {
-    //       let gateName = gateInfo[0];
-    //       let qubits: Qubit[] = [];
-    //       gateInfo[1].forEach((qubitIndex: number) => {
-    //         qubits.push(this._qubits[qubitIndex]);
-    //       });
-    //       let range = gateInfo[2];
-    //       let treeIndex = gateInfo[3];
-
-    //       let gate = new ComponentGate(gateName, qubits, range, treeIndex);
-    //       this._gates.push(gate);
-    //       this._layers[this._layers.length - 1].gates.push(gate);
-    //     });
-    //   });
-    // }
-
-    // this._importGatesFromFile(file);
-
-    // TODO: fix file
-    // this._treeStructure = this._importStructureFromFile(file);
-    this._treeStructure = this._importStructureFromFile(jsondatafile);
+    const dataLoader = qv.manager.dataLoader;
+    this._originalQubits = dataLoader.qubits;
+    this._originalGates = dataLoader.quantumGates;
+    this._treeStructure = this._importStructureFromFile();
     this._updateTreeMap();
     this._build();
   }
@@ -338,29 +302,14 @@ export class ComponentCircuit {
     });
   }
 
-  private _importStructureFromFile(file?: vscode.Uri): {
+  private _importStructureFromFile(): {
     name: string;
     parentIndex: number;
     index: number;
     type: string;
   }[] {
-    const algorithm = qv.manager.algorithm;
-    if (algorithm == undefined) {
-      throw new Error("Algorithm not found.");
-    }
-    // const dataloader = new DataLoader(algorithm);
-    const structurefile = this._dataLoader.structureDataFile;
-    if (structurefile == undefined) {
-      throw new Error("Structurefile not found.");
-    }
-    // let dataSource = vscode.Uri.joinPath(
-    //   getExtensionUri(),
-    //   `/resources/data/${algorithm}-structure.json`
-    // ).fsPath;
-    let data = require(structurefile.fsPath);
-    // if (file) {
-    //   data = require(file.fsPath);
-    // }
+    const dataLoader = qv.manager.dataLoader;
+    const data = dataLoader.structureData;
     let treeStructure = data.map((tree: any) => {
       return {
         name: tree.name,
@@ -416,7 +365,7 @@ export class ComponentCircuit {
   private _build() {
     // Build component circuit
 
-    let componentGates = this._groupGates(this._dataLoader.quantumGates);
+    let componentGates = this._groupGates(qv.manager.dataLoader.quantumGates);
     const { edgeMap, qubitMap } = this._bundling(componentGates);
     const newComponentGates = this._updateGateQubit(componentGates, edgeMap);
     this._gates = newComponentGates;

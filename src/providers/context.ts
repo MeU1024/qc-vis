@@ -4,7 +4,6 @@ import * as qv from "../quantivine";
 import { getLogger } from "../components/logger";
 import { ComponentCircuit } from "./component";
 import { QCViewerManagerService } from "../components/viewerlib/qcviewermanager";
-import { QuantumTreeNode } from "./structurelib/quantumgate";
 import { GateNodeProvider } from "./structure";
 import {
   ComponentGate,
@@ -12,10 +11,6 @@ import {
   Qubit,
   SuperQubit,
 } from "./structurelib/qcmodel";
-import { getExtensionUri } from "../quantivine";
-import { get, maxHeaderSize } from "http";
-import G from "glob";
-import { DataLoader } from "./structurelib/dataloader";
 
 const logger = getLogger("DataProvider", "Context");
 
@@ -74,7 +69,7 @@ export class ContextDataProvider {
 
       panelSet?.forEach((panel) => {
         panel.postMessage(message);
-        logger.log(`Sent Message: ${panel.dataFileUri}`);
+        logger.log(`Sent Message: ${panel.sourceFileUri}`);
       });
     }
   }
@@ -94,7 +89,7 @@ export class ContextDataProvider {
 
       panelSet?.forEach((panel) => {
         panel.postMessage(message);
-        logger.log(`Sent Message: ${panel.dataFileUri}`);
+        logger.log(`Sent Message: ${panel.sourceFileUri}`);
       });
     }
   }
@@ -147,7 +142,7 @@ export class ContextDataProvider {
     panelSet?.forEach((panel) => {
       panel.postMessage(message1);
 
-      logger.log(`Sent Message: ${panel.dataFileUri}`);
+      logger.log(`Sent Message: ${panel.sourceFileUri}`);
     });
   }
 
@@ -169,7 +164,7 @@ export class ContextDataProvider {
     panelSet?.forEach((panel) => {
       panel.postMessage(message1);
       panel.postMessage(message2);
-      logger.log(`Sent Message: ${panel.dataFileUri}`);
+      logger.log(`Sent Message: ${panel.sourceFileUri}`);
     });
   }
 }
@@ -303,16 +298,8 @@ class ContextualCircuit {
     index: number;
     type: string;
   }[] {
-    const algorithm = qv.manager.algorithm;
-    if (algorithm == undefined) {
-      throw new Error("Algorithm not found.");
-    }
-    const dataloader = new DataLoader(algorithm);
-    const file = dataloader.structureDataFile;
-    if (file == undefined) {
-      throw new Error("StructureDataFile not found.");
-    }
-    let data = require(file.fsPath);
+    const dataloader = qv.manager.dataLoader;
+    const data = dataloader.structureData;
     let treeStructure = data.map((tree: any) => {
       return {
         name: tree.name,

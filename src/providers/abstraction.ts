@@ -69,7 +69,7 @@ export class AbstractionDataProvider {
 
       panelSet?.forEach((panel) => {
         panel.postMessage(message);
-        logger.log(`Sent Message: ${panel.dataFileUri}`);
+        logger.log(`Sent Message: ${panel.sourceFileUri}`);
       });
     }
   }
@@ -141,7 +141,7 @@ class AbstractedCircuit {
     this._semanticsList = this._importSemanticsFromFile(dataFile);
     // const algorithmName = path.basename(dataFile.fsPath, ".py");
     const algorithm = qv.manager.algorithm;
-    if (algorithm == undefined) {
+    if (algorithm === undefined) {
       throw new Error("Algorithm undefined");
     }
     //TODO: fix file
@@ -153,11 +153,6 @@ class AbstractedCircuit {
     //   ).fsPath
     // );
     // logger.log(`Build component circuit from ${file.fsPath}`);
-
-    const dataloader = new DataLoader(algorithm);
-
-    const gateFile = dataloader.gatesDataFile;
-    const semanticsFile = dataloader.semanticsDataFile;
 
     this._qubits = [];
     this._isIdleQubit = [];
@@ -180,29 +175,14 @@ class AbstractedCircuit {
     this._newBuild();
   }
 
-  private _importStructureFromFile(file?: vscode.Uri): {
+  private _importStructureFromFile(): {
     name: string;
     parentIndex: number;
     index: number;
     type: string;
   }[] {
-    const algorithm = qv.manager.algorithm;
-    // let dataSource = vscode.Uri.joinPath(
-    //   getExtensionUri(),
-    //   `/resources/data/${algorithm}-structure.json`
-    // ).fsPath;
-    if (algorithm == undefined) {
-      throw new Error("Algorithm undefined");
-    }
-    const dataloader = new DataLoader(algorithm);
-    const structureDataFile = dataloader.structureDataFile;
-    if (structureDataFile == undefined) {
-      throw new Error("File not found");
-    }
-    let data = require(structureDataFile?.fsPath);
-    // if (file) {
-    //   data = require(file.fsPath);
-    // }
+    const dataloader = qv.manager.dataLoader;
+    const data = dataloader.structureData;
     let treeStructure = data.map((tree: any) => {
       return {
         name: tree.name,
@@ -215,34 +195,12 @@ class AbstractedCircuit {
   }
 
   private _importCircuitFromFile(dataFile: vscode.Uri): ComponentCircuit {
-    // const algorithmName = path.basename(dataFile.fsPath, '.py');
-    // let dataSource = vscode.Uri.joinPath(
-    //   getExtensionUri(),
-    //   `/resources/data/${algorithmName}-json-data.json`
-    // ).fsPath;
-    // logger.log('Load component data from: ' + dataSource);
-    // let data = require(dataSource);
     return new ComponentCircuit(dataFile);
   }
 
   private _importSemanticsFromFile(dataFile: vscode.Uri): Semantics[] {
-    const algorithmName = path.basename(dataFile.fsPath, ".py");
-    // let dataSource = vscode.Uri.joinPath(
-    //   getExtensionUri(),
-    //   `/resources/data/${algorithmName}-json-data.json`
-    // ).fsPath;
-    //TODO: fix file
-    if (algorithmName == undefined) {
-      throw new Error("Algorithm undefined");
-    }
-    const dataloader = new DataLoader(algorithmName);
-    const semanticsfile = dataloader.semanticsDataFile;
-    if (semanticsfile == undefined) {
-      throw new Error("File not found");
-    }
-    logger.log("Load semantics data from: " + semanticsfile);
-    let data = require(semanticsfile.fsPath);
-    // let semantics = data.semantics.map((sem: any) => {
+    const dataloader = qv.manager.dataLoader;
+    const data = dataloader.semanticData;
     let semantics = data.map((sem: any) => {
       let semType = sem.type;
       let semRange = sem.range;
