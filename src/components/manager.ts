@@ -42,14 +42,16 @@ export class Manager {
       }),
     );
   }
+
   createTempFolder() {
     // Create temp folder
+    tmp.setGracefulCleanup();
     try {
       this._tmpDir = tmp
         .dirSync({unsafeCleanup: true})
         .name.split(path.sep)
         .join('/');
-      console.log('tmpDir', this._tmpDir);
+      console.log('Create temp folder:', this._tmpDir);
     } catch (error) {
       void vscode.window.showErrorMessage(
         'Error during making tmpdir to build quantum circuit files. Please check the environment variables, TEMP, TMP, and TMPDIR on your system.'
@@ -120,7 +122,6 @@ export class Manager {
       );
       this.sourceFile = currentFile;
       this._algorithm = filename.substring(0, filename.lastIndexOf('.'));
-      console.log('algorithm name', this._algorithm);
       qv.eventBus.fire(eventbus.SourceFileChanged, currentFile.fsPath);
     }
 
