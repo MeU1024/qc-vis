@@ -31,7 +31,8 @@ The parser receives source code with a target circuit, and generates its structu
 * 🔄 Methods / functions of Qiskit beyond basic quantum gates, e.g., `qc.compose(subcircuit)`
 * 🔄 Passing array in args of qubit, e.g., `qc.h(range(len(V)))`
 * 🔄 Class based circuit
-* 递归或函数互相调用
+* 🔄 Recursive building circuit
+* 函数互相调用
 * 函数参数 *args 和 **kwargs 写法 (resolved)
 * 函数嵌套定义：函数内定义函数
 
@@ -47,13 +48,13 @@ The parser receives source code with a target circuit, and generates its structu
 | QAOA           |   ✅    | The number of qubits needs to be even.                             |
 | Qcounting      |   ❌    | Not support Qiskit built-in function (e.g., `inverse`, `to_gate`). |
 | QEC            |   ✅    |                                                                    |
-| QFT            |   🔄   | Testing ...                                                        |
-| QKnn           |   🔄   | Testing ...                                                        |
-| QNN            |   🔄   | Testing ...                                                        |
-| QSVM           |   🔄   | Testing ...                                                        |
-| QuGAN          |   🔄   | Testing ...                                                        |
-| Simon          |   🔄   | Testing ...                                                        |
+| QFT            |   ✅    |                                                                    |
+| QKnn           |   ✅    |                                                                    |
+| QNN            |   ✅    |                                                                    |
+| QSVM           |   ✅    |                                                                    |
+| QuGAN          |   ✅    |                                                                    |
+| Simon          |   ✅    |                                                                    |
 | Square_root    |   🔄   | Testing ...                                                        |
 | Swap_test      |   🔄   | Testing ...                                                        |
-| VQC            |   🔄   | Testing ...                                                        |
-| W_state        |   🔄   | Testing ...                                                        |
+| VQC            |   ✅    |                                                                    |
+| W_state        |   ✅    |                                                                    |
