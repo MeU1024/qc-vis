@@ -1,14 +1,12 @@
 import random
-
 import numpy as np
 from qiskit import QuantumCircuit
 
 
 def initialize_qaoa(V, E):
     qc = QuantumCircuit(len(V), len(V))
-
-    qc.h(range(len(V)))
-    # qc.barrier()
+    for i in range(len(V)):
+        qc.h(i)
     return qc
 
 
@@ -18,13 +16,12 @@ def apply_cost_hamiltonian(qc, V, E, gamma):
         qc.cp(-2*gamma*weight, k, l)
         qc.p(gamma*weight, k)
         qc.p(gamma*weight, l)
-    # qc.barrier()
     return qc
 
 
 def apply_mixing_hamiltonian(qc, V, E, beta):
-    qc.rx(2*beta, range(len(V)))
-    # qc.barrier()
+    for i in range(len(V)):
+        qc.rx(2*beta, i)
     return qc
 
 
@@ -44,5 +41,4 @@ def get_cir(n):
     qc = construct_full_qaoa(5, [.4], [.8], range(n), E)
     return qc
 
-
-qc = get_cir(5)
+qc = get_cir(50)
