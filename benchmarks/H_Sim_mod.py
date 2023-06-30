@@ -38,11 +38,9 @@ def circuit(num_qubits, time_step, total_time) -> QuantumCircuit:
         psi2 = -2.0 * jz * time_step / hbar
         choice = np.random.randint(0, num_qubits - 1)
         for i in range(num_qubits - 1):
-            sub_circuit = QuantumCircuit(num_qubits)
-            sub_circuit.cx(i, i + 1)
-            sub_circuit.rz(psi2, i + 1)
-            sub_circuit.cx(i, i + 1)
-            circuit.compose(sub_circuit, inplace=True)
+            circuit.cx(i, i + 1)
+            circuit.rz(psi2, i + 1)
+            circuit.cx(i, i + 1)
     return circuit
 
 
@@ -51,4 +49,4 @@ def get_cir(n):
     return qc
 
 
-qc = get_cir(4)
+qc = get_cir(16)
