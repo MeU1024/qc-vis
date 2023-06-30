@@ -4,13 +4,14 @@ This is responsible for the semantic analysis of quantum circuits (implemented f
 
 The parser receives source code with a target circuit, and generates its structure, constructions (qubits and quantum gates), and latent semantics.
 
+## Features
+
 **Legend**
 
     ✅ - Feature implemented
     🔄 - Feature partially implemented
     ❌ - Feature not supported
-
-## Supported Features
+### Supported Features
 * ✅ Semantic analysis of quantum circuits (single-file code written in Qiskit)
 * ✅ Support of 27 basic quantum gates：
 
@@ -23,7 +24,7 @@ The parser receives source code with a target circuit, and generates its structu
   ```
 * ✅ User-defined functions
 
-## Unsupported Features
+### Unsupported Features
 
 * ❌ `ClassicalRegister` and `Measurement`
 * ❌ If statement wrapped quantum gates, e.g., `if i == n: qc.h(i)`
@@ -57,3 +58,9 @@ The parser receives source code with a target circuit, and generates its structu
 | Swap_test      |   ✅    | The number of qubits needs to be odd.                              |
 | VQC            |   ✅    |                                                                    |
 | W_state        |   ✅    |                                                                    |
+
+## Requirements
+```yml
+python>=3.10
+qiskit>=0.39.3
+```
