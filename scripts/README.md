@@ -28,8 +28,8 @@ The parser receives source code with a target circuit, and generates its structu
 * ❌ `ClassicalRegister` and `Measurement`.
 * ❌ If statement wrapped quantum gates, e.g., `if i == n: qc.h(i)`
 * ❌ Expression in `return` statements, e.g., `return construct_full_qaoa(5, [.4], [.8], range(n), E)`
-* 🔄 Methods / functions of Qiskit beyond basic quantum gates
-* 🔄 Passing array in args of qubit,e.g., `qc.h(range(len(V)))`
+* 🔄 Methods / functions of Qiskit beyond basic quantum gates, e.g., `qc.compose(subcircuit)`
+* 🔄 Passing array in args of qubit, e.g., `qc.h(range(len(V)))`
 * 🔄 Class based circuit
 * 递归或函数互相调用
 * 函数参数 *args 和 **kwargs 写法 (resolved)
