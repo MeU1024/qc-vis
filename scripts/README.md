@@ -1,4 +1,4 @@
-## Features of Semantic Analysis Kernel
+# Semantic Analysis Kernel
 
 This is responsible for the semantic analysis of quantum circuits (implemented for [Qiskit](https://qiskit.org/) code).
 
@@ -25,16 +25,15 @@ The parser receives source code with a target circuit, and generates its structu
 
 ## Unsupported Features
 
-* ❌ `ClassicalRegister` and `Measurement`.
+* ❌ `ClassicalRegister` and `Measurement`
 * ❌ If statement wrapped quantum gates, e.g., `if i == n: qc.h(i)`
 * ❌ Expression in `return` statements, e.g., `return construct_full_qaoa(5, [.4], [.8], range(n), E)`
+* ❌ Nested function definition or function call
 * 🔄 Methods / functions of Qiskit beyond basic quantum gates, e.g., `qc.compose(subcircuit)`
 * 🔄 Passing array in args of qubit, e.g., `qc.h(range(len(V)))`
 * 🔄 Class based circuit
 * 🔄 Recursive building circuit
-* 函数互相调用
-* 函数参数 *args 和 **kwargs 写法 (resolved)
-* 函数嵌套定义：函数内定义函数
+* ~~*args and **kwargs~~
 
 ## Tests on benchmarks
 
@@ -54,7 +53,7 @@ The parser receives source code with a target circuit, and generates its structu
 | QSVM           |   ✅    |                                                                    |
 | QuGAN          |   ✅    |                                                                    |
 | Simon          |   ✅    |                                                                    |
-| Square_root    |   🔄   | Testing ...                                                        |
-| Swap_test      |   🔄   | Testing ...                                                        |
+| Square_root    |   ✅    |                                                                    |
+| Swap_test      |   ✅    | The number of qubits needs to be odd.                              |
 | VQC            |   ✅    |                                                                    |
 | W_state        |   ✅    |                                                                    |
