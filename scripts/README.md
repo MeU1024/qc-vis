@@ -34,3 +34,26 @@ The parser receives source code with a target circuit, and generates its structu
 * 递归或函数互相调用
 * 函数参数 *args 和 **kwargs 写法 (resolved)
 * 函数嵌套定义：函数内定义函数
+
+## Tests on benchmarks
+
+| Algorithm Name | Result | Notes                                                              |
+|----------------|:------:|--------------------------------------------------------------------|
+| CC             |   ✅    |                                                                    |
+| DeutschJ       |   ✅    |                                                                    |
+| H_Sim          |   ✅    |                                                                    |
+| ISing          |   ✅    |                                                                    |
+| Multiplier     |   ✅    |                                                                    |
+| QAOA           |   ✅    | The number of qubits needs to be even.                             |
+| Qcounting      |   ❌    | Not support Qiskit built-in function (e.g., `inverse`, `to_gate`). |
+| QEC            |   ✅    |                                                                    |
+| QFT            |   🔄   | Testing ...                                                        |
+| QKnn           |   🔄   | Testing ...                                                        |
+| QNN            |   🔄   | Testing ...                                                        |
+| QSVM           |   🔄   | Testing ...                                                        |
+| QuGAN          |   🔄   | Testing ...                                                        |
+| Simon          |   🔄   | Testing ...                                                        |
+| Square_root    |   🔄   | Testing ...                                                        |
+| Swap_test      |   🔄   | Testing ...                                                        |
+| VQC            |   🔄   | Testing ...                                                        |
+| W_state        |   🔄   | Testing ...                                                        |
