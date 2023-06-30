@@ -2,17 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9dab6a04-5868-4d80-87c6-faa920d139ef" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../src/commander.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/commander.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/components/manager.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/components/manager.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/components/viewer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/components/viewer.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/extension.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/extension.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/providers/abstraction.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/providers/abstraction.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/providers/component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/providers/component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/providers/context.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/providers/context.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/providers/qubits.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/providers/qubits.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/providers/structure.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/providers/structure.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/providers/structurelib/dataloader.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/providers/structurelib/dataloader.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/providers/structurelib/qcmodel.ts" beforeDir="false" afterPath="$PROJECT_DIR$/../src/providers/structurelib/qcmodel.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gates_and_semantics.py" beforeDir="false" afterPath="$PROJECT_DIR$/gates_and_semantics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/parse.py" beforeDir="false" afterPath="$PROJECT_DIR$/parse.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -22,17 +14,75 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
   <component name="ProjectId" id="2QhOg10ruxSBZ4MWIpgxsdsoURm" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../resources/data/W_state_gates.json" />
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/wlzei/Desktop/VIS 2023/code/qc-vis/scripts",
+    "nodejs_package_manager_path": "npm"
+  }
+}]]></component>
+  <component name="RunManager" selected="Python.parse">
+    <configuration name="_new" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="scripts" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/outputs" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/outputs/_new.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="parse" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="scripts" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/parse.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.parse" />
+        <item itemvalue="Python._new" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -43,6 +93,7 @@
       <option name="presentableId" value="Default" />
       <updated>1685802457067</updated>
       <workItem from="1685802458327" duration="218000" />
+      <workItem from="1688102317735" duration="3033000" />
     </task>
     <servers />
   </component>
@@ -59,9 +110,30 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/gates_and_semantics.py</url>
+          <line>238</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/gates_and_semantics.py</url>
+          <line>136</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/outputs/_new.py</url>
+          <line>102</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/scripts$parse.coverage" NAME="parse Coverage Results" MODIFIED="1684920613552" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/scripts$parse.coverage" NAME="parse Coverage Results" MODIFIED="1688107887193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/scripts$_new.coverage" NAME="_new Coverage Results" MODIFIED="1688108044670" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/outputs" />
   </component>
 </project>

@@ -90,19 +90,21 @@ def reconstruct_node(func_list, structure_node, target):
                         or get_target_keyword(call.keywords,
                                               target) is not None:
                     # 传入 path 参数
-                    call.keywords.append(ast.keyword("path", ast.Name("path")))
+                    # call.keywords.insert(0, ast.keyword("path", ast.Name("path")))
+                    call.args.insert(0, ast.arg("path", None))
                     # 传入 base_index 参数
                     child_structure = None
                     for child in structure_node["children"]:
                         if node == child["ast_node"]:
                             child_structure = child
                             break
-                    call.keywords.append(
-                        ast.keyword(
-                            "base_index",
-                            ast.parse(
-                                f"base_index + {child_structure['index']}").
-                            body[0]))
+                    # call.keywords.insert(0,
+                    #     ast.keyword(
+                    #         "base_index",
+                    #         ast.parse(
+                    #             f"base_index + {child_structure['index']}").
+                    #         body[0]))
+                    call.args.insert(0, ast.parse(f"base_index + {child_structure['index']}").body[0])
             # 如果是方法且调用者为target
             elif type(func) == ast.Attribute and type(
                     func.value) == ast.Name and func.value.id == target:
@@ -131,20 +133,24 @@ def reconstruct_node(func_list, structure_node, target):
                 func = call.func
                 # 是个函数且不是 QuantumCircuit 函数
                 if type(func) == ast.Name and func.id != "QuantumCircuit":
+                    if func.id == 'get_cir':
+                        pass
                     # 传入 path 参数
-                    call.keywords.append(ast.keyword("path", ast.Name("path")))
+                    # call.keywords.insert(0, ast.keyword("path", ast.Name("path")))
+                    call.args.insert(0, ast.arg("path", None))
                     # 传入 base_index 参数
                     child_structure = None
                     for child in structure_node["children"]:
                         if node == child["ast_node"]:
                             child_structure = child
                             break
-                    call.keywords.append(
-                        ast.keyword(
-                            "base_index",
-                            ast.parse(
-                                f"base_index + {child_structure['index']}").
-                            body[0]))
+                    # call.keywords.insert(0,
+                    #     ast.keyword(
+                    #         "base_index",
+                    #         ast.parse(
+                    #             f"base_index + {child_structure['index']}").
+                    #         body[0]))
+                    call.args.insert(0, ast.parse(f"base_index + {child_structure['index']}").body[0])
         elif type(node) == ast.For:
             if node not in for_list:
                 for_list.append(node)
@@ -189,9 +195,9 @@ def reconstruct_node(func_list, structure_node, target):
             for func in func_list:
                 if func["ast_node"] == node:
                     # 添加 path 参数
-                    node.args.args.append(ast.arg("path", None))
+                    node.args.args.insert(0, ast.arg("path", None))
                     # 添加 base_ndex 参数
-                    node.args.args.append(ast.arg("base_index", None))
+                    node.args.args.insert(0, ast.arg("base_index", None))
                     # 将当前节点的 index 加入 path
                     node.body.insert(
                         0,

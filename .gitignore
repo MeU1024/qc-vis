@@ -5,3 +5,5 @@ node_modules
 *.vsix
 .lh/
 *.pyc
+.idea/
+scripts/outputs/
