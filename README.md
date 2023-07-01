@@ -39,7 +39,7 @@ These features combine to provide a powerful visualization approach that facilit
 To install and run Quantivine locally, follow these steps:
 1. Clone this repository to your local machine and change to the project root directory in your terminal.
 2. Run `npm install && cd webview-ui && npm install` to install the necessary dependencies.
-3. After the installation is complete, run `npm run build` to build the frontend.
+3. After the installation is complete, run `cd webview-ui && npm run build` to build the frontend.
 4. Open the project in Visual Studio Code and press `F5` to start.
 
 
