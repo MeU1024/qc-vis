@@ -43,6 +43,8 @@ export const HighlightFrameRender = (props: HighlightFrameRenderProp) => {
     ctx.font =
       (gridWidth * 0.4 < 16 ? gridWidth * 0.4 : 16).toString() + "px system-ui";
     ctx.fillStyle = HIGHLIGHT_FRAME;
+    // strip "_" from name
+    region.name = region.name.replace(/_/g, "");
     const text = ctx.measureText(region.name);
     ctx.fillText(
       region.name,
