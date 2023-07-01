@@ -34,3 +34,4 @@ This directory contains the core source code for Quantivine. Here is a breakdown
   │   quantivine.ts   
 ```
 
+Please note that the provided directory structure may vary as more features are added or the codebase evolves.
