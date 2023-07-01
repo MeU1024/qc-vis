@@ -548,7 +548,7 @@ class AbstractedCircuit {
       }
     }
 
-    console.log("abs ret", ret);
+    // console.log("abs ret", ret);
 
     return ret;
   }
