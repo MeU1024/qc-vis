@@ -145,6 +145,8 @@ export class DataLoader {
           // Set the first character of the name to uppercase
           nodeName = nodeName.charAt(0).toUpperCase() + nodeName.slice(1);
         }
+        // strip '_'
+        nodeName = nodeName.replace(/_/g, '');
         let newGate = new QuantumTreeNode(
           nodeType,
           nodeName,
