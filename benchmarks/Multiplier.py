@@ -4,58 +4,62 @@ import math
 import numpy as np
 
 
-def carry(qc, c0, a, b, c1):
+def Carry(qc, c0, a, b, c1):
     qc.ccx(a, b, c1)
     qc.cx(a, b)
     qc.ccx(c0, b, c1)
 
 
-def uncarry(qc, c0, a, b, c1):
+def Uncarry(qc, c0, a, b, c1):
     qc.ccx(c0, b, c1)
     qc.cx(a, b)
     qc.ccx(a, b, c1)
 
 
-def carry_sum(qc, c0, a, b):
+def CarrySum(qc, c0, a, b):
     qc.cx(a, b)
     qc.cx(c0, b)
 
 
-def adder(qc, qubits):
+def Adder(qc, qubits):
     n = int(len(qubits) / 3)
     c = qubits[0::3]
     a = qubits[1::3]
     b = qubits[2::3]
     for i in range(0, n - 1):
-        carry(qc, c[i], a[i], b[i], c[i + 1])
-    carry_sum(qc, c[n - 1], a[n - 1], b[n - 1])
+        Carry(qc, c[i], a[i], b[i], c[i + 1])
+    CarrySum(qc, c[n - 1], a[n - 1], b[n - 1])
     for i in range(n - 2, -1, -1):
-        uncarry(qc, c[i], a[i], b[i], c[i + 1])
-        carry_sum(qc, c[i], a[i], b[i])
+        Uncarry(qc, c[i], a[i], b[i], c[i + 1])
+        CarrySum(qc, c[i], a[i], b[i])
 
 
-def multiplier(qc, qubits):
+def CAdder(qc, qubits, i, x_i):
     n = int(len(qubits) / 5)
     a = qubits[1:n * 3:3]
     y = qubits[n * 3:n * 4]
+    for a_qubit, y_qubit in zip(a[i:], y[:n - i]):
+        qc.ccx(x_i, y_qubit, a_qubit)
+    Adder(qc, qubits[:3 * n])
+    for a_qubit, y_qubit in zip(a[i:], y[:n - i]):
+        qc.ccx(x_i, y_qubit, a_qubit)
+
+
+def Multiplier(qc, qubits):
+    n = int(len(qubits) / 5)
     x = qubits[n * 4:]
-
     for i, x_i in enumerate(x):
-        for a_qubit, y_qubit in zip(a[i:], y[:n - i]):
-            qc.ccx(x_i, y_qubit, a_qubit)
-        adder(qc, qubits[:3 * n])
-        for a_qubit, y_qubit in zip(a[i:], y[:n - i]):
-            qc.ccx(x_i, y_qubit, a_qubit)
+        CAdder(qc, qubits, i, x_i)
 
 
-def init_bits(qc, x_bin, *qubits):
+def InitBits(qc, x_bin, *qubits):
     indexes = np.where(np.array(list(x_bin)) == '1')[0]
     r_qubits = list(qubits)[::-1]
     for i in indexes:
         qc.x(r_qubits[i])
 
 
-def get_cir(n):
+def QuantumMultiplier(n):
     n_qubits = 5 * n
     qr = QuantumRegister(n_qubits)
     qc = QuantumCircuit(qr)
@@ -71,9 +75,10 @@ def get_cir(n):
     y = qr[n * 3:n * 4]
     x = qr[n * 4:]
 
-    init_bits(qc, x_bin, *x)
-    init_bits(qc, y_bin, *y)
-    multiplier(qc, qr)
+    InitBits(qc, x_bin, *x)
+    InitBits(qc, y_bin, *y)
+    Multiplier(qc, qr)
     return qc
 
-qc = get_cir(4)
+
+qc = QuantumMultiplier(3)
