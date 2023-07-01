@@ -93,11 +93,11 @@ To set the default target, follow these steps:
 ## Current Issues and Bugs
 As Quantivine is still under development, there are a few known issues and bugs that we are working on addressing. Here is a list of the current issues:
 
-1. **Issue 1**: Not support for several syntax, e.g., class definition.
+1. **Issue 1**: Limited support for certain syntax, such as class definitions.
    
    - Status: Investigating
 
-   - Workaround: See the [feature list](scripts/). For now, try to write the circuit using supported syntax.
+   - Workaround: Refer to the [feature list](scripts/) for the supported syntax. For now, avoid using unsupported syntax in your circuits.
 
 2. **Issue 2**: Incorrect rendering of certain quantum gates or abstractions in the visualization.
 
