@@ -1,29 +1,29 @@
-import * as vscode from "vscode";
+import * as vscode from 'vscode';
 
-import { getLogger } from "../components/logger";
+import {getLogger} from '../components/logger';
 import {
   Abstraction,
   AbstractionRule,
   AbstractionType,
   Semantics,
-} from "./abstractionlib/abstractionrule";
+} from './abstractionlib/abstractionrule';
 import {
   ComponentGate,
   DrawableCircuit,
   Layer,
   Qubit,
   SuperQubit,
-} from "./structurelib/qcmodel";
+} from './structurelib/qcmodel';
 
-import * as qv from "../quantivine";
-import { QCViewerManagerService } from "../components/viewerlib/qcviewermanager";
-import { ComponentCircuit } from "./component";
-import { getExtensionUri } from "../quantivine";
-import path from "path";
-import { DataLoader } from "./structurelib/dataloader";
-import { error } from "console";
+import * as qv from '../quantivine';
+import {QCViewerManagerService} from '../components/viewerlib/qcviewermanager';
+import {ComponentCircuit} from './component';
+import {getExtensionUri} from '../quantivine';
+import path from 'path';
+import {DataLoader} from './structurelib/dataloader';
+import {error} from 'console';
 
-const logger = getLogger("DataProvider", "Abstraction");
+const logger = getLogger('DataProvider', 'Abstraction');
 
 export class AbstractionDataProvider {
   private _data: AbstractedCircuit | undefined;
@@ -61,7 +61,7 @@ export class AbstractionDataProvider {
   ) {
     if (data !== undefined) {
       let message = {
-        command: "abstraction.setRegion",
+        command: 'abstraction.setRegion',
         data: data,
       };
 
@@ -91,12 +91,12 @@ export class AbstractionDataProvider {
     }
 
     let message1 = {
-      command: "abstraction.setTitle",
-      data: { title: "Abstraction View" },
+      command: 'abstraction.setTitle',
+      data: {title: 'Abstraction View'},
     };
 
     let message2 = {
-      command: "abstraction.setCircuit",
+      command: 'abstraction.setCircuit',
       data: this._data.exportJson(),
     };
 
@@ -142,7 +142,7 @@ class AbstractedCircuit {
     // const algorithmName = path.basename(dataFile.fsPath, ".py");
     const algorithm = qv.manager.algorithm;
     if (algorithm === undefined) {
-      throw new Error("Algorithm undefined");
+      throw new Error('Algorithm undefined');
     }
     //TODO: fix file
 
@@ -172,7 +172,7 @@ class AbstractedCircuit {
     // this._cached = false;
     this._drawableCircuit = new DrawableCircuit();
 
-    this._newBuild();
+    this._build();
   }
 
   private _importStructureFromFile(): {
@@ -211,42 +211,6 @@ class AbstractedCircuit {
   }
 
   private _build() {
-    // qv.semanticTreeViewer.logTreeData();
-    let width = this._componentCircuit.width;
-    let height = this._componentCircuit.height;
-
-    this._qubits = this._componentCircuit.qubits;
-    this._isIdleQubit = new Array(this._qubits.length).fill(true);
-    this._layers = new Array(width);
-    this._isIdleLayer = new Array(width).fill(true);
-    this._abstractions = [];
-    this._cachedGates.clear();
-
-    // Build abstracted circuit with semantics
-    this._componentCircuit.gates.forEach((gate: ComponentGate) => {
-      if (this._cachedGates.has(gate)) {
-        return;
-      }
-
-      let ret = this._writtenInSemantics(gate);
-      if (ret) {
-        ret.start.forEach((g) => this._visGate(g));
-        ret.second.forEach((g) => this._visGate(g));
-        ret.end.forEach((g) => this._visGate(g));
-        this._abstractions.push(ret);
-        // Cache gates in abstraction
-        this._cacheGates(ret.gates);
-      } else {
-        this._visGate(gate);
-        this._cacheGates([gate]);
-      }
-    });
-
-    // Generate Layout
-    this._generateLayout();
-  }
-
-  private _newBuild() {
     let width = this._componentCircuit.width;
 
     this._qubits = this._componentCircuit.qubits;
@@ -259,14 +223,21 @@ class AbstractedCircuit {
     // Build abstracted circuit with semantics
     this._semanticsList.forEach((semantics) => {
       if (qv.semanticTreeViewer.isVisible(semantics.treeIndex)) {
-        //TODO: check range
         let tmpran: number[] = [];
         tmpran.push(semantics.range[0][0]);
         tmpran.push(semantics.range[0][1]);
         semantics.range.forEach((ran: number[]) => {
-          if (tmpran[0] > ran[0]) tmpran[0] = ran[0];
-          if (tmpran[1] < ran[1]) tmpran[1] = ran[1];
+          if (tmpran[0] > ran[0]) {
+            tmpran[0] = ran[0];
+          }
+          if (tmpran[1] < ran[1]) {
+            tmpran[1] = ran[1];
+          }
         });
+        let validation = checkInPriorSemantics(tmpran, this._semanticsList);
+        if (!validation) {
+          return;
+        }
         let subCircuit = this._componentCircuit.slice(tmpran);
         let abstraction = AbstractionRule.apply(subCircuit, semantics);
         if (abstraction) {
@@ -301,7 +272,7 @@ class AbstractedCircuit {
     let layerIndex = this._componentCircuit.getGateLayer(gate);
     this._isIdleLayer[layerIndex!] = false;
 
-    if (gate.qubits.length > 2 && gate.gateName[0] !== "_") {
+    if (gate.qubits.length > 2 && gate.gateName[0] !== '_') {
       let firstQubitIndex = this._qubits.indexOf(gate.qubits[0]);
       this._isIdleQubit[firstQubitIndex] = false;
       let secondQubitIndex = this._qubits.indexOf(gate.qubits[1]);
@@ -310,7 +281,7 @@ class AbstractedCircuit {
         gate.qubits[gate.qubits.length - 1]
       );
       this._isIdleQubit[lastQubitIndex] = false;
-    } else if (gate.gateName[0] === "_") {
+    } else if (gate.gateName[0] === '_') {
       let firstQubitIndex = this._qubits.indexOf(gate.qubits[0]);
       this._isIdleQubit[firstQubitIndex] = false;
 
@@ -360,7 +331,7 @@ class AbstractedCircuit {
           index === this._qubits.length - 1 ||
           !this._isIdleQubit[index - 1]
         ) {
-          newQubits.push(new SuperQubit("...", [qubit]));
+          newQubits.push(new SuperQubit('...', [qubit]));
         } else {
           let superQubit = newQubits[newQubits.length - 1] as SuperQubit;
           superQubit.qubits.push(qubit);
@@ -418,7 +389,7 @@ class AbstractedCircuit {
     let m = newLayers.length;
     let ret = newLayers;
 
-    let isIdelNewQubit = newQubits.map((qubit) => qubit.qubitName === "...");
+    let isIdelNewQubit = newQubits.map((qubit) => qubit.qubitName === '...');
     let isIdelNewLayer = newLayers.map((layer) => layer.gates.length === 0);
 
     const checkInAbstraction = (
@@ -436,13 +407,16 @@ class AbstractedCircuit {
           let startQubitIndex = qubitMap.get(start.qubits[0])!;
           let startLayerIndex = layerMap.get(
             this._componentCircuit.layers[
-            this._componentCircuit.getGateLayer(start)!
+              this._componentCircuit.getGateLayer(start)!
             ]
           )!;
-          let endQubitIndex = Math.max(qubitMap.get(end.qubits[end.qubits.length - 1])!, qubitMap.get(start.qubits[start.qubits.length - 1])!);
+          let endQubitIndex = Math.max(
+            qubitMap.get(end.qubits[end.qubits.length - 1])!,
+            qubitMap.get(start.qubits[start.qubits.length - 1])!
+          );
           let endLayerIndex = layerMap.get(
             this._componentCircuit.layers[
-            this._componentCircuit.getGateLayer(end)!
+              this._componentCircuit.getGateLayer(end)!
             ]
           )!;
 
@@ -473,13 +447,16 @@ class AbstractedCircuit {
           let startQubitIndex = qubitMap.get(start.qubits[0])!;
           let startLayerIndex = layerMap.get(
             this._componentCircuit.layers[
-            this._componentCircuit.getGateLayer(start)!
+              this._componentCircuit.getGateLayer(start)!
             ]
           )!;
-          let endQubitIndex = Math.max(qubitMap.get(end.qubits[end.qubits.length - 1])!, qubitMap.get(start.qubits[start.qubits.length - 1])!);
+          let endQubitIndex = Math.max(
+            qubitMap.get(end.qubits[end.qubits.length - 1])!,
+            qubitMap.get(start.qubits[start.qubits.length - 1])!
+          );
           let endLayerIndex = layerMap.get(
             this._componentCircuit.layers[
-            this._componentCircuit.getGateLayer(end)!
+              this._componentCircuit.getGateLayer(end)!
             ]
           )!;
 
@@ -489,9 +466,16 @@ class AbstractedCircuit {
             j >= startLayerIndex &&
             j <= endLayerIndex;
 
-          if(ret) {
-            res[0] = Math.floor((qubitMap.get(end.qubits[0])! + qubitMap.get(second.qubits[0])!) / 2);
-            res[1] = Math.floor((qubitMap.get(end.qubits[end.qubits.length - 1])! + qubitMap.get(second.qubits[second.qubits.length- 1])!) / 2);
+          if (ret) {
+            res[0] = Math.floor(
+              (qubitMap.get(end.qubits[0])! + qubitMap.get(second.qubits[0])!) /
+                2
+            );
+            res[1] = Math.floor(
+              (qubitMap.get(end.qubits[end.qubits.length - 1])! +
+                qubitMap.get(second.qubits[second.qubits.length - 1])!) /
+                2
+            );
           }
         });
       return res;
@@ -503,23 +487,23 @@ class AbstractedCircuit {
           continue;
         }
         let curQubit = newQubits[i];
-        if (curQubit instanceof SuperQubit && curQubit.qubitName === "...") {
+        if (curQubit instanceof SuperQubit && curQubit.qubitName === '...') {
           curQubit = curQubit.qubits[0];
         }
 
         if (isIdelNewQubit[i] && isIdelNewLayer[j]) {
-          const checkIn = checkInAbstraction(i, j, "diagonal");
+          const checkIn = checkInAbstraction(i, j, 'diagonal');
           if (checkIn) {
-            ret[j].gates.push(new ComponentGate("...", [curQubit], [], 0, []));
+            ret[j].gates.push(new ComponentGate('...', [curQubit], [], 0, []));
           }
         }
         if (isIdelNewQubit[i]) {
-          const checkIn = checkInAbstraction(i, j, "vertical");
+          const checkIn = checkInAbstraction(i, j, 'vertical');
           if (checkIn) {
-            ret[j].gates.push(new ComponentGate("...", [curQubit], [], 0, []));
+            ret[j].gates.push(new ComponentGate('...', [curQubit], [], 0, []));
           }
         } else if (isIdelNewLayer[j]) {
-          const checkInHor = checkInAbstraction(i, j, "horizontal");
+          const checkInHor = checkInAbstraction(i, j, 'horizontal');
           if (checkInHor) {
             // let curQubit = newQubits[Math.floor(newQubits.length / 2)];
             // if (curQubit instanceof SuperQubit) {
@@ -527,29 +511,29 @@ class AbstractedCircuit {
             // }
 
             ret[j].gates.push(
-              new ComponentGate("colDots", [curQubit], [], 0, [])
+              new ComponentGate('colDots', [curQubit], [], 0, [])
             );
           }
-          
-          const checkInVer = checkInAbstraction(i, j, "vertical");
 
-          if(checkInVer) {
-            console.log("dotQubit", dotQubit(i, j, "vertical"));
-            console.log("curQubit", parseInt(curQubit.qubitName))
+          const checkInVer = checkInAbstraction(i, j, 'vertical');
+
+          if (checkInVer) {
+            // console.log('dotQubit', dotQubit(i, j, 'vertical'));
+            // console.log('curQubit', parseInt(curQubit.qubitName));
           }
 
-          if(checkInVer && 
-            ( parseInt(curQubit.qubitName) == dotQubit(i, j, "vertical")[0] || parseInt(curQubit.qubitName) == dotQubit(i, j, "vertical")[1])) {
+          if (
+            checkInVer &&
+            (parseInt(curQubit.qubitName) === dotQubit(i, j, 'vertical')[0] ||
+              parseInt(curQubit.qubitName) === dotQubit(i, j, 'vertical')[1])
+          ) {
             ret[j].gates.push(
-              new ComponentGate("colDots", [curQubit], [], 0, [])
+              new ComponentGate('colDots', [curQubit], [], 0, [])
             );
           }
         }
       }
     }
-
-    // console.log("abs ret", ret);
-
     return ret;
   }
 
@@ -572,7 +556,7 @@ class AbstractedCircuit {
     }
 
     // if (gate.qubits.length > 2 && gate.gateName[0] !== "_") {
-    if (gate.qubits.length > 2 && gate.gateName[0] !== "_") {
+    if (gate.qubits.length > 2 && gate.gateName[0] !== '_') {
       let secondQubitIndex = this._qubits.indexOf(gate.qubits[1]);
       if (this._isIdleQubit[secondQubitIndex]) {
         return false;
@@ -684,7 +668,7 @@ class AbstractedCircuit {
     let depth = 0;
     let node = this._treeStructure[treeIndex];
     while (node.index !== 0) {
-      if (node.type !== "rep") {
+      if (node.type !== 'rep') {
         depth++;
       }
       node = this._treeStructure[node.parentIndex];
@@ -694,27 +678,27 @@ class AbstractedCircuit {
 
   getComponentRegion() {
     const gateGroupDictList: {
-      dict: { [key: number]: ComponentGate[] };
+      dict: {[key: number]: ComponentGate[]};
       index: number;
     }[] = [];
     this._highlightedComponent.forEach((componentIndex) => {
-      let gatesDict: { [key: number]: ComponentGate[] } = {};
+      let gatesDict: {[key: number]: ComponentGate[]} = {};
       this._absGates.forEach((gate, index) => {
         if (
           this._componentCircuit
             .getTreeChildrenList()
-          [componentIndex].includes(gate.treeIndex)
+            [componentIndex].includes(gate.treeIndex)
         ) {
-          const uni_index = gate.treePath[this.getNodeDepth(componentIndex)];
-          const gates = gatesDict[uni_index];
+          const uniIndex = gate.treePath[this.getNodeDepth(componentIndex)];
+          const gates = gatesDict[uniIndex];
           if (gates !== undefined) {
-            gatesDict[uni_index] = [...gates, gate];
+            gatesDict[uniIndex] = [...gates, gate];
           } else {
-            gatesDict[uni_index] = [gate];
+            gatesDict[uniIndex] = [gate];
           }
         }
       });
-      gateGroupDictList.push({ dict: gatesDict, index: componentIndex });
+      gateGroupDictList.push({dict: gatesDict, index: componentIndex});
     });
 
     const componentRegion: {
@@ -727,7 +711,7 @@ class AbstractedCircuit {
     gateGroupDictList.forEach(
       (
         groupInfo: {
-          dict: { [key: number]: ComponentGate[] };
+          dict: {[key: number]: ComponentGate[]};
           index: number;
         },
         gateIndex
@@ -777,7 +761,7 @@ class AbstractedCircuit {
   }
   exportJson(): any {
     const data = this._drawableCircuit.exportJson();
-    data["componentRegion"] = this.getComponentRegion();
+    data['componentRegion'] = this.getComponentRegion();
     return data;
   }
 
@@ -788,4 +772,45 @@ class AbstractedCircuit {
   get height(): number {
     return this._qubits.length;
   }
+}
+/**
+ * Check if the range is in the prior semantics.
+ * If it is contained in the prior semantics, but not in the first, second, or last items of the semantics, it should be invalid.
+ * @param ran - The range to check
+ * @param semanticsList - The list of semantics to check
+ * @returns - True if the range is in the prior semantics as well is valid, or it is not in any prior  (i.e., it is the most prior semantics).
+ */
+function checkInPriorSemantics(ran: number[], semanticsList: Semantics[]) {
+  let valid = true;
+  semanticsList.forEach((semantics) => {
+    let n = semantics.range.length;
+    // The start of the range at this semantics
+    let st = semantics.range[0][0];
+    // The end of the range at this semantics
+    let ed = semantics.range[n - 1][1];
+    if (st < ran[0] && ed > ran[1]) {
+      let ifIn = false;
+      // If the range is in the first, second, or last items of the semantics
+      if (semantics.range[0][0] <= ran[0] && semantics.range[0][1] >= ran[1]) {
+        ifIn = true;
+      }
+      if (
+        n > 1 &&
+        semantics.range[1][0] <= ran[0] &&
+        semantics.range[1][1] >= ran[1]
+      ) {
+        ifIn = true;
+      }
+      if (
+        semantics.range[n - 1][0] <= ran[0] &&
+        semantics.range[n - 1][1] >= ran[1]
+      ) {
+        ifIn = true;
+      }
+      if (!ifIn) {
+        valid = false;
+      }
+    }
+  });
+  return valid;
 }
