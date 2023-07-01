@@ -133,20 +133,24 @@ export class DataLoader {
         if (nodeType === NodeType.superGate) {
           nodeName = nodeName.slice(1, nodeName.length);
           collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-        }
-
-        if (nodeType === NodeType.repetition) {
-          description = '×' + ' ? times';
+        } else if (nodeType === NodeType.repetition) {
+          // Set the second character of the name to uppercase
+          nodeName =
+            nodeName.charAt(0) +
+            nodeName.charAt(1).toUpperCase() +
+            nodeName.slice(2);
+          description = '';
           collapsibleState = vscode.TreeItemCollapsibleState.Collapsed;
+        } else {
+          // Set the first character of the name to uppercase
+          nodeName = nodeName.charAt(0).toUpperCase() + nodeName.slice(1);
         }
-
         let newGate = new QuantumTreeNode(
           nodeType,
           nodeName,
           collapsibleState,
           parent.depth + 1,
           node.index,
-
           description
         );
 

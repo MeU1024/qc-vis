@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import {NodeType, QuantumTreeNode} from './structurelib/quantumgate';
 import * as qv from '../quantivine';
 import * as fs from 'fs';
+import * as path from 'path';
 
 import {getLogger} from '../components/logger';
 import {
@@ -142,16 +143,27 @@ export class GateNodeProvider
       collapsibleState
     );
 
-    // treeItem.command = {
-    //   command: 'quantivine.goto-gate',
-    //   title: '',
-    //   arguments: [element.fileName, element.lineNumber],
-    // };
-
-    treeItem.tooltip = `GateType: ${element.type}`;
-    if (element.type === NodeType.repetition) {
-      treeItem.description = element.description;
+    if (element.type === NodeType.superGate) {
+      treeItem.iconPath ={
+        light: vscode.Uri.joinPath(qv.getExtensionUri(), 'resources', 'light', 'structure-comp.svg'),
+        dark: ''
+      };
     }
+
+    if (element.type === NodeType.repetition) {
+      treeItem.iconPath ={
+        light: vscode.Uri.joinPath(qv.getExtensionUri(), 'resources', 'light', 'structure-rep.svg'),
+        dark: ''
+      };
+    }
+    
+    if (element.type === NodeType.basicGate) {
+      treeItem.iconPath ={
+        light: vscode.Uri.joinPath(qv.getExtensionUri(), 'resources', 'light', 'structure-gate.svg'),
+        dark: ''
+      };
+    }
+
     treeItem.contextValue = element.type === 0 ? 'component' : '';
 
     return treeItem;

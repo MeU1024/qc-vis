@@ -123,7 +123,7 @@ def travel_and_extract(tree, node, father, target, func_list):
             elif child["type"] == "fun":
                 names.append(child["name"])
         if len(names) > 0:
-            rep["name"] = "[" + "-".join(names) + "]"
+            rep["name"] = "|" + "-".join(names) + "|"
             father["children"].append(rep)
 
 
