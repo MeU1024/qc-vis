@@ -54,10 +54,13 @@ def get_cir(N):
     Bz = [random.uniform(-2.0, 2.0) for i in range(0, N)]
     J = [random.uniform(-2.0, 2.0) for i in range(0, N)]
     qc = QuantumCircuit(N, N)
-    initialize(qc, N) 
+    initialize(qc, N)
     choice = random.randint(0, 2)
     for i in range(1, M + 1, N):
         red_hamiltonian(qc, i, N, J)
         black_hamiltonian(qc, i, N, J)
         Bz_hamiltonian(qc, i, N, Bz)
     return qc
+
+
+qc = get_cir(4)

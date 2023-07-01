@@ -28,13 +28,11 @@ The parser receives source code with a target circuit, and generates its structu
 
 * ❌ `ClassicalRegister` and `Measurement`
 * ❌ If statement wrapped quantum gates, e.g., `if i == n: qc.h(i)`
-* ❌ Expression in `return` statements, e.g., `return construct_full_qaoa(5, [.4], [.8], range(n), E)`
-* ❌ Nested function definition or function call
+* ❌ Recursive / Nested function definition or function call
+* 🔄 Expression in `return` statements, e.g., `return construct_full_qaoa(5, [.4], [.8], range(n), E)`
 * 🔄 Methods / functions of Qiskit beyond basic quantum gates, e.g., `qc.compose(subcircuit)`
-* 🔄 Passing array in args of qubit, e.g., `qc.h(range(len(V)))`
+* 🔄 Passing array in args of qubit, e.g., `qc.h(range(len(V)))`, `qc.h([0, 1, 2, 3])`
 * 🔄 Class based circuit
-* 🔄 Recursive building circuit
-* ~~*args and **kwargs~~
 
 ## Tests on benchmarks
 

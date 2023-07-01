@@ -1,44 +1,48 @@
 from re import sub
 from secrets import choice
-import qiskit
+from qiskit import QuantumCircuit, QuantumRegister
 import numpy as np
 
 
-class VQC:
-    def __init__(self, qubit_count):
-        self.qubit_count = qubit_count
-        self.quantum_register = qiskit.circuit.QuantumRegister(self.qubit_count)
-        self.classical_register = qiskit.circuit.ClassicalRegister(self.qubit_count)
-        self.circuit = qiskit.circuit.QuantumCircuit(self.quantum_register)
-        self.layer_count = 4
-        self.hadamard_circuit()
-        self.phase_addition()
-        self.learnable_layers()
-
-    def hadamard_circuit(self):
-        for qubit in self.quantum_register:
-            self.circuit.h(qubit)
-
-    def phase_addition(self):
-        choice = np.random.randint(0, len(self.quantum_register[:-1]))
-        for qubit in self.quantum_register:
-            self.circuit.rz(np.random.rand() * np.pi, qubit)
-        for _index, (cqubit, aqubit) in enumerate(zip(self.quantum_register[:-1], self.quantum_register[1:])):
-            self.circuit.cx(cqubit, aqubit)
-            self.circuit.rz(np.random.rand() * np.pi, aqubit)
-            self.circuit.cx(cqubit, aqubit)
+def init(qubit_count):
+    qubit_count = qubit_count
+    quantum_register = QuantumRegister(qubit_count)
+    circuit = QuantumCircuit(quantum_register)
+    hadamard_circuit(circuit, quantum_register)
+    phase_addition(circuit, quantum_register)
+    learnable_layers(circuit, quantum_register, 4, qubit_count)
+    return circuit
 
 
-    def learnable_layers(self):
-        for _ in range(self.layer_count):
-            for qubit in self.quantum_register:
-                self.circuit.ry(np.random.rand() * np.pi, qubit)
-                self.circuit.rz(np.random.rand() * np.pi, qubit)
-            qbs = list(self.quantum_register)
-            for i, qb in enumerate(qbs):
-                for j in range(i + 1, self.qubit_count):
-                    self.circuit.cz(qb, qbs[j])
+def hadamard_circuit(circuit, quantum_register):
+    for qubit in quantum_register:
+        circuit.h(qubit)
+
+
+def phase_addition(circuit, quantum_register):
+    choice = np.random.randint(0, len(quantum_register[:-1]))
+    for qubit in quantum_register:
+        circuit.rz(np.random.rand() * np.pi, qubit)
+    for _index, (cqubit, aqubit) in enumerate(zip(quantum_register[:-1], quantum_register[1:])):
+        circuit.cx(cqubit, aqubit)
+        circuit.rz(np.random.rand() * np.pi, aqubit)
+        circuit.cx(cqubit, aqubit)
+
+
+def learnable_layers(circuit, quantum_register, layer_count, qubit_count):
+    for _ in range(layer_count):
+        for qubit in quantum_register:
+            circuit.ry(np.random.rand() * np.pi, qubit)
+            circuit.rz(np.random.rand() * np.pi, qubit)
+        qbs = list(quantum_register)
+        for i, qb in enumerate(qbs):
+            for j in range(i + 1, qubit_count):
+                circuit.cz(qb, qbs[j])
 
 
 def get_cir(n_qubits):
-    return VQC(n_qubits).circuit
+    circuit = init(n_qubits)
+    return circuit
+
+
+qc = get_cir(5)

@@ -2,32 +2,28 @@ from ast import Sub
 from secrets import choice
 from qiskit import QuantumCircuit
 import random
+import numpy as np
 
 
-def get_balanced_oracle(n, b_str):
+def add_balanced_oracle(balanced_oracle, n, b_str):
     if len(b_str) != n:
         raise Exception("bitstring length should be the same as n")
-    balanced_oracle = QuantumCircuit(n + 1)
+    b_list = np.array(list(b_str))
+    indexes = np.where(b_list == '1')[0].tolist()
     # Place X-gates
-    for qubit in range(len(b_str)):
-        if b_str[qubit] == '1':
-            balanced_oracle.x(qubit)
+    for qubit in indexes:
+        balanced_oracle.x(qubit)
 
-    # Use barrier as divider
-    balanced_oracle.barrier()
     choice = random.randint(0, n-1)
+
     # Controlled-NOT gates
     for _index, qubit in enumerate(range(n)):
         balanced_oracle.cx(qubit, n)
 
-    balanced_oracle.barrier()
-
     # Place X-gates
-    for qubit in range(len(b_str)):
-        if b_str[qubit] == '1':
-            balanced_oracle.x(qubit)
-
-    return balanced_oracle
+    for qubit in indexes:
+        balanced_oracle.x(qubit)
+        
 
 def get_cir(n, b_str):
     dj_circuit = QuantumCircuit(n+1)
@@ -41,11 +37,12 @@ def get_cir(n, b_str):
     dj_circuit.h(n)
 
     # Add oracle
-    dj_circuit += get_balanced_oracle(n, b_str)
+    add_balanced_oracle(dj_circuit, n, b_str)
 
     # Repeat H-gates
     for qubit in range(n):
         dj_circuit.h(qubit)
-    dj_circuit.barrier()
 
     return dj_circuit
+
+qc = get_cir(5, '10101')

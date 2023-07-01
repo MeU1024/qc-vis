@@ -61,7 +61,7 @@ def get_cir(t, n):
     grit.label = "Grover"
     cgrit = grit.control()
     qft_dagger = qft(4).to_gate().inverse()
-    qft_dagger.label = "QFT†"
+    qft_dagger.label = "QFT?"
     qc = QuantumCircuit(n + t)  # Circuit with n+t qubits and t classical bits
 
     # Initialize all qubits to |+>
@@ -78,3 +78,5 @@ def get_cir(t, n):
     # Do inverse QFT on counting qubits
     qc.append(qft_dagger, range(t))
     return qc
+
+qc = get_cir(2, 4)

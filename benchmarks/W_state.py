@@ -23,4 +23,5 @@ def get_cir(n_qubits):
 
     return qc
 
-qc = get_cir(10)
+
+qc = get_cir(4)

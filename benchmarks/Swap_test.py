@@ -21,7 +21,6 @@ def init(qc, qr):
 
 
 def get_cir(n_qubits):
-    # random.seed(555)
     qr = QuantumRegister(n_qubits)
     qc = QuantumCircuit(qr)
 
@@ -29,4 +28,4 @@ def get_cir(n_qubits):
     swapTest(qc, qr)
     return qc
 
-qc = get_cir(10)
+qc = get_cir(9)
