@@ -3,42 +3,49 @@ import numpy as np
 from qiskit import QuantumCircuit
 
 
-def initialize_qaoa(V, E):
-    qc = QuantumCircuit(len(V), len(V))
-    for i in range(len(V)):
+def H(qc, n):
+    for i in range(n):
         qc.h(i)
-    return qc
 
 
-def apply_cost_hamiltonian(qc, V, E, gamma):
-    choice = random.randint(0, len(E)-1)
+def Cost(qc, V, E, gamma):
     for _index, (k, l, weight) in enumerate(E):
-        qc.cp(-2*gamma*weight, k, l)
-        qc.p(gamma*weight, k)
-        qc.p(gamma*weight, l)
+        qc.cp(-2 * gamma * weight, k, l)
+        qc.p(gamma * weight, k)
+        qc.p(gamma * weight, l)
     return qc
 
 
-def apply_mixing_hamiltonian(qc, V, E, beta):
+def Mixing(qc, V, E, beta):
     for i in range(len(V)):
-        qc.rx(2*beta, i)
+        qc.rx(2 * beta, i)
     return qc
 
 
-def construct_full_qaoa(p, gammas, betas, V, E):
-    qc = initialize_qaoa(V, E)
-    for i in range(p):
-        qc = apply_cost_hamiltonian(qc, V, E, gammas[0])
-        qc = apply_mixing_hamiltonian(qc, V, E, betas[0])
-    return qc
+def CM(qc, V, E, gammas, betas):
+    Cost(qc, V, E, gammas[0])
+    Mixing(qc, V, E, betas[0])
 
 
-def get_cir(n):
+def initQAOA(n):
+    p = 5
+    gammas = [.4]
+    betas = [.8]
+    V = range(n)
     E = []
-    for _ in range(random.randint(n/2, n)):
+    for _ in range(random.randint(n / 2, n)):
         sample = random.sample(range(0, n), 2)
         E.append((sample[0], sample[1], random.random()))
-    qc = construct_full_qaoa(5, [.4], [.8], range(n), E)
+    return p, gammas, betas, V, E
+
+
+def QAOA(n):
+    p, gammas, betas, V, E = initQAOA(n)
+    qc = QuantumCircuit(len(V), len(V))
+    H(qc, len(V))
+    for i in range(p):
+        CM(qc, V, E, gammas, betas)
     return qc
 
-qc = get_cir(50)
+
+qc = QAOA(50)
