@@ -21,7 +21,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
   const [gridWidth, setGridWidth] = useState<number>(25);
   const [gridHeight, setGridHeight] = useState<number>(25);
   const [canvasWidth, setCanvasWidth] = useState(1500);
-  const [canvasHeight, setCanvasHeight] = useState(400);
+  const [canvasHeight, setCanvasHeight] = useState(345);
   const [qbitLengths, setQbitLength] = useState<string[]>([]);
   const [originalData, setOriginalData] = useState<{
     qubit: number;
@@ -241,7 +241,7 @@ const OverviewPanel = (props: OverviewPanelProps) => {
         <canvas
           id="overviewCanvas"
           width={canvasFixedWidth}
-          height={canvasHeight + 20}
+          height={canvasHeight}
           ref={canvasRef}
           style={canvasStyle}
         ></canvas>
