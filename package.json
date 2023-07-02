@@ -39,7 +39,7 @@
         {
           "id": "quantivine-activitybar",
           "title": "Quantivine",
-          "icon": "media/dep.svg"
+          "icon": "media/qv.svg"
         }
       ]
     },
@@ -48,13 +48,13 @@
         {
           "id": "quantivine-treeview",
           "name": "Structure View",
-          "icon": "media/dep.svg",
+          "icon": "media/qv.svg",
           "contextualTitle": "Quantivine"
         },
         {
           "id": "quantivine-qubitview",
           "name": "Qubit View",
-          "icon": "media/dep.svg",
+          "icon": "media/qv.svg",
           "contextualTitle": "Quantivine"
         }
       ]
