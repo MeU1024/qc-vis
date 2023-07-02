@@ -5,24 +5,22 @@ import random
 import numpy as np
 
 
-def add_balanced_oracle(balanced_oracle, n, b_str):
+def BalancedOracle(circuit, n, b_str):
     if len(b_str) != n:
         raise Exception("bitstring length should be the same as n")
     b_list = np.array(list(b_str))
     indexes = np.where(b_list == '1')[0].tolist()
     # Place X-gates
     for qubit in indexes:
-        balanced_oracle.x(qubit)
-
-    choice = random.randint(0, n-1)
+        circuit.x(qubit)
 
     # Controlled-NOT gates
     for _index, qubit in enumerate(range(n)):
-        balanced_oracle.cx(qubit, n)
+        circuit.cx(qubit, n)
 
     # Place X-gates
     for qubit in indexes:
-        balanced_oracle.x(qubit)
+        circuit.x(qubit)
         
 
 def get_cir(n, b_str):
@@ -37,7 +35,7 @@ def get_cir(n, b_str):
     dj_circuit.h(n)
 
     # Add oracle
-    add_balanced_oracle(dj_circuit, n, b_str)
+    BalancedOracle(dj_circuit, n, b_str)
 
     # Repeat H-gates
     for qubit in range(n):
