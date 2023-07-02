@@ -20,7 +20,7 @@ main {
       .BottomLeft {
         display: grid;
         // grid-template-rows: 75% 25%;
-        margin-right: 20px;
+        margin-right: 0;
         height: 650px;
       }
 
@@ -48,10 +48,7 @@ main {
       .circuit {
         margin-top: 15px;
 
-        padding: {
-          left: 15px;
-          right: 15px;
-        }
+        padding: 0 5px;
 
         display: grid;
         grid-template-columns: 25px auto;
