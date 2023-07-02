@@ -2,7 +2,12 @@ from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 import random
 
 
-def gen_cc(qc, qr, cr, nCoins):
+def CC(nCoins):
+    n_qubits = nCoins + 1
+    qr = QuantumRegister(n_qubits)
+    cr = ClassicalRegister(n_qubits)
+    qc = QuantumCircuit(qr, cr)
+
     indexOfFalseCoin = random.randint(0, nCoins - 1)
 
     for i in range(nCoins):
@@ -20,15 +25,7 @@ def gen_cc(qc, qr, cr, nCoins):
 
     for i in range(nCoins):
         qc.h(qr[i])
-
-
-def get_cir(nCoins):
-    n_qubits = nCoins + 1
-    qr = QuantumRegister(n_qubits)
-    cr = ClassicalRegister(n_qubits)
-    qc = QuantumCircuit(qr, cr)
-
-    gen_cc(qc, qr, cr, nCoins)
     return qc
 
-qc = get_cir(3)
+
+qc = CC(9)
