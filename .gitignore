@@ -4,6 +4,7 @@ node_modules
 .vscode-test/
 *.vsix
 .lh/
+.vscode/
 *.pyc
 .idea/
 scripts/outputs/
