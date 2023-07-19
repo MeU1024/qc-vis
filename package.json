@@ -264,5 +264,11 @@
     "react-vsc-treeview": "^0.2.3",
     "sass": "^1.58.0",
     "tmp": "^0.2.1"
-  }
+  },
+  "vsce": {
+    "baseImagesUrl": "https://github.com/MeU1024/qc-vis",
+    "dependencies": true,
+    "yarn": false
+  },
+  "repository": "https://github.com/MeU1024/qc-vis"
 }
