@@ -37,12 +37,14 @@ These features combine to provide a powerful visualization approach that facilit
 ### Local
 
 To install and run Quantivine locally, follow these steps:
-1. Clone this repository to your local machine and change to the project root directory in your terminal.
-2. Run `npm install && cd webview-ui && npm install` to install the necessary dependencies.
-3. After the installation is complete, run `cd webview-ui && npm run build` to build the frontend.
-4. Open the project in Visual Studio Code and press `F5` to start.
-
-
+1. Download the `.vsix` file from the [release page](https://github.com/MeU1024/qc-vis/releases).
+2. Open Visual Studio Code and press `Ctrl + Shift + P` to open the command palette.
+3. Search for `Extensions: Install from VSIX` and select it.
+4. From the file picker, choose the downloaded `.vsix` file and install it.
+5. Restart Visual Studio Code to complete the installation.
+   
+Once the installation is complete, you will see the Quantivine icon in the activity bar.
+Quantivine is activated when you open a Python file.
 ### VS Code Market
 
 At the moment, Quantivine is a work in progress and is not ready for publication on the VS Code Market. 
@@ -134,3 +136,12 @@ Please note that these issues are being actively worked on, and we greatly appre
   eprint       = {2307.08969},
 }
 ```
+
+
+## Development
+To develop Quantivine locally, follow these steps:
+1. Clone this repository to your local machine and change to the project root directory in your terminal.
+2. Run `npm install && cd webview-ui && npm install` to install the necessary dependencies.
+3. After the installation is complete, run `cd webview-ui && npm run build` to build the frontend.
+4. Open the project in Visual Studio Code and press `F5` to start.
+   
