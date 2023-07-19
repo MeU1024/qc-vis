@@ -1,6 +1,6 @@
 # Quantivine: A Visualization Approach for Large-scale Quantum Circuit Representation and Analysis
 
-Here is the official implementation of the system in paper ["Quantivine: A Visualization Approach for Large-scale Quantum Circuit Representation and Analysis"]().
+Here is the official implementation of the system in paper ["Quantivine: A Visualization Approach for Large-scale Quantum Circuit Representation and Analysis"](https://doi.org/10.48550/arXiv.2307.08969) (IEEE VIS 2023).
 
 ![features](./images/features.png)
 
@@ -125,6 +125,12 @@ Please note that these issues are being actively worked on, and we greatly appre
                Wei Chen},
   title     = {Quantivine: A Visualization Approach for Large-scale Quantum Circuit Representation and Analysis},
   year      = {2023},
-  doi       = {},
+  journal      = {CoRR},
+  volume       = {abs/2307.08969},
+  year         = {2023},
+  url          = {https://doi.org/10.48550/arXiv.2307.08969},
+  doi          = {10.48550/arXiv.2307.08969},
+  eprinttype    = {arXiv},
+  eprint       = {2307.08969},
 }
 ```
